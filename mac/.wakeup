@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# You can invoke a file
+# bash ~/file
+#
+# But you cannot use variables (i dont know why)
+# and you cannot use outside functions
+
+# Turn on WIFI back 
+networksetup -setairportpower en0 on
+
+# Mute volume not to play accidentaly any stuff when you open your mac
+osascript -e 'set volume with output muted'
