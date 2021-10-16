@@ -23,7 +23,7 @@ fi;
 
 
 LOG_FILE="linux_server_setup.log"
-cat /dev/null > $LOG_FILE
+sudo cat /dev/null > $LOG_FILE
 
 echo -e 'Updating system...'
 if [[ "$RELEASE" == "centos" ]]; then
@@ -31,7 +31,7 @@ if [[ "$RELEASE" == "centos" ]]; then
   . yum_install.sh
 else
   # q quiet
-  apt-get update -y -qq && apt-get upgrade -y -qq
+  sudo apt-get update -y -qq && apt-get upgrade -y -qq
   #. apt_install.sh
 fi
 
