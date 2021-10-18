@@ -24,7 +24,7 @@ fi;
 
 
 LOG_FILE="linux_server_setup.log"
-cat /dev/null > $LOG_FILE
+sudo cat /dev/null > $LOG_FILE
 
 echo -e 'Updating system...'
 if [[ "$RELEASE" == "centos" ]]; then
@@ -70,7 +70,7 @@ apt_install htop
 apt_install nodejs 
 apt_install npm && {
   # Install fx
-  npm install -g fx
+  sudo npm install -g fx
   echo "[+] npm fx"
 } || { 
   echo "[!] npm fx"

@@ -46,6 +46,8 @@ function apt_install() {
 
 
 
+
+
 apt_install zsh
 
 # Switch to zsh as default shell
@@ -68,8 +70,10 @@ apt_install vim
 apt_install htop
 apt_install nodejs 
 apt_install npm && {
+  # If npm will not throw errors delete below line
+  sudo chmod -R a+rw /usr/local/lib # Add read and write permissions for all users
   # Install fx
-  npm install -g fx
+  sudo npm install -g fx
   echo "[+] npm fx"
 } || { 
   echo "[!] npm fx"

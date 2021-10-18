@@ -129,6 +129,15 @@ alias {downloads,donwloads}="cd ~/Downloads"
 
 
 # IP addresses
+# 
+# * 3rd party web-sites to get your IP at shell prompt
+#
+# curl checkip.amazonaws.com
+# curl ifconfig.me
+# curl icanhazip.com
+# curl ipecho.net/plain
+# curl ifconfig.co
+
 alias myip="curl https://ipecho.net/plain; echo"
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 #alias ip="curl -4 icanhazip.com"
