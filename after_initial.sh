@@ -154,6 +154,7 @@ apt_install php-fpm php-mysql
 
 
 # Get the domain name to create a directory structure
+echo ""
 echo "Type your domain name, without http(s) scheme:"
 read domain_name
 
@@ -206,6 +207,55 @@ nginx -t
 systemctl reload nginx
 
 
+
+
+# Create new MySQL user
+echo ""
+echo "Creating new mysql user"
+echo ""
+
+echo "Type username for the new mysql user"
+read db_username
+
+echo ""
+
+echo "Type password for the new mysql user"
+read db_password
+
+
+# TODO(tim): think of copying "${file_templates_dir}/test_mysql_php_connection.sql"
+cp "${file_templates_dir}/test_mysql_php_connection.sql" "${domain_root_dir}/test_mysql_php_connection.sql"
+
+
+# Replace username
+sed -i "s/example_user/${db_username}" "${domain_root_dir}/test_mysql_php_connection.sql"
+# Replace password
+sed -i "s/example_password/${db_password}" "${domain_root_dir}/test_mysql_php_connection.sql"
+
+# Create a user and test database
+mysql -u root < "${domain_root_dir}/test_mysql_php_connection.sql"
+
+# To manually log in to mysql new user and check the records
+#
+# mysql -u example_user -p
+# SHOW DATABASES;
+# SELECT * FROM example_database.todo_list;
+
+
+exit 0
+
+rm "${domain_root_dir}/test_mysql_php_connection.sql"
+
+
+
+
+
+################################################################################
+# Tests
+################################################################################
+
+
+
 # Testing HTML with Nginx
 echo "--> Testing HTML with Nginx"
 # Copy an index.html template to test
@@ -239,48 +289,13 @@ rm "${domain_root_dir}/info.php"
 echo "--> Testing Database Connection from PHP"
 
 
-echo ""
-echo "Creating new mysql user"
-echo ""
-
-echo "Type username for the new mysql user"
-read db_username
-
-echo ""
-
-echo "Type password for the new mysql user"
-read db_password
-
-
-# TODO(tim): think of copying "${file_templates_dir}/test_mysql_php_connection.sql"
-#cp "${file_templates_dir}/test_mysql_php_connection.sql" "${file_templates_dir}/test_mysql_php_connection.sql.bak"
-
-
-# Replace username
-sed -i "s/example_user/${db_username}" "${file_templates_dir}/test_mysql_php_connection.sql"
-# Replace password
-sed -i "s/example_password/${db_password}" "${file_templates_dir}/test_mysql_php_connection.sql"
-
-# Create a user and test database
-mysql -u root < "${file_templates_dir}/test_mysql_php_connection.sql"
-
-# To manually log in to mysql new user and check the records
-#
-# mysql -u example_user -p
-# SHOW DATABASES;
-# SELECT * FROM example_database.todo_list;
-
-
-
-
 # Copy todo_list.php
 cp "${file_templates_dir}/todo_list.php" "${domain_root_dir}/todo_list.php"
 
 # Replace username
-sed -i "s/example_user/${db_username}" "${domain_root_dir}/todo_list.php"
+sed -i "s/example_user/${db_username}/" "${domain_root_dir}/todo_list.php"
 # Replace password
-sed -i "s/example_password/${db_password}" "${domain_root_dir}/todo_list.php"
-
+sed -i "s/example_password/${db_password}/" "${domain_root_dir}/todo_list.php"
 
 
 
@@ -307,3 +322,11 @@ EOF
 press_anything_to_continue
 echo "Removing ${domain_root_dir}/todo_list.php"
 rm "${domain_root_dir}/todo_list.php"
+
+
+
+
+
+
+# To list all MySQL users
+#SELECT user FROM mysql. user
