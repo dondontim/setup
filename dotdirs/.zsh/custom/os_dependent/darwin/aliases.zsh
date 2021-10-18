@@ -1,5 +1,5 @@
 
-
+alias notes="open -a Notes"
 
 alias {r,reopn,reopren}='reopen'
 alias brwe='brew'
