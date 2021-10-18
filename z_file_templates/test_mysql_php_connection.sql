@@ -1,6 +1,6 @@
 CREATE DATABASE example_database;
-CREATE USER 'example_user'@'%' IDENTIFIED WITH mysql_native_password BY 'example_password';
-GRANT ALL ON example_database.* TO 'example_user'@'%';
+CREATE USER 'example_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'example_password';
+GRANT ALL ON example_database.* TO 'example_user'@'localhost';
 
 CREATE TABLE example_database.todo_list (
     item_id INT AUTO_INCREMENT,

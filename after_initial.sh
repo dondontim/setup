@@ -248,7 +248,6 @@ mysql -u root < "${domain_root_dir}/test_mysql_php_connection.sql"
 # SELECT * FROM example_database.todo_list;
 
 
-exit 0
 
 rm "${domain_root_dir}/test_mysql_php_connection.sql"
 
