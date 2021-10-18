@@ -9,14 +9,13 @@
 
 
 
+function update_and_upgrade() {
+  sudo apt-get update -y && sudo apt-get upgrade -y
+}
 
 
 
 
-# Disable welcome message - https://askubuntu.com/a/676381 
-if [ -d "etc/update-motd.d" ]; then 
-  sudo chmod -x /etc/update-motd.d/* 
-fi;
 
 
 
@@ -30,8 +29,7 @@ if [[ "$RELEASE" == "centos" ]]; then
   yum -y -q update
   . yum_install.sh
 else
-  # q quiet
-  sudo apt-get update -y -qq && apt-get upgrade -y -qq
+  update_and_upgrade
   #. apt_install.sh
 fi
 
@@ -59,7 +57,7 @@ apt_install p7zip-full
 apt_install tree
 apt_install python
 apt_install python3
-apt_install python-pip
+#apt_install python-pip # E: Package 'python-pip' has no installation candidate
 apt_install python3-pip
 
 
@@ -92,7 +90,7 @@ apt_install npm && {
 # Enable neovim repository
 sudo add-apt-repository ppa:neovim-ppa/unstable
 
-sudo apt update
+update_and_upgrade
 apt_install neovim 
 
 apt_install colordiff

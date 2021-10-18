@@ -1,3 +1,0 @@
-your-domain.com
-www.your-domain.com
-subdomain.your-domain.com

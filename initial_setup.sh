@@ -15,12 +15,12 @@
 #   -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
 
 
-
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Initial commands
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #
 # sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
 # git clone https://github.com/dondontim/setup.git && cd setup
-
 
 # This need to be run as root!
 if [[ $EUID -ne 0 ]]; then
@@ -103,6 +103,12 @@ init
 remote_machine_public_ip=$(curl https://ipecho.net/plain; echo)
 sshd_config='/etc/ssh/sshd_config'
 file_templates_dir="${PWD}/z_file_templates"
+
+
+# Disable welcome message - https://askubuntu.com/a/676381 
+if [ -d "etc/update-motd.d" ]; then 
+  sudo chmod -x /etc/update-motd.d/* 
+fi;
 
 
 # if ! [ -f $HOME/domains_for_ssl.txt ]; then
