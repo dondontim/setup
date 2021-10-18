@@ -211,16 +211,22 @@ systemctl reload nginx
 
 # Create new MySQL user
 echo ""
-echo "Creating new mysql user"
+echo "--> Creating new mysql user"
 echo ""
 
-echo "Type username for the new mysql user"
-read db_username
+read -p "Username: " db_username
 
 echo ""
 
-echo "Type password for the new mysql user"
-read db_password
+while true; do
+  read -s -p "Password: " db_password
+  echo
+  read -s -p "Password (again): " db_password2
+  echo
+  [ "$db_password" = "$db_password2" ] && break
+  echo "Please try again"
+done
+
 
 
 # TODO(tim): think of copying "${file_templates_dir}/test_mysql_php_connection.sql"
