@@ -98,34 +98,41 @@ echo "--> Done"
 # PasswordAuthentication enabled. So ask user here to create his SSH keys and
 # run ssh-copy-id someuser@<my-ip> or copy paste here
 
-echo "Copy and paste below command on your local machine"
-echo "This will create your ssh private and public key and copy to clipboard the public key:"
+# echo "Copy and paste below command on your local machine"
+# echo "This will create your ssh private and public key and copy to clipboard the public key:"
+# echo ""
+# echo "ssh-keygen && cat ~/.ssh/id_rsa.pub | tr -d '\n' | pbcopy && echo '\n--> Copied to clipboard'"
+# # TODO(tim): make check for OS and their copy command
+# echo ""
+# echo "If you execute above command then copy and paste it here using CTRL + V and press Enter"
+# 
+# read public_key_string
+# 
+# # Create dir if not exists
+# [ -d "${new_user_home}/.ssh" ] || mkdir -p "${new_user_home}/.ssh"
+# 
+# # Push the passed ssh public key to authorized
+# echo "$public_key_string" >> "${new_user_home}/.ssh/authorized_keys"
+# 
+# # Set appropriate permissions
+# #
+# # It’s important that the ~/.ssh directory belongs to the user and not to root:
+# chown -R "$user_to_create":"$user_to_create" "${new_user_home}/.ssh"
+# #chmod -R go= ~/.ssh # This recursively removes all “group” and “other” permissions for the ~/.ssh/ directory.
+
+
+
+remote_machine_public_ip=$(curl https://ipecho.net/plain; echo)
+
+
 echo ""
-echo "sh-keygen && cat ~/.ssh/id_rsa.pub | tr -d '\n' | pbcopy && echo '\n-->Copied to clipboard'"
-# TODO(tim): make check for OS and their copy command
-echo ""
-echo "If you execute above command then copy and paste it here using CTRL + V and press Enter"
-
-read public_key_string
-
-# Create dir if not exists
-[ -d "${new_user_home}/.ssh" ] || mkdir -p "${new_user_home}/.ssh"
-
-# Push the passed ssh public key to authorized
-echo "$public_key_string" >> "${new_user_home}/.ssh/authorized_keys"
-
-# Set appropriate permissions
-#
-# It’s important that the ~/.ssh directory belongs to the user and not to root:
-chown -R "$user_to_create":"$user_to_create" "${new_user_home}/.ssh"
-#chmod -R go= ~/.ssh # This recursively removes all “group” and “other” permissions for the ~/.ssh/ directory.
+echo "Run:"
+# TODO(tim): check in /etc/ssh/sshd_config for port number
+echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p 7822"
 
 
-
-
-
-
-
+echo "press enter if you are good"
+read tmp_enter_to_continue
 
 
 
