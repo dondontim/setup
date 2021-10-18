@@ -32,6 +32,13 @@ function ufw_allow() {
   sudo ufw allow "$@"
 }
 
+function press_anything_to_continue() {
+  read -n 1 -s -r -p "Press any key to continue"
+  # -n defines the required character count to stop reading
+  # -s hides the user's input
+  # -r causes the string to be interpreted "raw" (without considering backslash escapes)
+}
+
 
 init() {
   # check release
@@ -60,6 +67,8 @@ init
 # https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-ubuntu-20-04
 
 
+file_templates_dir="${PWD}/z_file_templates"
+
 update_and_upgrade
 
 
@@ -83,10 +92,10 @@ else
   # On Debian/Ubuntu
   systemctl disable apache2 && systemctl stop apache2
 
-  apt-get purge apache2 apache2-utils 
+  apt-get purge -y apache2 apache2-utils 
   
-  apt-get purge apache2-bin apache2.2-bin
-  apt-get purge apache2-common apache2.2-common
+  apt-get purge -y apache2-bin apache2.2-bin
+  apt-get purge -y apache2-common apache2.2-common
 
   # Get rid of other dependencies of unexisting packages
   apt-get autoremove
@@ -145,6 +154,7 @@ apt_install php-fpm php-mysql
 
 
 # Get the domain name to create a directory structure
+echo "Type your domain name, without http(s) scheme:"
 read domain_name
 
 
@@ -154,23 +164,26 @@ read domain_name
 #
 # It is better and easier to manage multiple domains on one server that way
 
-# Create the root web directory for 'your_domain' as follows:
-mkdir "/var/www/${domain_name}"
+domain_root_dir="/var/www/${domain_name}"
+
+# Create the root web directory for 'your_domain' if not exists:
+[ -d "$domain_root_dir" ] || mkdir "$domain_root_dir"
+
 
 # Next, assign ownership of the directory with the $USER environment variable,
 # which will reference your current system user:
 echo "$ USER = $USER"
-echo "Type username which have to be owner to /var/www/${domain_name}"
+echo "Type username which have to be owner to ${domain_root_dir}"
 read username
 
-chown -R $username:$username "/var/www/${domain_name}"
+chown -R $username:$username "$domain_root_dir"
 
 
 
-# Move already created example nginx configuration to /etc/nginx/sites-available/your_domain
-mv "$PWD/z_file_templates/nginx_your_domain" "/etc/nginx/sites-available/${domain_name}"
+# Copy already created example nginx configuration to /etc/nginx/sites-available/your_domain
+cp "${file_templates_dir}/nginx_your_domain" "/etc/nginx/sites-available/${domain_name}"
 
-# Replace above file contents
+# Replace in above file 'your_domain' to passed $domain_name
 sed -i "s/your_domain/${domain_name}/" "/etc/nginx/sites-available/${domain_name}"
 # -i option is used to modify the content of the original file.
 #  s indicates the substitute command.
@@ -192,9 +205,105 @@ nginx -t
 # If everything is correct reload Nginx
 systemctl reload nginx
 
-# Move an index.html template to test
-mv "$PWD/z_file_templates/index.html" "/var/www/${domain_name}/index.html"
+
+# Testing HTML with Nginx
+echo "--> Testing HTML with Nginx"
+# Copy an index.html template to test
+cp "${file_templates_dir}/index.html" "${domain_root_dir}/index.html"
 
 
 echo "--> Done"
-echo "Now visit: http://server_domain_or_IP"
+echo "Now visit: http://${domain_name}"
+press_anything_to_continue
+echo "Removing ${domain_root_dir}/index.html"
+rm "${domain_root_dir}/index.html"
+
+
+
+
+# Testing PHP with Nginx
+echo "--> Testing PHP with Nginx"
+printf "<?php\nphpinfo();" > "${domain_root_dir}/info.php"
+
+
+echo "--> Done"
+echo "Now visit: http://${domain_name}/info.php"
+press_anything_to_continue
+echo "Removing ${domain_root_dir}/info.php"
+rm "${domain_root_dir}/info.php"
+
+
+
+
+# Testing Database Connection from PHP
+echo "--> Testing Database Connection from PHP"
+
+
+echo ""
+echo "Creating new mysql user"
+echo ""
+
+echo "Type username for the new mysql user"
+read db_username
+
+echo ""
+
+echo "Type password for the new mysql user"
+read db_password
+
+
+# TODO(tim): think of copying "${file_templates_dir}/test_mysql_php_connection.sql"
+#cp "${file_templates_dir}/test_mysql_php_connection.sql" "${file_templates_dir}/test_mysql_php_connection.sql.bak"
+
+
+# Replace username
+sed -i "s/example_user/${db_username}" "${file_templates_dir}/test_mysql_php_connection.sql"
+# Replace password
+sed -i "s/example_password/${db_password}" "${file_templates_dir}/test_mysql_php_connection.sql"
+
+# Create a user and test database
+mysql -u root < "${file_templates_dir}/test_mysql_php_connection.sql"
+
+# To manually log in to mysql new user and check the records
+#
+# mysql -u example_user -p
+# SHOW DATABASES;
+# SELECT * FROM example_database.todo_list;
+
+
+
+
+# Copy todo_list.php
+cp "${file_templates_dir}/todo_list.php" "${domain_root_dir}/todo_list.php"
+
+# Replace username
+sed -i "s/example_user/${db_username}" "${domain_root_dir}/todo_list.php"
+# Replace password
+sed -i "s/example_password/${db_password}" "${domain_root_dir}/todo_list.php"
+
+
+
+
+echo "--> Done"
+echo "Now visit: http://${domain_name}/todo_list.php"
+
+cat << EOF
+
+And if you see this:
+
+TODO
+
+  1. My 1st important item
+  2. My 2nd important item
+  3. My 3rd important item
+  4. and this one more thing
+
+
+That means your PHP environment is ready to connect and interact with your MySQL server.
+
+EOF
+
+
+press_anything_to_continue
+echo "Removing ${domain_root_dir}/todo_list.php"
+rm "${domain_root_dir}/todo_list.php"

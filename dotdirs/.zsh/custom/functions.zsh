@@ -19,8 +19,13 @@ function mkdircd mkcd mkd () {
 }
 
 
-function erase_file erase_a_file() {
+function erasef erasefile erase_file erase_a_file() {
+  # TODO(tim): Check if is a file and not empty if empty prompt it!
   cat /dev/null > "$@"
+}
+
+function erased erasedir erase_dir erase_a_dir() {
+  # TODO(tim): check if argument is directory if yes do rm -r /path/to/dir/*
 }
 
 

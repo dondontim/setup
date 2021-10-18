@@ -134,7 +134,7 @@ echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p
 echo "press enter if you are good"
 read tmp_enter_to_continue
 
-
+# TODO(tim): add here check if the ~/.ssh/authorized_keys exist
 
 
 
@@ -243,3 +243,13 @@ echo ""
 echo "Authenticating to Your Ubuntu Server Using SSH Keys"
 echo "Now you should logout and connect again now using SSH keys"
 echo "Finished!"
+
+
+
+
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
