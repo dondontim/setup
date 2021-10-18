@@ -219,9 +219,9 @@ read -p "Username: " db_username
 echo ""
 
 while true; do
-  read -s -p "Password: " db_password
+  read -s -p "New password: " db_password
   echo
-  read -s -p "Password (again): " db_password2
+  read -s -p "New password (again): " db_password2
   echo
   [ "$db_password" = "$db_password2" ] && break
   echo "Please try again"

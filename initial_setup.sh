@@ -46,6 +46,7 @@ function press_anything_to_continue() {
   # -n defines the required character count to stop reading
   # -s hides the user's input
   # -r causes the string to be interpreted "raw" (without considering backslash escapes)
+  echo ""
 }
 
 

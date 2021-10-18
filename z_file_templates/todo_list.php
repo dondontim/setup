@@ -1,6 +1,6 @@
 <?php
 $user = "example_user";
-$password = "exaple_password";
+$password = "example_password";
 $database = "example_database";
 $table = "todo_list";
 
