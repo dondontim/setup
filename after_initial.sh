@@ -228,9 +228,9 @@ cp "${file_templates_dir}/test_mysql_php_connection.sql" "${domain_root_dir}/tes
 
 
 # Replace username
-sed -i "s/example_user/${db_username}" "${domain_root_dir}/test_mysql_php_connection.sql"
+sed -i "s/example_user/${db_username}/" "${domain_root_dir}/test_mysql_php_connection.sql"
 # Replace password
-sed -i "s/example_password/${db_password}" "${domain_root_dir}/test_mysql_php_connection.sql"
+sed -i "s/example_password/${db_password}/" "${domain_root_dir}/test_mysql_php_connection.sql"
 
 # Create a user and test database
 mysql -u root < "${domain_root_dir}/test_mysql_php_connection.sql"
@@ -329,4 +329,11 @@ rm "${domain_root_dir}/todo_list.php"
 
 
 # To list all MySQL users
-#SELECT user FROM mysql. user
+# SELECT User,Host FROM mysql.user;
+
+
+# List grants for a mysql user
+# SHOW GRANTS FOR 'bloguser'@'localhost';
+
+
+#DROP USER 'bloguser'@'localhost';
