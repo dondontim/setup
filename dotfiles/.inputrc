@@ -38,3 +38,17 @@ set convert-meta off
 
 # Use Alt/Meta + Delete to delete the preceding word
 "\e[3;3~": kill-word
+
+
+
+##
+# This is my custom from here
+##
+
+#set enable-bracketed-paste on
+
+# When set to `On', Readline will configure the terminal in a way that
+# will enable it to insert each paste into the editing buffer 
+# as a single string of characters, instead of treating each character 
+# as if it had been read from the keyboard. This can prevent pasted characters
+# from being interpreted as editing commands. The default is `On'.

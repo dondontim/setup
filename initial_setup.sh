@@ -100,7 +100,9 @@ echo "--> Done"
 
 echo "Copy and paste below command on your local machine"
 echo "This will create your ssh private and public key and copy to clipboard the public key:"
-echo "ssh-keygen && cat ~/.ssh/id_rsa.pub | pbcopy && echo 'Copied to clipboard'"
+echo ""
+echo "sh-keygen && cat ~/.ssh/id_rsa.pub | tr -d '\n' | pbcopy && echo '\n-->Copied to clipboard'"
+# TODO(tim): make check for OS and their copy command
 echo ""
 echo "If you execute above command then copy and paste it here using CTRL + V and press Enter"
 
@@ -121,5 +123,6 @@ chown -R "$user_to_create":"$user_to_create" "${new_user_home}/.ssh"
 
 
 echo ""
+echo "Authenticating to Your Ubuntu Server Using SSH Keys"
 echo "logout and login once again with ssh key"
 echo "Finished!"

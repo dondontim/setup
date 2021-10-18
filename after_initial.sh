@@ -32,6 +32,28 @@ function ufw_allow() {
   sudo ufw allow "$@"
 }
 
+
+init() {
+  # check release
+  if [ -f /etc/redhat-release ]; then
+      RELEASE="centos"
+  elif cat /etc/issue | grep -Eqi "debian"; then
+      RELEASE="debian"
+  elif cat /etc/issue | grep -Eqi "ubuntu"; then
+      RELEASE="ubuntu"
+  elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+      RELEASE="centos"
+  elif cat /proc/version | grep -Eqi "debian"; then
+      RELEASE="debian"
+  elif cat /proc/version | grep -Eqi "ubuntu"; then
+      RELEASE="ubuntu"
+  elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+      RELEASE="centos"
+  fi
+}
+
+init
+
 ################################################################################
 # Install Linux, Nginx, MySQL, PHP (LEMP stack)                                #
 ################################################################################
@@ -41,7 +63,43 @@ function ufw_allow() {
 update_and_upgrade
 
 
-# TODO(tim): stop and remove apache2 if present
+### Stop, remove apache2 and all dependencies
+# TODO(tim): check if apache2 is present
+if [[ "$RELEASE" == "centos" ]]; then
+  # On RHEL/CentOS/Oracle/Fedora Linux.
+  systemctl disable httpd && systemctl stop httpd
+
+  # Remove the installed httpd packages
+  yum remove "httpd*" -y
+  # Remove the Document root directory
+  #rm -rf /var/www
+  # Remove the Configuration Files
+  rm -rf /etc/httpd
+  # Remove the Supporing files and httpd modules
+  rm -rf /usr/lib64/httpd
+  # delete the Apache user
+  userdel -r apache
+else
+  # On Debian/Ubuntu
+  systemctl disable apache2 && systemctl stop apache2
+
+  apt-get purge apache2 apache2-utils 
+  
+  apt-get purge apache2-bin apache2.2-bin
+  apt-get purge apache2-common apache2.2-common
+
+  # Get rid of other dependencies of unexisting packages
+  apt-get autoremove
+
+  # Remove the Configuration Files
+  rm -rf /etc/apache2 
+  # Remove the Supporing files and httpd modules # /usr/lib/apache2/modules
+  rm -rf /usr/lib/apache2
+
+fi
+
+
+
 
 # Installing the Nginx Web Server
 apt_install nginx
