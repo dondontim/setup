@@ -97,7 +97,7 @@ function bt_status() {
 }
 
 # Disconnects and connects my headset in case of a lag
-function jbl_reconnect bt_reconnect () {
+function jbl_re jbl_reload jbl_reconnect bt_reconnect () {
   local return_code
 
   jbl_status

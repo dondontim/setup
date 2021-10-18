@@ -28,6 +28,11 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+if ! [ $PWD = "/root/setup" ]; then
+  echo "This script must be invoked from /root/setup"
+  exit 1
+fi
+
 
 function command_exists() {
   command -v "$@" >/dev/null 2>&1
@@ -94,7 +99,38 @@ init
 # https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04  
 
 
-echo "--> Creating New User"
+# TODO(tim): collect all variables on the top of script
+remote_machine_public_ip=$(curl https://ipecho.net/plain; echo)
+sshd_config='/etc/ssh/sshd_config'
+file_templates_dir="${PWD}/z_file_templates"
+
+
+# if ! [ -f $HOME/domains_for_ssl.txt ]; then
+#   echo "~/domains_for_ssl.txt is missing for configuration."
+#   echo "--> Creating one in $HOME/domains_for_ssl.txt"
+#   cp "${file_templates_dir}/domains_for_ssl.txt" "$HOME/domains_for_ssl.txt"
+#   echo "--> Done"
+#   echo ""
+#   echo "Replace the file contents with the domain names you’d like the certificate to be valid for."
+#   exit 1
+# fi
+
+
+
+
+
+cat <<EOF
+--> Info!
+During installation you will be asked for username/password combination for:
+1. User with sudo access
+2. MySQL root user
+3. MySQL regular user
+
+EOF
+
+
+
+echo "--> Creating New User with sudo priviledges"
 echo "Type username you want to create:"
 echo "or press CTRL + C to quit"
 echo -n ">>>"
@@ -124,19 +160,19 @@ install_nonexisting_command ufw
 ufw default deny incoming
 ufw default allow outgoing
 # Allowing SSH Connections
-ufw allow OpenSSH
+ufw_allow OpenSSH
 
-ufw allow 22
+ufw_allow 22
 
-ufw allow 7822 # custom port for ssh and sftp
+ufw_allow 7822 # custom port for ssh and sftp
 
 # Allowing HTTP 
-ufw allow 80 # http
+ufw_allow 80 # http
 
-ufw allow 443 # https
+ufw_allow 443 # https
 
 # Allowing file transfer
-ufw allow 21 # ftp
+ufw_allow 21 # ftp
 
 # As SFTP runs as a subsystem of SSH it runs on whatever port 
 # the SSH daemon is listening on and that is administrator configurable.
@@ -183,7 +219,7 @@ echo "--> Done"
 
 
 
-remote_machine_public_ip=$(curl https://ipecho.net/plain; echo)
+
 
 
 echo ""
@@ -204,7 +240,7 @@ read tmp_enter_to_continue
 
 
 
-sshd_config='/etc/ssh/sshd_config'
+
 
 echo "--> Copying ${sshd_config} to ${sshd_config}.bak"
 sudo cp "${sshd_config}" "${sshd_config}.bak"
@@ -331,7 +367,7 @@ press_anything_to_continue
 # https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-on-ubuntu-20-04
 
 
-file_templates_dir="${PWD}/z_file_templates"
+
 
 update_and_upgrade
 
@@ -378,8 +414,10 @@ fi
 apt_install nginx
 
 ufw_allow 'Nginx Full'
-ufw_allow 'Nginx HTTP'
-ufw_allow 'Nginx HTTPS'
+ufw delete allow 'Nginx HTTP'
+ufw delete allow 'Nginx HTTPS'
+#ufw_allow 'Nginx HTTP'
+#ufw_allow 'Nginx HTTPS'
 
 
 
@@ -490,7 +528,7 @@ echo ""
 while true; do
   read -s -p "New password: " db_password
   echo
-  read -s -p "New password (again): " db_password2
+  read -s -p "Retype new password: " db_password2
   echo
   [ "$db_password" = "$db_password2" ] && break
   echo "Please try again"
@@ -611,3 +649,98 @@ rm "${domain_root_dir}/todo_list.php"
 
 
 #DROP USER 'bloguser'@'localhost';
+
+
+
+
+
+################################################################################
+# Secure Nginx with Let's Encrypt                                              #
+################################################################################
+# https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-20-04
+
+# Installing Certbot
+apt_install certbot python3-certbot-nginx
+
+# Confirming Nginx’s Configuration
+#
+# Certbot needs to be able to find the correct server block in your Nginx
+# configuration for it to be able to automatically configure SSL. 
+# Specifically, it does this by looking for a server_name directive 
+# that matches the domain you request a certificate for.
+
+
+# TODO(tim): in /etc/nginx/nginx.conf set server_names_hash_bucket_size 64;
+
+
+
+### Server Configuration
+#
+# * /etc/nginx: 
+#     The Nginx configuration directory. 
+#     All of the Nginx configuration files reside here.
+# * /etc/nginx/nginx.conf: 
+#     The main Nginx configuration file. 
+#     This can be modified to make changes to the Nginx global configuration.
+# * /etc/nginx/sites-available/: 
+#     The directory where per-site server blocks can be stored. 
+#     Nginx will not use the configuration files found in this directory unless they are linked to the sites-enabled directory. Typically, all server block configuration is done in this directory, and then enabled by linking to the other directory.
+# * /etc/nginx/sites-enabled/: 
+#     The directory where enabled per-site server blocks are stored. 
+#     Typically, these are created by linking to configuration files found in the sites-available directory.
+# * /etc/nginx/snippets: 
+#     This directory contains configuration fragments
+#     that can be included elsewhere in the Nginx configuration. 
+#     Potentially repeatable configuration segments are good candidates into snippets.
+
+
+
+
+# Obtaining an SSL Certificate
+cat <<EOF
+
+Obtaining an SSL Certificate for:
+1. $domain_name
+1. www.${domain_name}
+
+If this is your first time running certbot, you will be prompted to
+enter an email address and agree to the terms of service.
+
+After doing so, certbot will communicate with the Let’s Encrypt server, 
+then run a challenge to verify that you control the domain you’re requesting a certificate for.
+
+PS Choose not to change configuration
+
+EOF
+
+
+sudo certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
+# the domain names we’d like the certificate to be valid for.
+
+
+
+echo ""
+echo "Visit SSL Labs Server Test, it will get an A grade."
+echo "https://www.ssllabs.com/ssltest/analyze.html?d=${domain_name}"
+echo ""
+
+
+
+# Verifying Certbot Auto-Renewal
+
+# You can query the status of the timer with systemctl:
+#sudo systemctl status certbot.timer
+
+# To test the renewal process, you can do a dry run with certbot:
+echo "Testing renewal process (dry run)"
+sudo certbot renew --dry-run
+
+cat <<EOF
+
+If you see no errors, you’re all set.
+
+If the automated renewal process ever fails, 
+Let’s Encrypt will send a message to the email you specified, 
+warning you when your certificate is about to expire.
+
+EOF
