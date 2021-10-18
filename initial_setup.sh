@@ -492,9 +492,14 @@ chown -R $username:$username "$domain_root_dir"
 cp "${file_templates_dir}/nginx_your_domain" "/etc/nginx/sites-available/${domain_name}"
 
 # Replace in above file 'your_domain' to passed $domain_name
+#
+# NOTE(tim): unfortunately it replaces only 2 of 3 ocurrencies 
+# because of www.your_domain prefix. So we need to run 2 line of replacing
 sed -i "s/your_domain/${domain_name}/" "/etc/nginx/sites-available/${domain_name}"
+sed -i "s/www\.your_domain/www.${domain_name}/" "/etc/nginx/sites-available/${domain_name}"
 # -i option is used to modify the content of the original file.
 #  s indicates the substitute command.
+
 
 
 # Activate your configuration by linking to the config file from Nginx’s sites-enabled directory:
