@@ -2,13 +2,9 @@
 #
 # Create new (sudo) user, setup firewall, manage SSH keys
 
-# Initial commands
 
 # Updates, upgrades the packages, removes unused packages, then removes old versions of packages.
 # apt-get update && apt-get upgrade -y && apt-get autoremove && apt-get autoclean
-# apt-get install -y git curl
-# git clone https://github.com/dondontim/setup.git && cd setup
-
 
 # apt update -y && apt upgrade -y && apt install -y git curl
 # OR BELOW
@@ -19,6 +15,11 @@
 #   -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
 
 
+
+# Initial commands
+#
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
+# git clone https://github.com/dondontim/setup.git && cd setup
 
 
 # This need to be run as root!
@@ -487,9 +488,9 @@ read -p "Username: " db_username
 echo ""
 
 while true; do
-  read -s -p "Password: " db_password
+  read -s -p "New password: " db_password
   echo
-  read -s -p "Password (again): " db_password2
+  read -s -p "New password (again): " db_password2
   echo
   [ "$db_password" = "$db_password2" ] && break
   echo "Please try again"
