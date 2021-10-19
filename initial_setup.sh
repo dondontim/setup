@@ -21,6 +21,7 @@
 #
 # sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
 # git clone https://github.com/dondontim/setup.git && cd setup
+# bash initial_setup.sh |& tee /root/initial_setup.log
 
 # This need to be run as root!
 if [[ $EUID -ne 0 ]]; then
@@ -28,7 +29,7 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-if ! [ $PWD = "/root/setup" ]; then
+if ! [ "$PWD" = "/root/setup" ]; then
   echo "This script must be invoked from /root/setup"
   exit 1
 fi
@@ -107,7 +108,7 @@ file_templates_dir="${PWD}/z_file_templates"
 
 # Disable welcome message - https://askubuntu.com/a/676381 
 if [ -d "etc/update-motd.d" ]; then 
-  sudo chmod -x /etc/update-motd.d/* 
+  chmod -x /etc/update-motd.d/* 
 fi;
 
 
@@ -142,8 +143,8 @@ echo "or press CTRL + C to quit"
 echo -n ">>>"
 read user_to_create
 
-# set new user home path variable
-new_user_home="/home/${user_to_create}"
+# set new user home path variable (IT IS UNUSED FOR NOW)
+#new_user_home="/home/${user_to_create}"
 
 # Create a new user
 adduser "$user_to_create"
@@ -234,8 +235,8 @@ echo "Run:"
 echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p 7822"
 
 
-echo "press enter if you are good"
-read tmp_enter_to_continue
+press_anything_to_continue
+
 
 # TODO(tim): add here check if the ~/.ssh/authorized_keys exist
 
@@ -249,15 +250,15 @@ read tmp_enter_to_continue
 
 
 echo "--> Copying ${sshd_config} to ${sshd_config}.bak"
-sudo cp "${sshd_config}" "${sshd_config}.bak"
+cp "${sshd_config}" "${sshd_config}.bak"
 echo "--> Done"
 
 
 echo "--> Disabling Password Authentication"
 
-echo "PasswordAuthentication no" >> "$sshd_config"
-echo "PermitEmptyPasswords no"   >> "$sshd_config"
-echo "PermitRootLogin no"        >> "$sshd_config" # PermitRootLogin without-password
+# Append to sshd_config some directives
+{ echo "PasswordAuthentication no"; echo "PermitEmptyPasswords no"; echo "PermitRootLogin no"; } >> "$sshd_config"
+# alternative: PermitRootLogin without-password
 
 
 # Use more cryptographicaly secure protocol
@@ -301,7 +302,7 @@ echo "PermitRootLogin no"        >> "$sshd_config" # PermitRootLogin without-pas
 # Restart ssh
 echo ""
 echo "--> Restarting ssh"
-sudo systemctl restart ssh # sshd on other distros than debian/ubuntu
+systemctl restart ssh # sshd on other distros than debian/ubuntu
 
 
 
@@ -403,6 +404,8 @@ else
   apt-get purge -y apache2-bin apache2.2-bin
   apt-get purge -y apache2-common apache2.2-common
 
+  apt-get purge apache2*
+
   # Get rid of other dependencies of unexisting packages
   apt-get autoremove
 
@@ -490,7 +493,7 @@ domain_root_dir="/var/www/${domain_name}"
 
 username="$user_to_create"
 
-chown -R $username:$username "$domain_root_dir"
+chown -R "$username":"$username" "$domain_root_dir"
 
 
 
@@ -516,7 +519,7 @@ unlink /etc/nginx/sites-enabled/default
 
 # Note: If you ever need to restore the default configuration, 
 # you can do so by recreating the symbolic link, like this:
-#   sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+#   ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 echo "Testing configuration for syntax errors..."
 nginx -t
 
@@ -725,7 +728,7 @@ PS Choose not to change configuration
 EOF
 
 
-sudo certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
+certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
 # the domain names we’d like the certificate to be valid for.
 
 
@@ -740,11 +743,11 @@ echo ""
 # Verifying Certbot Auto-Renewal
 
 # You can query the status of the timer with systemctl:
-#sudo systemctl status certbot.timer
+#systemctl status certbot.timer
 
 # To test the renewal process, you can do a dry run with certbot:
 echo "Testing renewal process (dry run)"
-sudo certbot renew --dry-run
+certbot renew --dry-run
 
 cat <<EOF
 
@@ -755,3 +758,248 @@ Let’s Encrypt will send a message to the email you specified,
 warning you when your certificate is about to expire.
 
 EOF
+
+
+
+
+
+
+
+
+################################################################################
+# Install and Secure phpMyAdmin with Nginx                                     #
+################################################################################
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-with-nginx-on-an-ubuntu-20-04-server
+
+
+echo "--> Updating packages"
+update_and_upgrade
+
+
+
+cat <<EOF
+
+--> Installing phpMyAdmin...
+
+1. During the installation process, you will be prompted to choose a web server
+   (either Apache or Lighttpd) to configure.
+   However, because you are using Nginx as a web server you shouldn’t choose either of these options. 
+-->Instead press 'TAB' to highlight the '<Ok>' and then press 'ENTER' to continue the installation process.
+
+2. Next, you’ll be prompted whether to use dbconfig-common for configuring the application database. 
+-->Select <Yes>.
+   This will set up the internal database and administrative user for phpMyAdmin. 
+   You will be asked to define a new password for the phpmyadmin MySQL user, 
+-->but because this isn’t a password you need to remember you can leave it blank and let phpMyAdmin randomly create a password.
+EOF
+
+press_anything_to_continue
+
+# Installing phpMyAdmin
+apt_install phpmyadmin
+
+
+
+### Changing phpMyAdmin’s Default Location
+
+# One way to protect your phpMyAdmin installation is by making it harder to find. 
+# Bots will scan for common paths, like /phpmyadmin, /pma, /admin, /mysql, and other similar names. 
+# Changing the interface’s URL from /phpmyadmin to something non-standard will 
+# make it much harder for automated scripts to find your phpMyAdmin installation
+# and attempt brute-force attacks.
+
+
+
+# Create a symbolic link from the installation files to Nginx’s document root directory
+ln -s /usr/share/phpmyadmin "/var/www/${domain_name}/cocietokurwaobchodzicotutajjest"
+
+
+echo ""
+echo "Now you can visit and login with your regular MySQL credentials"
+echo "https://${domain_name}/cocietokurwaobchodzicotutajjest"
+echo ""
+
+press_anything_to_continue
+
+# Disabling Root Login
+
+
+# Because you selected dbconfig-common to configure and store phpMyAdmin settings, 
+# the application’s default configuration is currently stored within your MySQL database. 
+# You’ll need to create a new config.inc.php file in phpMyAdmin’s configuration directory
+# to define your custom settings. Even though phpMyAdmin’s PHP scripts are located
+# inside the /usr/share/phpmyadmin directory, the application’s 
+# configuration files are located in /etc/phpmyadmin.
+
+
+
+# Create a new custom settings file inside the /etc/phpmyadmin/conf.d directory and name it pma_secure.php:
+cp "${file_templates_dir}/pma_secure.php" /etc/phpmyadmin/conf.d/pma_secure.php
+
+
+
+# Note: If the passphrase you enter here is shorter than 32 characters in length, 
+# it will result in the encrypted cookies being less secure. 
+# Entering a string longer than 32 characters, though, won’t cause any harm.
+
+# To generate a truly random string of characters, use pwgen
+apt_install pwgen
+
+# By default, pwgen creates easily pronounceable, though less secure, passwords. 
+# However, by including the -s flag, as in the following command, 
+# you can create a completely random, difficult-to-memorize password.
+random_string=$(pwgen -s 32 1)
+
+# Replace
+sed -i "s/CHANGE_THIS_TO_A_STRING_OF_32_RANDOM_CHARACTERS/${random_string}/" /etc/phpmyadmin/conf.d/pma_secure.php 
+
+
+
+
+
+
+
+
+
+### Creating an Authentication Gateway
+echo "--> Creating an Authentication Gateway"
+#
+# By completing this step, anyone who tries to access your phpMyAdmin 
+# installation’s login screen will first be required to pass through
+# an HTTP authentication prompt by entering a valid username and password.
+#
+# In addition to providing an extra layer of security, this gateway
+# will help keep your MySQL logs clean of spammy authentication attempts.
+
+
+echo ""
+echo "--> Creating pma_pass file"
+echo "--> Enter username and password you will need to access phpMyAdmin"
+echo "Username doesn’t need to be the name of an existing user profile on your Ubuntu server or that of a MySQL user."
+echo ""
+
+read -p "Username: " pma_username
+
+echo ""
+
+# First you need to create a password file to store the authentication credentials.
+# Nginx requires that passwords be encrypted using the crypt() function.
+
+# Create an encrypted password
+pma_password=$(openssl passwd)
+
+# In this file, specify the username you would like to use, 
+# followed by a colon (:) and then the encrypted version of the password 
+# you received from the openssl passwd utility. Example: 'sammy:9YHV.p60.Cg6I'
+echo "${pma_username}:${pma_password}" > /etc/nginx/pma_pass
+
+
+
+
+
+# Remove current nginx domain config file
+rm "/etc/nginx/sites-available/${domain_name}"
+
+# Copy version 2 with PMA Authentication Gateway added
+cp "${file_templates_dir}/example_nginx_config_v2" "/etc/nginx/sites-available/${domain_name}"
+ 
+# Locate the server block, and the location / section within it. 
+# You need to create a new location section below this location / block 
+# to match phpMyAdmin’s current path on the server.
+
+# You don’t need to include the full file path, just the name of the symbolic link
+# relative to the Nginx document root directory:
+
+
+
+# Within this block, set up two directives: 
+# 1. auth_basic, which defines the message that will be displayed on the authentication prompt, 
+# 2. auth_basic_user_file, pointing to the authentication file you just created.
+
+
+# NOTE: In Nginx configuration files, 
+# regular expression definitions have a higher precedence over standard location definitions. 
+
+# This means that if you we don’t use the ^~ selector at the beginning of the location, 
+# users will still be able to bypass the authentication prompt 
+# by navigating to http://server_domain_or_ip/hiddenlink/index.php in their browser.
+
+# The ^~ selector at the beginning of the location definition tells Nginx
+# to ignore other matches when it finds a match for this location. 
+# This means that any subdirectories or files within /hiddenlink/ will be matched with this rule.
+
+# However, because the definition to parse PHP files will be skipped 
+# as a result of the ^~ selector usage, we’ll need to include a new PHP location block
+# inside the /hiddenlink definition. This will make sure PHP files inside this location
+# are properly parsed; otherwise they will be sent to the browser as download content.
+
+
+# location ^~ /cocietokurwaobchodzicotutajjest/ {
+#   auth_basic "Admin Login";
+#   auth_basic_user_file /etc/nginx/pma_pass;
+# 
+#   location ~ \.php$ {
+#     include snippets/fastcgi-php.conf;
+#     fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+#   }
+# }
+
+# TODO(tim): You should also double check the location of your PHP-FPM socket file
+
+
+
+
+# Test the configuration
+nginx -t
+
+# To activate the new authentication gate, reload Nginx:
+systemctl reload nginx
+
+
+
+### To ad additional phpMyAdmin security: TODO(tim):
+#
+# Setting Up Access via Encrypted Tunnels
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-with-nginx-on-an-ubuntu-20-04-server#step-5-—-setting-up-access-via-encrypted-tunnels
+
+
+
+
+
+
+
+echo "exiting before webuzo"
+exit 0
+
+
+# Install webuzo
+
+# Donwload Webuzo installation script
+wget http://files.webuzo.com/install.sh
+chmod 700 install.sh
+
+
+./install.sh
+
+
+cat <<EOF
+1. When the installation script finishes, enter link it displays .
+2. The Webuzo Initial Setup page appears.
+3. Type a username.
+4. Type the user's e-mail address.
+5. Type and re-enter the user's password.
+6. In the Primary Domain text box, type the server's domain name or IP address.
+7. In the NameServer 1 and NameServer 2 text boxes, type the primary and secondary name servers for the domain.
+
+i  If you do not have name servers for the server, type ns1.example.com and ns2.example.com.
+
+8. Click Install.
+
+i  Do not navigate away from the page or interrupt the installation process. 
+   The installation process can take a few minutes.
+
+--> After installation navigate to your domain at 2002,2004,2005 port
+EOF
+
+
+

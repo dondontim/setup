@@ -29,6 +29,8 @@ SHELL="/bin/zsh"
 #MAIL=
 #MAILCHECK=
 
+export LANG=en_US
+
 # Variable used by my functions
 TERMINAL_APP='iTerm2'
 

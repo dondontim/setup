@@ -30,6 +30,8 @@ SHELL="/bin/zsh"
 # Variable used by my functions
 TERMINAL_APP='iTerm2'
 
+export LANG=en_US
+
 export PATH MANPATH EDITOR VISUAL PAGER TERMINAL_APP
 
 
