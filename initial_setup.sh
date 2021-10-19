@@ -22,6 +22,15 @@
 # sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
 # git clone https://github.com/dondontim/setup.git && cd setup
 # bash initial_setup.sh |& tee /root/initial_setup.log
+#
+# or
+#
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl && git clone https://github.com/dondontim/setup.git && cd setup
+
+
+
+# TODO(tim): problem with not displaying questions
+
 
 # This need to be run as root!
 if [[ $EUID -ne 0 ]]; then
@@ -101,7 +110,7 @@ init
 
 
 # TODO(tim): collect all variables on the top of script
-remote_machine_public_ip=$(curl https://ipecho.net/plain; echo)
+remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
 sshd_config='/etc/ssh/sshd_config'
 file_templates_dir="${PWD}/z_file_templates"
 
@@ -404,7 +413,7 @@ else
   apt-get purge -y apache2-bin apache2.2-bin
   apt-get purge -y apache2-common apache2.2-common
 
-  apt-get purge apache2*
+  apt-get purge -y apache2*
 
   # Get rid of other dependencies of unexisting packages
   apt-get autoremove
@@ -675,6 +684,8 @@ rm "${domain_root_dir}/todo_list.php"
 
 # Installing Certbot
 apt_install certbot python3-certbot-nginx
+#--non-interactive
+#--force-interactive
 
 # Confirming Nginx’s Configuration
 #

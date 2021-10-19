@@ -19,6 +19,10 @@ function mkdircd mkcd mkd () {
 }
 
 
+# TODO(tim): wc -- word, line, character, and byte count
+
+
+
 function erasef erasefile erase_file erase_a_file() {
   # TODO(tim): Check if is a file and not empty if empty prompt it!
   cat /dev/null > "$@"
