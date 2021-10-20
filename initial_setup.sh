@@ -147,8 +147,6 @@ init
 
 
 
-
-
 # TODO(tim): collect all variables on the top of script
 remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
 sshd_config='/etc/ssh/sshd_config'
@@ -1081,6 +1079,24 @@ EOF
 
 
 
+
+# TODO(tim): do it with vps_configuration
+####################################################################################################
+#### Justeuro: External References Used To Improve This Script (Thanks, Interwebz) ###############
+####################################################################################################
+
+## Ref: https://linuxize.com/post/secure-apache-with-let-s-encrypt-on-ubuntu-18-04/
+## Ref: https://stackoverflow.com/questions/49172841/
+
+
+exit 0
+## JE_EOF
+
+
+
+# PHP.INI
+# Make backup of old and replace php.ini
+#
 phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
 
 if [ "$phpini_main_config_file_path" = '(none)' ]; then
@@ -1093,18 +1109,3 @@ else
   # Move new php.ini to the place of old one
   cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
 fi
-
-
-
-
-
-# TODO(tim): do it with vps_configuration
-####################################################################################################
-#### Justeuro: External References Used To Improve This Script (Thanks, Interwebz) ###############
-####################################################################################################
-
-## Ref: https://linuxize.com/post/secure-apache-with-let-s-encrypt-on-ubuntu-18-04/
-## Ref: https://stackoverflow.com/questions/49172841/
-
-
-## JE_EOF

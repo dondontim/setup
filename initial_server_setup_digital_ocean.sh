@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# 
+
+# This file is 1:1 with original file from here:
+# https://github.com/do-community/automated-setups/blob/master/Ubuntu-18.04/initial_server_setup.sh
+# Ref: https://www.digitalocean.com/community/tutorials/automating-initial-server-setup-with-ubuntu-18-04
+
 set -euo pipefail
 
 ########################

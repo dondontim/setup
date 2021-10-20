@@ -1,3 +1,18 @@
+alias {vps_,vps_info,vps_web,my_vps,myvps}="open_command https://my.a2hosting.com/clientarea.php?action=productdetails&id=473513"
+
+
+function howto wikihowto() {
+  if [[ $# -eq 0 ]]; then
+    open_command https://www.wikihow.com
+  else
+    web_search google "$@ site:wikihow.com" 
+  fi
+}
+
+
+
+
+
 alias diffchecker="open_command https://www.diffchecker.com"
 alias {googledrive,gdriveweb,gdrivegui}="open_command https://drive.google.com/drive/u/0/my-drive"
 alias {translate,trans,gtrans}='open_command https://translate.google.pl'
@@ -33,7 +48,7 @@ function dlmp3 ytgetaudio() {
   sudo youtube-dl --extract-audio --audio-format mp3 $1
 }
 
-function dlmp4 () {
+function dlmp4 ytgetvideo() {
   youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' $1
 }
 
