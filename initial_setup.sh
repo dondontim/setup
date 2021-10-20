@@ -156,7 +156,7 @@ file_templates_dir="${PWD}/z_file_templates"
 # Disable welcome message - https://askubuntu.com/a/676381 
 if [ -d "etc/update-motd.d" ]; then 
   chmod -x /etc/update-motd.d/* 
-fi;
+fi
 
 
 # if ! [ -f $HOME/domains_for_ssl.txt ]; then
@@ -781,7 +781,7 @@ EOF
 
 # the domain names we’d like the certificate to be valid for.
 #certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
-certbot --non-interactive --agree-tos -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
+certbot --nginx --non-interactive --agree-tos --redirect --no-eff-email -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
 # another example from one company: 
 # $ certbot certonly --noninteractive --agree-tos --cert-name slickstack -d ${SITE_TLD} -d www.${SITE_TLD} -d staging.${SITE_TLD} -d dev.${SITE_TLD} --register-unsafely-without-email --webroot -w /var/www/html/
 #

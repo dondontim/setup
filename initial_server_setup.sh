@@ -41,7 +41,9 @@ function update_and_upgrade() {
 
 
 
-
+remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
+sshd_config='/etc/ssh/sshd_config'
+file_templates_dir="${PWD}/z_file_templates"
 
 
 update_and_upgrade
