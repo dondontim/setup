@@ -7,16 +7,19 @@ echo "[$(date +'%H:%M:%S')]: .zshrc"
 # ENVIROMENT VARIABLES GUIDE
 # https://en.wikibooks.org/wiki/Guide_to_Unix/Environment_Variables
 
+# check etc/paths
+# TODO(tim): check for doubled PATH
+
 # Place your personal scripts in /usr/local/bin or ~/bin or ~/.bin
 PATH="$HOME/bin:$HOME/.bin:$PATH"
 
 # This in macos have to be before classic path to overwrite macos
 # eqivalents for GNU tools like: grep, ls etc.
 BREW_COREUTILS_PREFIX=$(brew --prefix coreutils) # for macos brew install coreutils
-PATH="$PATH:$BREW_COREUTILS_PREFIX/libexec/gnubin"
+PATH="$BREW_COREUTILS_PREFIX/libexec/gnubin:$PATH"
 
 # The order came from: https://security.stackexchange.com/a/117548
-PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 PATH="$PATH:$HOME/Library/Python/3.8/bin" # Python caused some warnings
 PATH="$PATH:$HOME/.composer/vendor/laravel/installer/bin" # global laravel
 
@@ -111,9 +114,16 @@ alias json='fx' # If you want to select text in interactive mode, press Alt / Fn
 
 # Show directories first on ls
 # (--group-directories-first works only on GNU/Linux ls command) but we can use gls from coreutils
+
+# NOTE(tim): Now you dont need to use gls cuz the gnu utils PATH is before
+# default macos equivalents. Thanks to this the below 2 lines are commented!
 #
-alias ls='/usr/local/bin/gls --color=auto -h --group-directories-first'
-alias dir='/usr/local/bin/gdir --color=auto'
+#alias ls='/usr/local/bin/gls --color=auto -h --group-directories-first'
+#alias dir='/usr/local/bin/gdir --color=auto'
+
+alias ls='ls --color -h --group-directories-first' # on GNU/Linux
+alias dir='dir --color=auto'
+
 
 
 . $ZSH/zsh.sh
