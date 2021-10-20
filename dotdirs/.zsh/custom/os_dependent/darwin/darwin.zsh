@@ -17,6 +17,20 @@
 
 
 
+### Wrapper function for macos 'open' command
+#
+# before reading function get the 'open' command path not to make loop of conflicting names
+open_command_path=$(which open) 
+# If no args are passed run: open .
+function open() {
+  if [[ $# -eq 0 ]]; then
+    "$open_command_path" .
+  else
+    "$open_command_path" "$@"
+  fi
+}
+
+
 
 #######################################
 # 

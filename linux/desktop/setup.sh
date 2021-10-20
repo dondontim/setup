@@ -61,7 +61,7 @@ apt_install python3
 apt_install python-pip
 apt_install python3-pip
 
-
+apt_install screen
 apt_install curl
 apt_install highlight
 apt_install xclip

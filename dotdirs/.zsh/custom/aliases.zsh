@@ -127,6 +127,9 @@ alias {desk,desktop}="cd ~/Desktop"
 alias {downloads,donwloads}="cd ~/Downloads"
 #alias db="cd ~/Documents/Dropbox"
 
+##
+# UTILS
+##
 
 # IP addresses
 # 
@@ -143,6 +146,9 @@ alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 #alias ip="curl -4 icanhazip.com"
 alias localip="ipconfig getifaddr en0"
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+
+alias {shlvl,getshlvl,shelllvl}="echo $SHLVL"
+alias {whereami,gethost}="echo $HOST"
 
 
 # Reload the shell (i.e. invoke as a login shell)
@@ -201,5 +207,5 @@ alias {cd..,cu}='cd ..'
 alias {wwhich,whcih,whihc}='which'
 alias {pyython3,pytohn3,pyhton3}='python3'
 alias {relaod,reoad,reloda}='reload'
-alias {celear,cear}='clear'
+alias {celear,cear,claer}='clear'
 alias {exi,xit}="exit"

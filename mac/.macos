@@ -216,6 +216,8 @@ defaults write com.apple.BluetoothAudioAgent "Negotiated Bitpool Min" -int 80
 
 # Enable full keyboard access for all controls
 # (e.g. enable Tab (keystroke) in modal dialogs)
+# Apple provide full table with shortcuts that will be enabled
+# https://support.apple.com/en-us/HT204434
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
 # Use scroll gesture with the Ctrl (^) modifier key to zoom

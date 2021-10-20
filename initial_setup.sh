@@ -3,6 +3,18 @@
 # Create new (sudo) user, setup firewall, manage SSH keys
 
 
+# DEBIAN_FRONTEND
+# https://www.cyberciti.biz/faq/explain-debian_frontend-apt-get-variable-for-ubuntu-debian/
+
+# apt-get HOW to skip any interactive post-install configuration steps?
+export DEBIAN_FRONTEND=noninteractive
+apt-get -yq install [packagename]
+
+# You can also use one liner like this:
+DEBIAN_FRONTEND=noninteractive apt-get -y update
+
+
+
 # Updates, upgrades the packages, removes unused packages, then removes old versions of packages.
 # apt-get update && apt-get upgrade -y && apt-get autoremove && apt-get autoclean
 
@@ -19,17 +31,22 @@
 # Initial commands
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #
-# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
-# git clone https://github.com/dondontim/setup.git && cd setup
-# bash initial_setup.sh |& tee /root/initial_setup.log
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl && git clone https://github.com/dondontim/setup.git && cd setup
+# bash initial_setup.sh
 #
 # or
 #
-# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl && git clone https://github.com/dondontim/setup.git && cd setup
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl
+# git clone https://github.com/dondontim/setup.git && cd setup
+# bash initial_setup.sh
+
+
 
 
 
 # TODO(tim): problem with not displaying questions
+# This was caused by below:
+# bash initial_setup.sh |& tee /root/initial_setup.log
 
 
 # This need to be run as root!
@@ -107,6 +124,29 @@ init
 # Initial Server Setup                                                         #
 ################################################################################
 # https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04  
+
+
+
+# Tutoral on using below script
+# https://www.digitalocean.com/community/tutorials/automating-initial-server-setup-with-ubuntu-18-04
+#
+# Digital Ocean automation script for initial_server_setup.sh
+# https://github.com/do-community/automated-setups/blob/master/Ubuntu-18.04/initial_server_setup.sh
+
+# If you have downloaded the script to your local computer, you can pass the script directly to SSH:
+# * ssh root@servers_public_IP "bash -s" -- < /path/to/script/file
+
+
+# Somebodys github nice Ubuntu Server Setup script
+# https://github.com/jasonheecs/ubuntu-server-setup
+
+
+
+
+
+
+
+
 
 
 # TODO(tim): collect all variables on the top of script
@@ -684,8 +724,6 @@ rm "${domain_root_dir}/todo_list.php"
 
 # Installing Certbot
 apt_install certbot python3-certbot-nginx
-#--non-interactive
-#--force-interactive
 
 # Confirming Nginx’s Configuration
 #
@@ -739,8 +777,31 @@ PS Choose not to change configuration
 EOF
 
 
-certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
+
+# CERTBOT USAGE:
+# https://certbot.eff.org/docs/using.html
+
 # the domain names we’d like the certificate to be valid for.
+#certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
+certbot --non-interactive --agree-tos -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
+# another example from one company: 
+# $ certbot certonly --noninteractive --agree-tos --cert-name slickstack -d ${SITE_TLD} -d www.${SITE_TLD} -d staging.${SITE_TLD} -d dev.${SITE_TLD} --register-unsafely-without-email --webroot -w /var/www/html/
+#
+# In our case we hardcode the --cert-name to be slickstack because only
+# one website is installed on each VPS server, so it makes other server admin tasks 
+# (and scripts) easier to manage. However, if you are installing several domains 
+# and SSL certs on the same server, you could change the subcommand --cert-name 
+# to be named after each TLD domain instead, etc. This affects the SSL directory
+#  names, thus helping to keep your files/folders nice and tidy.
+# 
+# another modification of above:
+# $ certbot certonly --noninteractive --agree-tos --cert-name ${SITE_TLD} -d ${SITE_DOMAIN_ONE} -d ${SITE_DOMAIN_TWO} -m ${SSL_EMAIL} --webroot -w /var/www/html/
+
+# use it! 
+# --no-eff-email - dont share your email with eff
+# --redirect - to https
+
+
 
 
 
@@ -1014,3 +1075,36 @@ EOF
 
 
 
+
+
+
+
+
+
+phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
+
+if [ "$phpini_main_config_file_path" = '(none)' ]; then
+  echo "Error finding path to main php.ini configuration file"
+  echo "You will need to replace it manually!"
+else
+  date=$(date '+%Y-%m-%d')
+  # Create backup or old php.ini
+  mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
+  # Move new php.ini to the place of old one
+  cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
+fi
+
+
+
+
+
+# TODO(tim): do it with vps_configuration
+####################################################################################################
+#### Justeuro: External References Used To Improve This Script (Thanks, Interwebz) ###############
+####################################################################################################
+
+## Ref: https://linuxize.com/post/secure-apache-with-let-s-encrypt-on-ubuntu-18-04/
+## Ref: https://stackoverflow.com/questions/49172841/
+
+
+## JE_EOF

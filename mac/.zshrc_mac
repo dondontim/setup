@@ -9,16 +9,23 @@ echo "[$(date +'%H:%M:%S')]: .zshrc"
 
 # Place your personal scripts in /usr/local/bin or ~/bin or ~/.bin
 PATH="$HOME/bin:$HOME/.bin:$PATH"
+
+# This in macos have to be before classic path to overwrite macos
+# eqivalents for GNU tools like: grep, ls etc.
+BREW_COREUTILS_PREFIX=$(brew --prefix coreutils) # for macos brew install coreutils
+PATH="$PATH:$BREW_COREUTILS_PREFIX/libexec/gnubin"
+
 # The order came from: https://security.stackexchange.com/a/117548
 PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 PATH="$PATH:$HOME/Library/Python/3.8/bin" # Python caused some warnings
 PATH="$PATH:$HOME/.composer/vendor/laravel/installer/bin" # global laravel
 
-BREW_PREFIX=$(brew --prefix coreutils)
-PATH="$PATH:$BREW_PREFIX/libexec/gnubin" # for macos brew install coreutils
+
 
 # check /etc/manpath.config or /etc/manpaths
-MANPATH="/usr/share/man:/usr/local/share/man:$MANPATH"
+# There is no need to be redundant and overwrite stuff from /etc/manpaths
+#MANPATH="/usr/share/man:/usr/local/share/man:$MANPATH"
+MANPATH="$BREW_COREUTILS_PREFIX/libexec/gnuman:$MANPATH"
 
 # cannot be single vim here! Because it is used in custom vim function 
 VISUAL="$(which vim)" # '/usr/bin/vim' 

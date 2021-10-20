@@ -227,8 +227,12 @@ function mv_and_code mv_code mvcode rename_code() {
 # Get file size
 ##
 #
-# Determine size of a file or total size of a directory
-function fs get_file_size get_files_size() {
+# Determine size of a file/files or total size of a directory
+#
+# ls -l    displays size as in finder 'Get Info'
+# du -sh   displays size on disk
+#
+function fs getsize get_size get_file_size getfilesize get_files_size() {
 	if du -b /dev/null > /dev/null 2>&1; then
 		local arg=-sbh;
 	else

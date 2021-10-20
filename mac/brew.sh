@@ -32,6 +32,20 @@ function brew_cask() {
   }
 }
 
+################################################################################
+# How to replace Mac OS X utilities with GNU core utilities?                   #
+################################################################################
+#
+# This adds symlinks for GNU utilities with g prefix to /usr/local/bin/:
+### brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt grep
+#
+# If you want to use the commands without a g prefix add for example
+# /usr/local/opt/coreutils/libexec/gnubin before other directories on your PATH.
+#
+# Additionally, you can access their man pages with normal names if you add
+# the "gnuman" directory to your MANPATH from your bashrc as well:
+#
+# MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 
 
 # Make sure we’re using the latest Homebrew.
