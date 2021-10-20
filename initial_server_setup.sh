@@ -50,7 +50,7 @@ apt_install ufw
 # Disable welcome message - https://askubuntu.com/a/676381 
 if [ -d "etc/update-motd.d" ]; then 
   chmod -x /etc/update-motd.d/* 
-fi;
+fi
 
 
 
