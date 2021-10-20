@@ -130,7 +130,16 @@ if sshd -t -q; then
   # How to restart ssh
   # https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
   # TODO(tim): in original here was sshd. Find out why sshd or ssh
-  systemctl restart ssh
+
+
+  # If you want to restart the ssh server on the other machine (e.g. if you changed the config) use
+  ### sudo /etc/init.d/ssh restart
+  # Yes it is called ssh although the process is called sshd which might be confusing.
+  # Ref: https://serverfault.com/a/143365
+  # GOD DAMN!!! 
+  # Another conflicting Ref: https://askubuntu.com/a/462971
+  #
+  # THIS IS VERY NICE ONE!!!!: https://askubuntu.com/a/1070148
   systemctl restart sshd
 fi
 
