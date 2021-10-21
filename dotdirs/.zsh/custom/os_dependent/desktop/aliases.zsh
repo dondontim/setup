@@ -9,6 +9,9 @@ function howto wikihowto() {
   fi
 }
 
+alias {pogoda_h,pogodah}="open_command https://weather.com/pl-PL/weather/hourbyhour/l/5af100124a9fc3dce7e9aa2bdb2743a5a8b14eae03c0ca77e15d47c49f5b8b77#detailIndex4"
+alias {pogoda_d,pogodad}="open_command https://weather.com/pl-PL/pogoda/10dni/l/5af100124a9fc3dce7e9aa2bdb2743a5a8b14eae03c0ca77e15d47c49f5b8b77"
+alias {pogoda_m,pogodam}="open_command https://weather.com/pl-PL/pogoda/miesieczne/l/5af100124a9fc3dce7e9aa2bdb2743a5a8b14eae03c0ca77e15d47c49f5b8b77"
 
 
 

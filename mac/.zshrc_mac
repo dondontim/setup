@@ -25,6 +25,22 @@ PATH="$PATH:$HOME/.composer/vendor/laravel/installer/bin" # global laravel
 
 
 
+# Removing redundant entries in $PATH (its not nessesary now)
+#
+### 1st way:
+# I've seen people clean up duplicates from their PATH variable using awk like this:
+# PATH=$(printf "%s" "$PATH" | awk -v RS=':' '!a[$1]++ { if (NR > 1) printf RS; printf $1 }')
+#
+### 2nd way:
+# typeset -aU path
+# Ref: https://til.hashrocket.com/posts/7evpdebn7g-remove-duplicates-in-zsh-path
+#
+# Example of pathadd function:
+# https://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
+
+
+
+
 # check /etc/manpath.config or /etc/manpaths
 # There is no need to be redundant and overwrite stuff from /etc/manpaths
 #MANPATH="/usr/share/man:/usr/local/share/man:$MANPATH"

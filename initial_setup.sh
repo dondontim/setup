@@ -469,11 +469,11 @@ fi
 # Installing the Nginx Web Server
 apt_install nginx
 
-ufw_allow 'Nginx Full'
-ufw delete allow 'Nginx HTTP'
-ufw delete allow 'Nginx HTTPS'
+ufw_allow 'Nginx Full' # 'Nginx Full' is equivalent of both below
 #ufw_allow 'Nginx HTTP'
 #ufw_allow 'Nginx HTTPS'
+#ufw delete allow 'Nginx HTTP' # Could not delete non-existent rule
+#ufw delete allow 'Nginx HTTPS' # Could not delete non-existent rule
 
 
 
@@ -779,9 +779,15 @@ EOF
 # CERTBOT USAGE:
 # https://certbot.eff.org/docs/using.html
 
+# CERTBOT HAVE RATE LIMITS
+# Ref: https://letsencrypt.org/docs/rate-limits/
+# SO TO AVOID IT, USE '--dry-run' (for developement purposes)
+# Ref: https://letsencrypt.org/docs/staging-environment/
+
+
 # the domain names we’d like the certificate to be valid for.
 #certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
-certbot --nginx --non-interactive --agree-tos --redirect --no-eff-email -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
+certbot --nginx --non-interactive --agree-tos --redirect --dry-run --no-eff-email -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
 # another example from one company: 
 # $ certbot certonly --noninteractive --agree-tos --cert-name slickstack -d ${SITE_TLD} -d www.${SITE_TLD} -d staging.${SITE_TLD} -d dev.${SITE_TLD} --register-unsafely-without-email --webroot -w /var/www/html/
 #
