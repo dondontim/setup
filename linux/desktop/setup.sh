@@ -144,9 +144,9 @@ apt_install ./teams.deb
 ##### Install .zsh, .vim
 
 # Copy dotdirs to $HOME
-cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $HOME/ && {
+cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $user_to_setup_for_home_directory/ && {
   # Copy custom zsh per machine
-  cp $PWD/linux/desktop/.zshrc_linux_desktop $HOME/.zsh/.zshrc
+  cp $PWD/linux/desktop/.zshrc_linux_desktop $user_to_setup_for_home_directory/.zsh/.zshrc
 } || {
   echo "problem with dotdirs copying"
 }

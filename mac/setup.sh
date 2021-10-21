@@ -4,19 +4,19 @@
 # Make symlinks
 . $PWD/make_symlinks.sh
 # Symlink only MacOS .dotfiles
-ln -sf "$PWD/mac/.mdqlstyle.css" "$HOME"
-ln -sf "$PWD/mac/.wakeup" "$HOME"
-ln -sf "$PWD/mac/.sleep" "$HOME"
-ln -sf "$PWD/mac/.plug" "$HOME"
+ln -sf "$PWD/mac/.mdqlstyle.css" "$user_to_setup_for_home_directory"
+ln -sf "$PWD/mac/.wakeup" "$user_to_setup_for_home_directory"
+ln -sf "$PWD/mac/.sleep" "$user_to_setup_for_home_directory"
+ln -sf "$PWD/mac/.plug" "$user_to_setup_for_home_directory"
 
 
 
 ##### Install .zsh, .vim
 
-# Copy dotdirs to $HOME
-cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $HOME/ && {
+# Copy dotdirs to $user_to_setup_for_home_directory
+cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $user_to_setup_for_home_directory/ && {
   # Copy custom zsh per machine
-  cp $PWD/mac/.zshrc_mac $HOME/.zsh/.zshrc
+  cp $PWD/mac/.zshrc_mac $user_to_setup_for_home_directory/.zsh/.zshrc
 } || {
   echo "problem with dotdirs copying"
 }

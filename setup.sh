@@ -79,9 +79,14 @@ while true; do
   fi
 done
 export user_to_setup_for
+export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
 
 
 
+# if ! [ "$PWD" = "${user_to_setup_for_home_directory}/setup" ]; then
+#   echo "You need to execute this file from: $user_to_setup_for_home_directory/setup"
+#   exit 1
+# fi
 
 
 
