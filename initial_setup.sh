@@ -210,9 +210,10 @@ echo "--> Done"
 echo "--> Setting Up a Basic Firewall"
 install_nonexisting_command ufw
 
-# Set the Default Policies
-ufw default deny incoming
-ufw default allow outgoing
+### These 2 are Default Policies
+# ufw default deny incoming
+# ufw default allow outgoing
+
 # Allowing SSH Connections
 ufw_allow OpenSSH
 
@@ -220,10 +221,10 @@ ufw_allow 22
 
 ufw_allow 7822 # custom port for ssh and sftp
 
-# Allowing HTTP 
-ufw_allow 80 # http
-
-ufw_allow 443 # https
+### Allowing HTTP 
+## Below 2 lines are not required because of further below Nginx Full (80,443)
+#ufw_allow 80 # http
+#ufw_allow 443 # https
 
 # Allowing file transfer
 ufw_allow 21 # ftp
@@ -779,7 +780,7 @@ EOF
 # CERTBOT USAGE:
 # https://certbot.eff.org/docs/using.html
 
-# CERTBOT HAVE RATE LIMITS
+# NOTE: CERTBOT HAVE RATE LIMITS
 # Ref: https://letsencrypt.org/docs/rate-limits/
 # SO TO AVOID IT, USE '--dry-run' (for developement purposes)
 # Ref: https://letsencrypt.org/docs/staging-environment/
@@ -787,7 +788,7 @@ EOF
 
 # the domain names we’d like the certificate to be valid for.
 #certbot --nginx -d "${domain_name}" -d "www.${domain_name}"
-certbot --nginx --non-interactive --agree-tos --redirect --dry-run --no-eff-email -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
+certbot --nginx --non-interactive --agree-tos --redirect --no-eff-email -m krystatymoteusz@gmail.com -d "${domain_name}" -d "www.${domain_name}"
 # another example from one company: 
 # $ certbot certonly --noninteractive --agree-tos --cert-name slickstack -d ${SITE_TLD} -d www.${SITE_TLD} -d staging.${SITE_TLD} -d dev.${SITE_TLD} --register-unsafely-without-email --webroot -w /var/www/html/
 #

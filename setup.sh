@@ -28,10 +28,10 @@ init() {
 
 # This cannot be run as root cuz it will make changes for root
 # -eq equals, -ne not equals
-if [[ $EUID -eq 0 ]]; then
-  #echo "This script must be run as root"
-  echo "Do you want to make unpack the setup for root?"
-  echo "If not run again witout sudo"
+if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root"
+  #echo "Do you want to make unpack the setup for root?"
+  #echo "If not run again witout sudo"
   exit 1
 fi
 
@@ -48,6 +48,41 @@ case "${unameOut}" in
   MINGW*)     MACHINE=MinGw;;
   *)          MACHINE="UNKNOWN:${unameOut}"
 esac
+
+
+
+
+function check_if_user_exists() {
+  if id "$1" &>/dev/null; then
+    #echo 'user found'
+    return 0
+  else
+    #echo 'user not found'
+    return 1
+  fi
+}
+
+### Read username of a user and check if he exists
+# Uses: 'check_if_user_exists' function
+while true; do
+  echo ""
+  echo "--> Type the existing username for which the setup have to be done by me? "
+  echo ""
+  read user_to_setup_for
+
+  if check_if_user_exists "$user_to_setup_for"; then
+    break;
+  else
+    echo ""
+    echo "--> This user dont exist"
+    continue
+  fi
+done
+export user_to_setup_for
+
+
+
+
 
 
 

@@ -271,6 +271,14 @@ brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspici
 
 
 
+### Ubuntu’s command-not-found equivalent for Homebrew on macOS
+#
+# https://github.com/Homebrew/homebrew-command-not-found
+brew tap homebrew/command-not-found
+
+
+
+
 
 # Remove outdated versions from the cellar.
 brew cleanup

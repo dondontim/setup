@@ -144,6 +144,20 @@ alias dir='dir --color=auto'
 
 . $ZSH/zsh.sh
 
+
+
+### Ubuntu’s command-not-found equivalent for Homebrew on macOS
+#
+# https://github.com/Homebrew/homebrew-command-not-found
+# brew tap homebrew/command-not-found
+HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
+if [ -f "$HB_CNF_HANDLER" ]; then
+  source "$HB_CNF_HANDLER";
+fi
+
+
+
+
 # This is already defined in key-bindings.zsh but lot times dont work
 bindkey "[C" forward-word
 bindkey "[D" backward-word
