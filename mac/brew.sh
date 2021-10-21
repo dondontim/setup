@@ -281,10 +281,13 @@ brew tap homebrew/command-not-found
 brew_install GeoIP
 
 
+brew_install rust # rust contains its package manager called cargo (required to install viu)
+
 # Awsome image viewer from terminal
 # https://github.com/atanunq/viu
 # Other such tools: https://askubuntu.com/questions/97542/how-do-i-make-my-terminal-display-graphical-pictures
-brew install viu
+cargo install viu # it is possible to install with brew but with cargo is recommended 
+#brew install viu
 
 
 
