@@ -10,7 +10,7 @@ echo "[$(date +'%H:%M:%S')]: .zshrc"
 # Place your personal scripts in /usr/local/bin or ~/bin or ~/.bin
 PATH="$HOME/bin:$HOME/.bin:$PATH"
 # The order came from: https://security.stackexchange.com/a/117548
-PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 #PATH="$PATH:$HOME/Library/Python/3.8/bin" # Python caused some warnings
 #PATH="$PATH:$HOME/.composer/vendor/laravel/installer/bin" # global laravel
 
@@ -46,7 +46,9 @@ SHELL="/bin/zsh"
 # Variable used by my functions
 TERMINAL_APP='iTerm2'
 
-export LANG=en_US
+LANG=en_US
+LANGUAGE=$LANG
+export LANG LANGUAGE
 
 export PATH MANPATH EDITOR VISUAL PAGER TERMINAL_APP
 
@@ -123,6 +125,13 @@ alias dir='dir --color=auto'
 
 
 . $ZSH/zsh.sh
+
+
+
+### Suggest installation of packages in interactive sessions
+# apt-get install command-not-found
+[[ -r /etc/zsh_command_not_found ]] && . /etc/zsh_command_not_found
+
 
 # This is already defined in key-bindings.zsh but lot times dont work
 bindkey "[C" forward-word

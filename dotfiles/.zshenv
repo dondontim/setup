@@ -18,6 +18,15 @@ export ZDOTDIR="$ZSH"
 #if [ -f ~/.bashrc ]; then
 #  . ~/.bashrc
 #fi
+#
+# if running ZSH
+if [ -n "$ZSH_VERSION" ]; then
+  # include .zshrc if it exists
+  if [ -f "$ZDOTDIR/.zshrc" ]; then
+    . "$ZDOTDIR/.zshrc"
+  fi
+fi
+
 
 # TODO(tim): sometimes below bindings in key-bindings.zsh dont work
 # bindkey "[C" forward-word

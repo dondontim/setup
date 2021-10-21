@@ -277,6 +277,17 @@ brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspici
 brew tap homebrew/command-not-found
 
 
+# IP lookup command line tools that use the GeoIP library (ex. get ip location)
+brew_install GeoIP
+
+
+# Awsome image viewer from terminal
+# https://github.com/atanunq/viu
+# Other such tools: https://askubuntu.com/questions/97542/how-do-i-make-my-terminal-display-graphical-pictures
+brew install viu
+
+
+
 
 
 

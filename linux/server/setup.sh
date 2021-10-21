@@ -99,11 +99,17 @@ apt_install colordiff
 
 
 
+# IP lookup command line tools that use the GeoIP library (ex. get ip location)
+apt_install geoip-bin
 
+apt_install command-not-found
 
+apt_install cargo # rust package manager (required to install viu)
 
-
-
+# Awsome image viewer from terminal
+# https://github.com/atanunq/viu
+# Other such tools: https://askubuntu.com/questions/97542/how-do-i-make-my-terminal-display-graphical-pictures
+cargo install viu 
 
 
 
