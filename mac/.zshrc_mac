@@ -7,23 +7,31 @@ echo "[$(date +'%H:%M:%S')]: .zshrc"
 # ENVIROMENT VARIABLES GUIDE
 # https://en.wikibooks.org/wiki/Guide_to_Unix/Environment_Variables
 
+
+################################################################################
+# $PATH                                                                        #
+################################################################################
 # check etc/paths
 # TODO(tim): check for doubled PATH
 
-# Place your personal scripts in /usr/local/bin or ~/bin or ~/.bin
-PATH="$HOME/bin:$HOME/.bin:$PATH"
+# The order came from: https://security.stackexchange.com/a/117548
+#PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 
 # This in macos have to be before classic path to overwrite macos
 # eqivalents for GNU tools like: grep, ls etc.
 BREW_COREUTILS_PREFIX=$(brew --prefix coreutils) # for macos brew install coreutils
-PATH="$BREW_COREUTILS_PREFIX/libexec/gnubin:$PATH"
+GNU_UTILS="$BREW_COREUTILS_PREFIX/libexec/gnubin"
 
-# The order came from: https://security.stackexchange.com/a/117548
-#PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-PATH="$PATH:$HOME/Library/Python/3.8/bin" # Python caused some warnings
-PATH="$PATH:$HOME/.composer/vendor/laravel/installer/bin" # global laravel
+# Place your personal scripts in /usr/local/bin or ~/bin or ~/.bin
+BIN="$HOME/bin:$HOME/.bin"
 
-PATH="$PATH:$HOME/.cargo/bin" # for Rust/cargo binaries
+PYBIN="$HOME/Library/Python/3.8/bin:$HOME/Library/Python/2.7/bin" # Python
+LARAVEL="$HOME/.composer/vendor/laravel/installer/bin" # global laravel
+CARGO="$HOME/.cargo/bin" # for Rust/cargo binaries
+
+PATH="$GNU_UTILS:$BIN:$PATH:$PYBIN:$LARAVEL:$CARGO"
+
 
 # Removing redundant entries in $PATH (its not nessesary now)
 #
@@ -65,13 +73,20 @@ TERMINAL_APP='iTerm2'
 export PATH MANPATH EDITOR VISUAL PAGER TERMINAL_APP
 
 
-
+###
+# Setting locale $LC_* and $LANG and $LANGUAGE
+###
+LC_ALL=en_US.UTF-8 # or en_GB.UTF-8
+LANG=en_US
+LANGUAGE=$LANG
+export LC_ALL LANG LANGUAGE
 
 
 # Load my custom theme
 export ZSH_THEME="macos"
 # set HOST name
 export HOST="MathBookPro"
+export SHORT_HOSTNAME=$(hostname -s)
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)

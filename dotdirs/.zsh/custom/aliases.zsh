@@ -147,6 +147,12 @@ alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias localip="ipconfig getifaddr en0"
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 
+# Internal IP
+#alias myip="ifconfig | ack 'inet (\d+.*) netmask .* broadcast'"
+
+### Request a new DHCP lease for a new IP address
+# alias newip='sudo ipconfig set en0 BOOTP ; ipconfig set en0 DHCP'
+
 alias {shlvl,getshlvl,shelllvl}="echo $SHLVL"
 alias {whereami,gethost}="echo $HOST"
 
@@ -206,6 +212,7 @@ alias mkdor='mkdir'
 alias {cd..,cu}='cd ..'
 alias {wwhich,whcih,whihc}='which'
 alias {pyython3,pytohn3,pyhton3}='python3'
+alias {pyython,pytohn,pyhton}='python'
 alias {relaod,reoad,reloda}='reload'
 alias {celear,cear,claer}='clear'
 alias {exi,xit}="exit"

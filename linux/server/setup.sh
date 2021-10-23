@@ -112,7 +112,7 @@ apt_install cargo # rust package manager (required to install viu)
 cargo install viu 
 
 
-
+apt_install ack # grep-like text finder
 
 
 

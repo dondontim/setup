@@ -115,4 +115,10 @@ else
 fi
 
 
-# After this run link.sh
+#####
+##### Not really needed but nice things
+#####
+#
+### Fuck - Command which corrects your previous console command.
+# https://github.com/nvbn/thefuck
+

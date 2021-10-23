@@ -290,6 +290,7 @@ cargo install viu # it is possible to install with brew but with cargo is recomm
 #brew install viu
 
 
+brew install ack # grep-like text finder
 
 
 
