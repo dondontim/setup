@@ -68,6 +68,13 @@ function edit_sshd_config()
 }
 
 
+function make_old_file_backup() {
+  local file_path date
+  file_path="$1"
+  date=$(date '+%Y-%m-%d')
+  cp $file_path "${file_path}.${date}.bak"
+}
+
 
 
 
@@ -76,10 +83,7 @@ function edit_sshd_config()
 update_and_upgrade
 apt_install ufw
 
-# Disable welcome message - https://askubuntu.com/a/676381 
-if [ -d "etc/update-motd.d" ]; then 
-  chmod -x /etc/update-motd.d/* 
-fi
+
 
 
 
@@ -112,9 +116,9 @@ CUSTOM_SSH_PORT=7822
 
 PORTS_TO_BE_OPEN=(
   "OpenSSH" # Add exception for SSH default port 22
+  "$CUSTOM_SSH_PORT"
   "21"
   "25"
-  "7822"
   "80"
   "443"
 )
@@ -123,37 +127,62 @@ PORTS_TO_BE_OPEN=(
 ### SCRIPT LOGIC ###
 ####################
 
-### Add sudo user and grant privileges
-# Create a new user
-adduser --gecos "" "${USERNAME}"
-# Granting Administrative Privileges
-usermod -aG sudo "${USERNAME}"
+
+function disable_welcome_message() {
+  # Disable welcome message - https://askubuntu.com/a/676381 
+  if [ -d "etc/update-motd.d" ]; then 
+    chmod -x /etc/update-motd.d/* 
+  fi
+}
+
+
+
+
+function create_sudo_user() {
+  ### Add sudo user and grant privileges
+  useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
+  # Set a password for this user
+  while true; do
+    passwd "${USERNAME}"
+    # If above command returns 0 exit code break
+    [[ $? -eq 0 ]] && break
+  done
+
+  ### Alternatives
+  # Create a new user
+  #adduser --gecos "" "${USERNAME}"
+  # Granting Administrative Privileges
+  #usermod -aG sudo "${USERNAME}"
+}
+
+
+
 
 
 
 ################################################################################
 # Set up SSH keys                                                              #
 ################################################################################
+function handle_ssh_keys() {
+  # Create SSH directory for sudo user
+  home_directory="$(eval echo ~${USERNAME})"
+  mkdir --parents "${home_directory}/.ssh"
 
-# Create SSH directory for sudo user
-home_directory="$(eval echo ~${USERNAME})"
-mkdir --parents "${home_directory}/.ssh"
+  # Copy `authorized_keys` file from root if requested
+  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
+    cp /root/.ssh/authorized_keys "${home_directory}/.ssh"
+  fi
 
-# Copy `authorized_keys` file from root if requested
-if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
-  cp /root/.ssh/authorized_keys "${home_directory}/.ssh"
-fi
+  # Add additional provided public keys
+  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
+    echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
+  done
 
-# Add additional provided public keys
-for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
-  echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
-done
-
-# Adjust SSH configuration ownership and permissions
-chmod 0700 "${home_directory}/.ssh"
-chmod 0600 "${home_directory}/.ssh/authorized_keys"
-chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
-
+  # Adjust SSH configuration ownership and permissions
+  chmod 0700 "${home_directory}/.ssh"
+  chmod 0600 "${home_directory}/.ssh/authorized_keys"
+  chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
+}
 
 
 ################################################################################
@@ -163,107 +192,100 @@ chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
 # TODO(tim): after tests if this is enough
 # Original was this: ^PermitRootLogin.*
 
+function make_backup_of_sshd_config() {
+  # Create backup of previous $sshd_config
+  make_old_file_backup "$sshd_config"
+}
 
 
-echo "--> Copying ${sshd_config} to ${sshd_config}.bak"
-cp "${sshd_config}" "${sshd_config}.bak"
-echo "--> Done"
+function change_default_ssh_port() {
+  # If variable not null change server SSH port
+  if [ -n "$CUSTOM_SSH_PORT" ]; then
+    # Set non default port
+    edit_sshd_config "^Port.*$" "Port ${CUSTOM_SSH_PORT}" # change: 'Port N'
+    edit_sshd_config "GatewayPort.*$" "GatewayPort ${CUSTOM_SSH_PORT}" # change: 'GatewayPort N'
+  fi
+}
 
 
-# If variable not null change server SSH port
-if [ -n "$CUSTOM_SSH_PORT" ]; then
-  # Set non default port
-  edit_sshd_config "^Port.*$" "Port ${CUSTOM_SSH_PORT}" # change: 'Port N'
-  edit_sshd_config "GatewayPort.*$" "GatewayPort ${CUSTOM_SSH_PORT}" # change: 'GatewayPort N'
-fi
+function change_some_ssh_directives() {
+
+  ### PasswordAuthentication - Disable password authentication for all users
+  edit_sshd_config "^#PasswordAuthentication.*$" "PasswordAuthentication no"
+
+  ### PermitEmptyPasswords - 
+  # When password authentication is allowed, it specifies whether the server 
+  # allows login to accounts with empty password strings. The default is no.
+  edit_sshd_config "^#PermitEmptyPasswords.*$" "PermitEmptyPasswords no"
+
+  ### PermitRootLogin
+  edit_sshd_config "^PermitRootLogin.*$" "PermitRootLogin no" 
+  # alternative: PermitRootLogin without-password or prohibit-password
 
 
-
-### PasswordAuthentication - Disable password authentication for all users
-edit_sshd_config "^#PasswordAuthentication.*$" "PasswordAuthentication no"
-
-### PermitEmptyPasswords - 
-# When password authentication is allowed, it specifies whether the server 
-# allows login to accounts with empty password strings. The default is no.
-edit_sshd_config "^#PermitEmptyPasswords.*$" "PermitEmptyPasswords no"
-
-### PermitRootLogin
-edit_sshd_config "^PermitRootLogin.*$" "PermitRootLogin no" 
-# alternative: PermitRootLogin without-password or prohibit-password
+  ### ClientAliveInterval
+  # Set SSH Connection Timeout Idle Value
+  edit_sshd_config "^#ClientAliveInterval.*$" "ClientAliveInterval 600"
 
 
-### ClientAliveInterval
-# Set SSH Connection Timeout Idle Value
-edit_sshd_config "^#ClientAliveInterval.*$" "ClientAliveInterval 600"
+  ### ClientAliveCountMax
+  # Total number of checkalive message sent by the ssh server 
+  # without getting any response from the ssh client
+  edit_sshd_config "^#ClientAliveCountMax.*$" "ClientAliveCountMax 0"
 
 
-### ClientAliveCountMax
-# Total number of checkalive message sent by the ssh server 
-# without getting any response from the ssh client
-edit_sshd_config "^#ClientAliveCountMax.*$" "ClientAliveCountMax 0"
+  ### MaxAuthTries
+  # Configure a Limit for Password Attempts
+  edit_sshd_config "^#MaxAuthTries.*$" "MaxAuthTries 3"
 
-
-### MaxAuthTries
-# Configure a Limit for Password Attempts
-edit_sshd_config "^#MaxAuthTries.*$" "MaxAuthTries 3"
-
-### LoginGraceTime
-# Allow 20 sec to login, if not disconnect
-edit_sshd_config "^#LoginGraceTime.*$" "LoginGraceTime 20"
-
-
-
-### Protocol 2
-# Use more cryptographicaly secure protocol
-echo "Protocol 2" >> "$sshd_config"
-# To test if SSH protocol 1 is supported any more, run the command:
-# ssh -1 user@remote-IP
-#
-# ssh -2 user@remote-IP # for Protocol 2
-
-
-### AllowUsers
-# Limit SSH Access to Certain Users
-#echo "AllowUsers user1 user2" >> "$sshd_config" # after space add other users
-# AllowGroups sysadmin dba
+  ### LoginGraceTime
+  # Allow 20 sec to login, if not disconnect
+  edit_sshd_config "^#LoginGraceTime.*$" "LoginGraceTime 20"
 
 
 
-# TODO(tim): More about hardening sshd_config:
-# https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-18-04
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if sshd -t -q; then
-  # How to restart ssh
-  # https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
-  # TODO(tim): in original here was sshd. Find out why sshd or ssh
-
-
-  # If you want to restart the ssh server on the other machine (e.g. if you changed the config) use
-  ### sudo /etc/init.d/ssh restart
-  # Yes it is called ssh although the process is called sshd which might be confusing.
-  # Ref: https://serverfault.com/a/143365
-  # GOD DAMN!!! 
-  # Another conflicting Ref: https://askubuntu.com/a/462971
+  ### Protocol 2
+  # Use more cryptographicaly secure protocol
+  echo "Protocol 2" >> "$sshd_config"
+  # To test if SSH protocol 1 is supported any more, run the command:
+  # ssh -1 user@remote-IP
   #
-  # THIS IS VERY NICE ONE!!!!: https://askubuntu.com/a/1070148
-  systemctl restart sshd
-fi
+  # ssh -2 user@remote-IP # for Protocol 2
+
+
+  ### AllowUsers
+  # Limit SSH Access to Certain Users
+  #echo "AllowUsers user1 user2" >> "$sshd_config" # after space add other users
+  # AllowGroups sysadmin dba
+
+
+
+  # TODO(tim): More about hardening sshd_config:
+  # https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-18-04
+
+}
+
+
+
+
+function test_and_restart_ssh() {
+  if sshd -t -q; then
+    # How to restart ssh
+    # https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
+    # TODO(tim): in original here was sshd. Find out why sshd or ssh
+
+
+    # If you want to restart the ssh server on the other machine (e.g. if you changed the config) use
+    ### sudo /etc/init.d/ssh restart
+    # Yes it is called ssh although the process is called sshd which might be confusing.
+    # Ref: https://serverfault.com/a/143365
+    # GOD DAMN!!! 
+    # Another conflicting Ref: https://askubuntu.com/a/462971
+    #
+    # THIS IS VERY NICE ONE!!!!: https://askubuntu.com/a/1070148
+    systemctl restart sshd
+  fi
+}
 
 
 
@@ -272,33 +294,15 @@ fi
 ################################################################################
 # Setting Up a Basic Firewall                                                  #
 ################################################################################
+function setup_basic_firewall() {
+  # Add additional provided public keys
+  for port in "${PORTS_TO_BE_OPEN[@]}"; do
+    ufw allow "$port"
+  done
 
-# Add exception for SSH and then enable UFW firewall
-#ufw allow OpenSSH
-
-# If isset
-#if [ -n "$CUSTOM_SSH_PORT" ]; then
-#  ufw allow "$CUSTOM_SSH_PORT"
-#fi
-
-# Add additional provided public keys
-for port in "${PORTS_TO_BE_OPEN[@]}"; do
-  ufw allow "$port"
-done
-
-# start/enable UFW firewall
-ufw --force enable
-
-
-
-
-echo ""
-echo "Run:"
-# TODO(tim): check in /etc/ssh/sshd_config for port number
-echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p 7822"
-
-
-# TODO(tim): add here check if the ~/.ssh/authorized_keys exist
+  # start/enable UFW firewall
+  ufw --force enable
+}
 
 
 
@@ -307,6 +311,56 @@ echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p
 
 
 
+source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
+
+
+# $1 have to be spinner message
+# $2 have to be command to execute
+function log_it() {
+  if [[ $# -lt 2 ]]; then
+    echo "[${funcstack}]: You are missing argument(s) for this funtion"
+    return
+  fi
+
+  local spinner_message command_to_execute
+  spinner_message="$1"
+  command_to_execute="$2"
+
+  start_spinner $spinner_message
+  # Evaluate command to execute
+  eval "$command_to_execute"
+  # Pass the last comands exit code
+  stop_spinner $?
+}
+
+
+
+
+
+
+
+function main() {
+  #disable_welcome_message
+  #create_sudo_user
+  #handle_ssh_keys
+  #make_backup_of_sshd_config
+  #change_default_ssh_port
+  #change_some_ssh_directives
+  #test_and_restart_ssh
+  #setup_basic_firewall
+
+
+  # 1) Installing Libraries and Dependencies
+  # 2) Setting UP WEBUZO
+  log_it "1) Disabling welcome message"               "disable_welcome_message"
+  log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
+  log_it "3) Managing SSH keys"                       "handle_ssh_keys"
+
+  log_it "4) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
+  log_it "5) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
+  log_it "6) Testing sshd_config and restarting"      "test_and_restart_ssh"
+  log_it "7) Setting basic firewall rules"            "setup_basic_firewall"
+}
 
 
 
@@ -318,4 +372,7 @@ echo "ssh-keygen && ssh-copy-id ${user_to_create}@${remote_machine_public_ip} -p
 
 
 
+# TODO(tim): make backup of ssh dir with old github keys and make new
+
+# TODO(tim): Add spinner
 

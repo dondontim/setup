@@ -2,6 +2,7 @@
 #
 # Create new (sudo) user, setup firewall, manage SSH keys
 
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl && git clone https://github.com/dondontim/setup.git && cd setup
 
 # DEBIAN_FRONTEND
 # https://www.cyberciti.biz/faq/explain-debian_frontend-apt-get-variable-for-ubuntu-debian/
@@ -47,6 +48,20 @@ DEBIAN_FRONTEND=noninteractive apt-get -y update
 # TODO(tim): problem with not displaying questions
 # This was caused by below:
 # bash initial_setup.sh |& tee /root/initial_setup.log
+
+
+
+# function get_password() {
+#   while true; do
+#     read -s -p "New password: " password
+#     echo ""
+#     read -s -p "Retype new password: " password2
+#     echo ""
+#     [ "$password" = "$password2" ] && break
+#     echo "Please try again"
+#   done
+# }
+
 
 
 # This need to be run as root!
@@ -404,6 +419,7 @@ press_anything_to_continue
 
 
 
+# Do tad mam zrobione w initial_server_setuo.sh
 
 ################################################################################
 ################################################################################
@@ -1048,6 +1064,11 @@ systemctl reload nginx
 echo "exiting before webuzo"
 exit 0
 
+
+# before installing webuzo install below two lines to make it work!
+# these are dependencies without which webuzo will fail
+apt_install sendmail-bin
+apt_install sendmail
 
 # Install webuzo
 

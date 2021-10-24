@@ -27,8 +27,10 @@ alias {gitcheatsheet,gcheatsheet}="open_command https://gist.github.com/davfre/8
 # Server IP and PORT
 SERVER_IP='190.92.134.248'
 PORT='7822'
-alias sshtim="ssh tim@${SERVER_IP} -p ${PORT}"
-alias sshroot="ssh root@${SERVER_IP} -p ${PORT}"
+PROTOCOL='-2'
+# -2 Indicate more secure Protocol 2
+alias sshtim="ssh ${PROTOCOL} tim@${SERVER_IP} -p ${PORT}"
+alias sshroot="ssh ${PROTOCOL} root@${SERVER_IP} -p ${PORT}"
 alias sftptim="sftp -P ${PORT} tim@${SERVER_IP}"
 
 
