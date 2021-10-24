@@ -63,9 +63,6 @@ function replace_regex_in_file()
 
 function edit_sshd_config() 
 { 
-  # TODO(tim): delete it cuz at top of script you have globaly set with correct path
-  local sshd_config
-  sshd_config="$HOME/setup/sshd_config"
   # Edit ssh config - $sshd_config
   replace_regex_in_file "$@" "$sshd_config"
 }
@@ -128,7 +125,7 @@ PORTS_TO_BE_OPEN=(
 
 ### Add sudo user and grant privileges
 # Create a new user
-adduser "${USERNAME}"
+adduser --gecos "" "${USERNAME}"
 # Granting Administrative Privileges
 usermod -aG sudo "${USERNAME}"
 
