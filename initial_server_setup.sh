@@ -107,12 +107,24 @@ PORTS_TO_BE_OPEN=(
 ####################
 
 
-function disable_welcome_message() {
-  # Disable welcome message - https://askubuntu.com/a/676381 
-  if [ -d "/etc/update-motd.d" ]; then 
-    chmod -x /etc/update-motd.d/* 
-    echo "--> disabled welcome msg"
+
+function initialization() {
+  
+
+  # This need to be run as root!
+  if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
   fi
+
+  echo   "   1.1) update && upgrade"
+  update_and_upgrade > /dev/null 2>&1
+  echo   "   1.2) Installing ufw"
+  apt_install ufw > /dev/null 2>&1
+  echo   "   1.3) Disabling welcome message"
+  disable_welcome_message
+
+  #apt_install curl
 }
 
 
@@ -291,6 +303,20 @@ function setup_basic_firewall() {
 
 
 
+function disable_welcome_message() {
+  # Disable welcome message - https://askubuntu.com/a/676381 
+  if [ -d "/etc/update-motd.d" ]; then 
+    chmod -x /etc/update-motd.d/* 
+    echo "--> disabled welcome msg"
+  fi
+}
+
+
+
+
+
+
+
 
 
 
@@ -315,10 +341,7 @@ function log_it() {
   eval "$command_to_execute" > /dev/null 2>&1
   # Pass the last comands exit code
   stop_spinner $?
-  echo ""
 }
-
-
 
 
 
@@ -326,17 +349,7 @@ function log_it() {
 
 function main() {
 
-  # This need to be run as root!
-  if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root"
-    exit 1
-  fi
-
-
-  update_and_upgrade > /dev/null 2>&1
-  apt_install ufw > /dev/null 2>&1
-  #apt_install curl
-
+  ### Order
   #disable_welcome_message
   #create_sudo_user
   #handle_ssh_keys
@@ -345,25 +358,29 @@ function main() {
   #change_some_ssh_directives
   #test_and_restart_ssh
   #setup_basic_firewall
+  
 
-
+  
   # 1) Installing Libraries and Dependencies
   # 2) Setting UP WEBUZO
 
-  log_it "1) Disabling welcome message"               "disable_welcome_message"
+  
+  #log_it "1) Disabling welcome message"               "disable_welcome_message"
 
-  #log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
-  echo "--> Creating new user with sudo privileges"
+
+  
+  log_it "1) Initialization"                        "initialization"
+  
+  echo ""
+  echo "--> Creating new user → ${USERNAME} with sudo privileges"
   echo ""
   create_sudo_user
   echo ""
 
-  
-  log_it "2) Managing SSH keys"                       "handle_ssh_keys"
-  #log_it "2) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
-  log_it "3) Changing sshd_config derectives"         "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
-  log_it "4) Testing sshd_config and restarting"      "test_and_restart_ssh"
-  log_it "5) Setting basic firewall rules"            "setup_basic_firewall"
+  log_it "2) Managing SSH keys"                     "handle_ssh_keys"
+  log_it "3) Changing ${sshd_config} derectives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+  log_it "4) Testing ${sshd_config} and restarting" "test_and_restart_ssh"
+  log_it "5) Setting basic firewall rules"          "setup_basic_firewall"
 }
 
 
