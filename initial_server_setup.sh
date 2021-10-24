@@ -173,6 +173,7 @@ function handle_ssh_keys() {
   chmod 0700 "${home_directory}/.ssh"
   chmod 0600 "${home_directory}/.ssh/authorized_keys"
   chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
+
 }
 
 
@@ -258,7 +259,8 @@ function change_some_ssh_directives() {
   echo "KerberosAuthentication no" >> "$sshd_config"
   echo "GSSAPIAuthentication no" >> "$sshd_config"
   echo "X11Forwarding no" >> "$sshd_config"
-  echo "PermitUserEnvironment no" >> "$sshd_config" # If you add this comment also 'AcceptEnv'
+  echo "PermitUserEnvironment no" >> "$sshd_config" # If you add this, comment also 'AcceptEnv'
+  edit_sshd_config "^AcceptEnv.*$" "#AcceptEnv LANG LC_*" 
   echo "DebianBanner no" >> "$sshd_config"
 
 
@@ -290,12 +292,65 @@ function change_some_ssh_directives() {
 
 
   # TODO(tim): setup sftp only user
-  #create_sftp_only_user
+  # Run here creation of sftp user or no
 }
 
 
+function create_sftp_only_group() {
+  # Great reference: 
+  # https://www.thegeekstuff.com/2012/03/chroot-sftp-setup/
+
+  # Create a New Group
+  groupadd sftpusers
+
+  # Create User
+  # make his Home directory as /incoming
+  useradd -g sftpusers -d /incoming -s /sbin/nologin guestuser
+  # Set a password for this user
+  while true; do
+    if passwd "guestuser"; then
+      # If above command returns 0 exit code (success) -> break
+      break
+    fi
+  done
+
+  # This in sshd_config will help create a tightly restricted SFTP-only user account
+  cat <<EOF >> "$sshd_config"
+Match Group sftpusers
+  ForceCommand internal-sftp
+  ChrootDirectory /sftp/%u
+EOF
+
+  # Create sftp Home Directory
+  # /sftp as ChrootDirectory
+  mkdir /sftp
+  # Now, under /sftp, create the individual directories for the users who are 
+  # part of the sftpusers group. i.e the users who will be allowed only 
+  # to perform sftp and will be in chroot environment.
+
+  mkdir /sftp/guestuser
+
+  # So, /sftp/guestuser is equivalent to / for the guestuser. 
+  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
+  # only the content of the directories under “/sftp/guestuser” (and not the real / of the system). 
+  # This is the power of the chroot.
+
+  # So, under this directory /sftp/guestuser, create any subdirectory that you 
+  # like user to see. For example, create a incoming directory where users can sftp their files.
+  mkdir /sftp/guestuser/incoming
+
+  # Setup Appropriate Permission
+  chown guestuser:sftpusers /sftp/guestuser/incoming
+
+  ### Everything at the end should be like this
+  # 755 guestuser sftpusers /sftp/guestuser/incoming
+  # 755 root root /sftp/guestuser
+  # 755 root root /sftp
+    
+}
 
 function create_sftp_only_user() {
+  
 
   SFTP_USERNAME=sftptim
 
@@ -313,7 +368,7 @@ function create_sftp_only_user() {
 
   # This in sshd_config will help create a tightly restricted SFTP-only user account
   cat <<EOF >> "$sshd_config"
-Match User sftptim # #Match Group sftponly
+Match User $SFTP_USERNAME}
   ForceCommand internal-sftp
   ChrootDirectory %h # home directory. /home/%u equivalent or /home/${SFTP_USERNAME}
 EOF
