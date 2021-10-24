@@ -109,7 +109,7 @@ PORTS_TO_BE_OPEN=(
 
 function disable_welcome_message() {
   # Disable welcome message - https://askubuntu.com/a/676381 
-  if [ -d "etc/update-motd.d" ]; then 
+  if [ -d "/etc/update-motd.d" ]; then 
     chmod -x /etc/update-motd.d/* 
     echo "--> disabled welcome msg"
   fi
@@ -176,6 +176,7 @@ function handle_ssh_keys() {
 function make_backup_of_sshd_config() {
   # Create backup of previous $sshd_config
   make_old_file_backup "$sshd_config"
+  echo "make_backup_of_sshd_config" >> /root/logfile.log
 }
 
 
@@ -186,10 +187,12 @@ function change_default_ssh_port() {
     edit_sshd_config "^Port.*$" "Port ${CUSTOM_SSH_PORT}" # change: 'Port N'
     edit_sshd_config "GatewayPort.*$" "GatewayPort ${CUSTOM_SSH_PORT}" # change: 'GatewayPort N'
   fi
+  echo "change_default_ssh_port" >> /root/logfile.log
 }
 
 
 function change_some_ssh_directives() {
+  echo "change_some_ssh_directives" >> /root/logfile.log
 
   ### PasswordAuthentication - Disable password authentication for all users
   edit_sshd_config "^#PasswordAuthentication.*$" "PasswordAuthentication no"
@@ -347,9 +350,7 @@ function main() {
   # 1) Installing Libraries and Dependencies
   # 2) Setting UP WEBUZO
 
-  #log_it "1) Disabling welcome message"               "disable_welcome_message"
-
-  disable_welcome_message
+  log_it "1) Disabling welcome message"               "disable_welcome_message"
 
   #log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
   echo "--> Creating new user with sudo privileges"
@@ -357,10 +358,10 @@ function main() {
   create_sudo_user
   echo ""
 
-  log_it "1) Managing SSH keys"                       "handle_ssh_keys"
-
-  log_it "2) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
-  log_it "3) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
+  
+  log_it "2) Managing SSH keys"                       "handle_ssh_keys"
+  #log_it "2) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
+  log_it "3) Changing sshd_config derectives"         "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
   log_it "4) Testing sshd_config and restarting"      "test_and_restart_ssh"
   log_it "5) Setting basic firewall rules"            "setup_basic_firewall"
 }
