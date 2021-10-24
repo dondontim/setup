@@ -57,13 +57,14 @@ function make_old_file_backup() {
 
 
 
+DEBUG=
+LOG_FILE="/root/initial_server_setup.log"
 
 
 
 #remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
 sshd_config='/etc/ssh/sshd_config'
 #file_templates_dir="${PWD}/z_file_templates"
-
 
 
 
@@ -109,7 +110,6 @@ PORTS_TO_BE_OPEN=(
 
 
 function initialization() {
-  
 
   # This need to be run as root!
   if [[ $EUID -ne 0 ]]; then
@@ -117,14 +117,12 @@ function initialization() {
     exit 1
   fi
 
-  echo   "   1.1) update && upgrade"
-  update_and_upgrade > /dev/null 2>&1
-  echo   "   1.2) Installing ufw"
-  apt_install ufw > /dev/null 2>&1
-  echo   "   1.3) Disabling welcome message"
-  disable_welcome_message
+  update_and_upgrade
 
+  apt_install ufw
   #apt_install curl
+
+  disable_welcome_message
 }
 
 
@@ -188,7 +186,6 @@ function handle_ssh_keys() {
 function make_backup_of_sshd_config() {
   # Create backup of previous $sshd_config
   make_old_file_backup "$sshd_config"
-  echo "make_backup_of_sshd_config" >> /root/logfile.log
 }
 
 
@@ -199,12 +196,10 @@ function change_default_ssh_port() {
     edit_sshd_config "^Port.*$" "Port ${CUSTOM_SSH_PORT}" # change: 'Port N'
     edit_sshd_config "GatewayPort.*$" "GatewayPort ${CUSTOM_SSH_PORT}" # change: 'GatewayPort N'
   fi
-  echo "change_default_ssh_port" >> /root/logfile.log
 }
 
 
 function change_some_ssh_directives() {
-  echo "change_some_ssh_directives" >> /root/logfile.log
 
   ### PasswordAuthentication - Disable password authentication for all users
   edit_sshd_config "^#PasswordAuthentication.*$" "PasswordAuthentication no"
@@ -338,10 +333,17 @@ function log_it() {
 
   start_spinner "$spinner_message"
   # Evaluate command to execute
-  eval "$command_to_execute" > /dev/null 2>&1
+  
+  if [ "${DEBUG}" = true ]; then
+    eval "$command_to_execute" &> "$LOG_FILE"
+  else
+    eval "$command_to_execute" &> /dev/null
+  fi
+  
   # Pass the last comands exit code
   stop_spinner $?
 }
+
 
 
 
@@ -367,20 +369,25 @@ function main() {
   
   #log_it "1) Disabling welcome message"               "disable_welcome_message"
 
-
+  if [ "${DEBUG}" = true ]; then
+    echo ""
+    echo "DEBUG is On"
+    echo "Log file → ${LOG_FILE}"
+    echo ""
+  fi
   
-  log_it "1) Initialization"                        "initialization"
+  log_it "1) Initialization"                         "initialization" 
   
   echo ""
-  echo "--> Creating new user → ${USERNAME} with sudo privileges"
+  echo "--> Creating new user '${USERNAME}' with sudo privileges"
   echo ""
   create_sudo_user
   echo ""
 
-  log_it "2) Managing SSH keys"                     "handle_ssh_keys"
-  log_it "3) Changing ${sshd_config} derectives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
-  log_it "4) Testing ${sshd_config} and restarting" "test_and_restart_ssh"
-  log_it "5) Setting basic firewall rules"          "setup_basic_firewall"
+  log_it "2) Managing SSH keys"                      "handle_ssh_keys" 
+  log_it "3) Changing ${sshd_config} directives"     "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+  log_it "4) Testing  ${sshd_config} and restarting" "test_and_restart_ssh"
+  log_it "5) Setting basic firewall rules"           "setup_basic_firewall"
 }
 
 
