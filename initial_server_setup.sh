@@ -200,6 +200,10 @@ function change_default_ssh_port() {
 
 
 function change_some_ssh_directives() {
+  # Read about sshd_config directives:
+  # Ref: https://man7.org/linux/man-pages/man5/sshd_config.5.html
+
+  # Ref: https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-18-04
 
   ### PasswordAuthentication - Disable password authentication for all users
   edit_sshd_config "^#PasswordAuthentication.*$" "PasswordAuthentication no"
@@ -249,13 +253,92 @@ function change_some_ssh_directives() {
   #echo "AllowUsers user1 user2" >> "$sshd_config" # after space add other users
   # AllowGroups sysadmin dba
 
+  
+  echo "ChallengeResponseAuthentication no" >> "$sshd_config"
+  echo "KerberosAuthentication no" >> "$sshd_config"
+  echo "GSSAPIAuthentication no" >> "$sshd_config"
+  echo "X11Forwarding no" >> "$sshd_config"
+  echo "PermitUserEnvironment no" >> "$sshd_config" # If you add this comment also 'AcceptEnv'
+  echo "DebianBanner no" >> "$sshd_config"
 
 
-  # TODO(tim): More about hardening sshd_config:
-  # https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-18-04
 
+  ### Additional configurations from reference
+  # OpenSSH server configuration
+  # Ref: https://www.ssh.com/academy/ssh/sshd_config
+  #
+  # Setting persistent encryption
+  echo "Ciphers aes128-ctr,aes192-ctr,aes256-ctr" >> "$sshd_config"
+  echo "HostKeyAlgorithms ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,ssh-dss" >> "$sshd_config"
+  echo "KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256" >> "$sshd_config"
+  echo "MACs hmac-sha2-256,hmac-sha2-512,hmac-sha1" >> "$sshd_config"
+  # Managing port tunneling and forwarding
+  echo "AllowTcpForwarding no" >> "$sshd_config"
+  echo "AllowStreamLocalForwarding no" >> "$sshd_config"
+  echo "AllowAgentForwarding no" >> "$sshd_config"
+  echo "GatewayPorts no" >> "$sshd_config"
+  echo "PermitTunnel no" >> "$sshd_config"
+
+
+  # You need to create separate sftp user cuz normal user with my .zshrc and stuff will produce: 
+  # Received message too long 1530015802 \n Ensure the remote shell produces no output for non-interactive sessions.
+  # Or you set in sshd_config:
+
+  # Subsystem
+  # Ref: https://unix.stackexchange.com/a/327284
+  edit_sshd_config "^Subsystem.*$" "Subsystem sftp internal-sftp" 
+
+
+  # TODO(tim): setup sftp only user
+  #create_sftp_only_user
 }
 
+
+
+function create_sftp_only_user() {
+
+  SFTP_USERNAME=sftptim
+
+  # Create sftp user only with restricted shell access
+  useradd --create-home --shell "/usr/sbin/nologin" "${SFTP_USERNAME}"
+  #sudo adduser --shell /usr/lib/openssh/sftp-server sftptim # test
+
+  # Set a password for this user
+  while true; do
+    if passwd "${SFTP_USERNAME}"; then
+      # If above command returns 0 exit code (success) -> break
+      break
+    fi
+  done
+
+  # This in sshd_config will help create a tightly restricted SFTP-only user account
+  cat <<EOF >> "$sshd_config"
+Match User sftptim # #Match Group sftponly
+  ForceCommand internal-sftp
+  ChrootDirectory %h # home directory. /home/%u equivalent or /home/${SFTP_USERNAME}
+EOF
+
+  # WARNING: Within an OpenSSH configuration file, all configurations under a 
+  # Match block will only apply to connections that match the criteria, regardless
+  # of indentation or line breaks. This means that you must be careful and 
+  # ensure that configurations intended to apply globally are not accidentally
+  # put within a Match block. It is recommended to put all Match blocks 
+  # at the bottom/end of your configuration file to help avoid this.
+
+  # Teraz musimy stworzyć odpowiednie prawa dostępu do odpowiednich katalogów:
+  sftp_user_home_dir="$(eval echo ~${SFTP_USERNAME})"
+  sftp_user_files_dir="${sftp_user_home_dir}/files"
+
+  chown root "$sftp_user_home_dir"
+  chmod go-w "$sftp_user_home_dir"
+
+  mkdir "$sftp_user_files_dir"
+  chown "$SFTP_USERNAME" "$sftp_user_files_dir"
+  chmod ug+rwX "$sftp_user_files_dir"
+  # Po tej operacji użytkownik $SFTP_USERNAME, może się zalogować do serwera przez sftp
+  # i będzie miał dostęp jedynie do zapisu w katalogu $sftp_user_files_dir,
+  # przy czym nie będzie miał możliwości wyjść poza katalog $sftp_user_home_dir.
+}
 
 
 
@@ -305,9 +388,6 @@ function disable_welcome_message() {
     echo "--> disabled welcome msg"
   fi
 }
-
-
-
 
 
 
@@ -376,7 +456,7 @@ function main() {
     echo ""
   fi
   
-  log_it "1) Initialization"                         "initialization" 
+  log_it "1) Initialization"                        "initialization" 
   
   echo ""
   echo "--> Creating new user '${USERNAME}' with sudo privileges"
@@ -384,11 +464,20 @@ function main() {
   create_sudo_user
   echo ""
 
-  log_it "2) Managing SSH keys"                      "handle_ssh_keys" 
-  log_it "3) Changing ${sshd_config} directives"     "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
-  log_it "4) Testing  ${sshd_config} and restarting" "test_and_restart_ssh"
-  log_it "5) Setting basic firewall rules"           "setup_basic_firewall"
+  log_it "2) Managing SSH keys"                     "handle_ssh_keys" 
+  log_it "3) Changing ${sshd_config} directives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+  log_it "4) Testing ${sshd_config} and restarting" "test_and_restart_ssh"
+  log_it "5) Setting basic firewall rules"          "setup_basic_firewall"
+  echo "--> DONE!"
 }
+
+
+
+
+ 
+
+
+
 
 
 
@@ -404,3 +493,5 @@ main
 
 # TODO(tim): Add spinner
 
+
+# Ref: https://www.ssh.com/academy/ssh/sshd_config
