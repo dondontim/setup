@@ -309,7 +309,7 @@ function log_it() {
 
   start_spinner "$spinner_message"
   # Evaluate command to execute
-  eval "$command_to_execute"
+  eval "$command_to_execute" > /dev/null 2>&1
   # Pass the last comands exit code
   stop_spinner $?
   echo ""
@@ -330,8 +330,8 @@ function main() {
   fi
 
 
-  update_and_upgrade
-  apt_install ufw
+  update_and_upgrade > /dev/null 2>&1
+  apt_install ufw > /dev/null 2>&1
   #apt_install curl
 
   #disable_welcome_message
@@ -346,7 +346,10 @@ function main() {
 
   # 1) Installing Libraries and Dependencies
   # 2) Setting UP WEBUZO
-  log_it "1) Disabling welcome message"               "disable_welcome_message"
+
+  #log_it "1) Disabling welcome message"               "disable_welcome_message"
+
+  disable_welcome_message
 
   #log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
   echo "--> Creating new user with sudo privileges"
@@ -354,12 +357,12 @@ function main() {
   create_sudo_user
   echo ""
 
-  log_it "2) Managing SSH keys"                       "handle_ssh_keys"
+  log_it "1) Managing SSH keys"                       "handle_ssh_keys"
 
-  log_it "3) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
-  log_it "4) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
-  log_it "5) Testing sshd_config and restarting"      "test_and_restart_ssh"
-  log_it "6) Setting basic firewall rules"            "setup_basic_firewall"
+  log_it "2) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
+  log_it "3) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
+  log_it "4) Testing sshd_config and restarting"      "test_and_restart_ssh"
+  log_it "5) Setting basic firewall rules"            "setup_basic_firewall"
 }
 
 
