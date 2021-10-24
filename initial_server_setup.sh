@@ -6,29 +6,13 @@
 
 
 
+set -euo pipefail
 
 
+########################
+### HELPER FUNCTIONS ###
+########################
 
-function command_exists() {
-  command -v "$@" >/dev/null 2>&1
-}
-
-function install_nonexisting_command() {
-  if command_exists "$1"; then
-    echo "$1 exists"
-  else
-    sudo apt-get install -y "$1"
-  fi
-}
-
-
-function press_anything_to_continue() {
-  read -n 1 -s -r -p "Press any key to continue"
-  # -n defines the required character count to stop reading
-  # -s hides the user's input
-  # -r causes the string to be interpreted "raw" (without considering backslash escapes)
-  echo ""
-}
 
 
 function apt_install() {
@@ -41,23 +25,15 @@ function update_and_upgrade() {
 
 
 
-remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
-sshd_config='/etc/ssh/sshd_config'
-file_templates_dir="${PWD}/z_file_templates"
-
-
-
-
-
 
 function replace_regex_in_file() 
 { 
-  local pattern repl flags file
+  local pattern repl file
   pattern="$1"
   repl="$2"
   file="$3"
   #sed --in-place -E "s/${pattern}/${repl}/" "$3" # it was macos sed
-  sed --in-place -E "s/${pattern}/${repl}/m" "$3"
+  sed --in-place "s/${pattern}/${repl}/m" "$file"
   # -i == --in-place
 }
 
@@ -72,7 +48,7 @@ function make_old_file_backup() {
   local file_path date
   file_path="$1"
   date=$(date '+%Y-%m-%d')
-  cp $file_path "${file_path}.${date}.bak"
+  cp "$file_path" "${file_path}.${date}.bak"
 }
 
 
@@ -80,8 +56,13 @@ function make_old_file_backup() {
 
 
 
-update_and_upgrade
-apt_install ufw
+
+
+
+
+#remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
+sshd_config='/etc/ssh/sshd_config'
+#file_templates_dir="${PWD}/z_file_templates"
 
 
 
@@ -89,8 +70,6 @@ apt_install ufw
 
 
 
-
-set -euo pipefail
 
 ########################
 ### SCRIPT VARIABLES ###
@@ -132,6 +111,7 @@ function disable_welcome_message() {
   # Disable welcome message - https://askubuntu.com/a/676381 
   if [ -d "etc/update-motd.d" ]; then 
     chmod -x /etc/update-motd.d/* 
+    echo "--> disabled welcome msg"
   fi
 }
 
@@ -143,9 +123,10 @@ function create_sudo_user() {
   useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
   # Set a password for this user
   while true; do
-    passwd "${USERNAME}"
-    # If above command returns 0 exit code break
-    [[ $? -eq 0 ]] && break
+    if passwd "${USERNAME}"; then
+      # If above command returns 0 exit code (success) -> break
+      break
+    fi
   done
 
   ### Alternatives
@@ -326,11 +307,12 @@ function log_it() {
   spinner_message="$1"
   command_to_execute="$2"
 
-  start_spinner $spinner_message
+  start_spinner "$spinner_message"
   # Evaluate command to execute
   eval "$command_to_execute"
   # Pass the last comands exit code
   stop_spinner $?
+  echo ""
 }
 
 
@@ -340,6 +322,18 @@ function log_it() {
 
 
 function main() {
+
+  # This need to be run as root!
+  if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+  fi
+
+
+  update_and_upgrade
+  apt_install ufw
+  #apt_install curl
+
   #disable_welcome_message
   #create_sudo_user
   #handle_ssh_keys
@@ -353,20 +347,26 @@ function main() {
   # 1) Installing Libraries and Dependencies
   # 2) Setting UP WEBUZO
   log_it "1) Disabling welcome message"               "disable_welcome_message"
-  log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
-  log_it "3) Managing SSH keys"                       "handle_ssh_keys"
 
-  log_it "4) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
-  log_it "5) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
-  log_it "6) Testing sshd_config and restarting"      "test_and_restart_ssh"
-  log_it "7) Setting basic firewall rules"            "setup_basic_firewall"
+  #log_it "2) Creating new user with sudo privileges"  "create_sudo_user"
+  echo "--> Creating new user with sudo privileges"
+  echo ""
+  create_sudo_user
+  echo ""
+
+  log_it "2) Managing SSH keys"                       "handle_ssh_keys"
+
+  log_it "3) Creating backup of previous sshd_config" "make_backup_of_sshd_config"
+  log_it "4) Changing sshd_config derectives"         "change_default_ssh_port ; change_some_ssh_directives"
+  log_it "5) Testing sshd_config and restarting"      "test_and_restart_ssh"
+  log_it "6) Setting basic firewall rules"            "setup_basic_firewall"
 }
 
 
 
 
 
-
+main
 
 
 
