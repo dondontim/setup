@@ -300,15 +300,22 @@ function create_sftp_only_group() {
   # Great reference: 
   # https://www.thegeekstuff.com/2012/03/chroot-sftp-setup/
 
+  SFTP_GROUP='sftpusers'
+  SFTP_USER='sftptim'
+  SFTP_DIR='/sftp'
+
+  USERS_HOME_DIR="${SFTP_DIR}/${SFTP_USER}"
+
   # Create a New Group
-  groupadd sftpusers
+  groupadd "$SFTP_GROUP"
 
   # Create User
   # make his Home directory as /incoming
-  useradd -g sftpusers -d /incoming -s /sbin/nologin guestuser
+  useradd -g "$SFTP_GROUP" -d "$USERS_HOME_DIR" --shell "/usr/sbin/nologin" "$SFTP_USER"
+  
   # Set a password for this user
   while true; do
-    if passwd "guestuser"; then
+    if passwd "$SFTP_USER"; then
       # If above command returns 0 exit code (success) -> break
       break
     fi
@@ -316,84 +323,63 @@ function create_sftp_only_group() {
 
   # This in sshd_config will help create a tightly restricted SFTP-only user account
   cat <<EOF >> "$sshd_config"
-Match Group sftpusers
+Match Group $SFTP_GROUP
   ForceCommand internal-sftp
-  ChrootDirectory /sftp/%u
-EOF
+  ChrootDirectory /sftp # /%u
+EOF # TODO(tim): replace with $SFTP_DIR
 
   # Create sftp Home Directory
-  # /sftp as ChrootDirectory
-  mkdir /sftp
+  mkdir "$SFTP_DIR"
   # Now, under /sftp, create the individual directories for the users who are 
   # part of the sftpusers group. i.e the users who will be allowed only 
   # to perform sftp and will be in chroot environment.
 
-  mkdir /sftp/guestuser
 
-  # So, /sftp/guestuser is equivalent to / for the guestuser. 
+  # /sftp/guestuser is equivalent to / for the guestuser. 
   # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
-  # only the content of the directories under “/sftp/guestuser” (and not the real / of the system). 
-  # This is the power of the chroot.
+  # only the content of the directories under “/sftp/guestuser” 
+  # (and not the real / of the system). This is the power of the chroot.
+  mkdir "$USERS_HOME_DIR"
+  # /sftp == ChrootDirectory
 
   # So, under this directory /sftp/guestuser, create any subdirectory that you 
   # like user to see. For example, create a incoming directory where users can sftp their files.
-  mkdir /sftp/guestuser/incoming
+  mkdir "${USERS_HOME_DIR}/incoming"
+
+  # TODO(tim): short above 3 commands comments to one line below
+  #mkdir -p "${USERS_HOME_DIR}/incoming"
+
 
   # Setup Appropriate Permission
-  chown guestuser:sftpusers /sftp/guestuser/incoming
+  chown "$SFTP_USER":"$SFTP_GROUP" "${USERS_HOME_DIR}/incoming"
 
   ### Everything at the end should be like this
   # 755 guestuser sftpusers /sftp/guestuser/incoming
   # 755 root root /sftp/guestuser
   # 755 root root /sftp
-    
-}
-
-function create_sftp_only_user() {
   
+  # TODO(tim): Think of shorting this below ssh keys handling with function above
 
-  SFTP_USERNAME=sftptim
+  # Create SSH directory for sftp user
+  mkdir --parents "${USERS_HOME_DIR}/.ssh"
 
-  # Create sftp user only with restricted shell access
-  useradd --create-home --shell "/usr/sbin/nologin" "${SFTP_USERNAME}"
-  #sudo adduser --shell /usr/lib/openssh/sftp-server sftptim # test
+  # Copy `authorized_keys` file from root if requested
+  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
+    cp /root/.ssh/authorized_keys "${USERS_HOME_DIR}/.ssh"
+  fi
 
-  # Set a password for this user
-  while true; do
-    if passwd "${SFTP_USERNAME}"; then
-      # If above command returns 0 exit code (success) -> break
-      break
-    fi
+  # Add additional provided public keys
+  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
+    echo "${pub_key}" >> "${USERS_HOME_DIR}/.ssh/authorized_keys"
   done
 
-  # This in sshd_config will help create a tightly restricted SFTP-only user account
-  cat <<EOF >> "$sshd_config"
-Match User $SFTP_USERNAME}
-  ForceCommand internal-sftp
-  ChrootDirectory %h # home directory. /home/%u equivalent or /home/${SFTP_USERNAME}
-EOF
-
-  # WARNING: Within an OpenSSH configuration file, all configurations under a 
-  # Match block will only apply to connections that match the criteria, regardless
-  # of indentation or line breaks. This means that you must be careful and 
-  # ensure that configurations intended to apply globally are not accidentally
-  # put within a Match block. It is recommended to put all Match blocks 
-  # at the bottom/end of your configuration file to help avoid this.
-
-  # Teraz musimy stworzyć odpowiednie prawa dostępu do odpowiednich katalogów:
-  sftp_user_home_dir="$(eval echo ~${SFTP_USERNAME})"
-  sftp_user_files_dir="${sftp_user_home_dir}/files"
-
-  chown root "$sftp_user_home_dir"
-  chmod go-w "$sftp_user_home_dir"
-
-  mkdir "$sftp_user_files_dir"
-  chown "$SFTP_USERNAME" "$sftp_user_files_dir"
-  chmod ug+rwX "$sftp_user_files_dir"
-  # Po tej operacji użytkownik $SFTP_USERNAME, może się zalogować do serwera przez sftp
-  # i będzie miał dostęp jedynie do zapisu w katalogu $sftp_user_files_dir,
-  # przy czym nie będzie miał możliwości wyjść poza katalog $sftp_user_home_dir.
+  # Adjust SSH configuration ownership and permissions
+  chmod 0700 "${USERS_HOME_DIR}/.ssh"
+  chmod 0600 "${USERS_HOME_DIR}/.ssh/authorized_keys"
+  chown --recursive "${SFTP_USER}" "${USERS_HOME_DIR}/.ssh"
 }
+
+
 
 
 
@@ -521,6 +507,14 @@ function main() {
 
   log_it "2) Managing SSH keys"                     "handle_ssh_keys" 
   log_it "3) Changing ${sshd_config} directives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+
+  echo ""
+  echo "--> Creating new SFTP-ONLY user restricted to home directory using chroot Jail"
+  echo ""
+  create_sftp_only_group
+  echo ""
+  
+  
   log_it "4) Testing ${sshd_config} and restarting" "test_and_restart_ssh"
   log_it "5) Setting basic firewall rules"          "setup_basic_firewall"
   echo "--> DONE!"
@@ -546,7 +540,51 @@ main
 
 # TODO(tim): make backup of ssh dir with old github keys and make new
 
-# TODO(tim): Add spinner
 
 
-# Ref: https://www.ssh.com/academy/ssh/sshd_config
+
+function create_sftp_only_user() {
+  
+
+  SFTP_USER=sftptim
+
+  # Create sftp user only with restricted shell access
+  useradd --create-home --shell "/usr/sbin/nologin" "$SFTP_USER"
+  #sudo adduser --shell /usr/lib/openssh/sftp-server sftptim # test
+
+  # Set a password for this user
+  while true; do
+    if passwd "${SFTP_USER}"; then
+      # If above command returns 0 exit code (success) -> break
+      break
+    fi
+  done
+
+  # This in sshd_config will help create a tightly restricted SFTP-only user account
+  cat <<EOF >> "$sshd_config"
+Match User $SFTP_USER
+  ForceCommand internal-sftp
+  ChrootDirectory %h # home directory. /home/%u equivalent or /home/${SFTP_USER}
+EOF
+
+  # WARNING: Within an OpenSSH configuration file, all configurations under a 
+  # Match block will only apply to connections that match the criteria, regardless
+  # of indentation or line breaks. This means that you must be careful and 
+  # ensure that configurations intended to apply globally are not accidentally
+  # put within a Match block. It is recommended to put all Match blocks 
+  # at the bottom/end of your configuration file to help avoid this.
+
+  # Teraz musimy stworzyć odpowiednie prawa dostępu do odpowiednich katalogów:
+  sftp_user_home_dir="$(eval echo ~${SFTP_USER})"
+  sftp_user_files_dir="${sftp_user_home_dir}/files"
+
+  chown root "$sftp_user_home_dir"
+  chmod go-w "$sftp_user_home_dir"
+
+  mkdir "$sftp_user_files_dir"
+  chown "$SFTP_USER" "$sftp_user_files_dir"
+  chmod ug+rwX "$sftp_user_files_dir"
+  # Po tej operacji użytkownik $SFTP_USER, może się zalogować do serwera przez sftp
+  # i będzie miał dostęp jedynie do zapisu w katalogu $sftp_user_files_dir,
+  # przy czym nie będzie miał możliwości wyjść poza katalog $sftp_user_home_dir.
+}
