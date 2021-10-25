@@ -325,8 +325,9 @@ function create_sftp_only_group() {
   cat <<EOF >> "$sshd_config"
 Match Group $SFTP_GROUP
   ForceCommand internal-sftp
-  ChrootDirectory /sftp # /%u
-EOF # TODO(tim): replace with $SFTP_DIR
+  ChrootDirectory /sftp/%u
+EOF
+# TODO(tim): replace with $SFTP_DIR
 
   # Create sftp Home Directory
   mkdir "$SFTP_DIR"
