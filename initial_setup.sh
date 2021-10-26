@@ -439,26 +439,10 @@ press_anything_to_continue
 
 
 
-update_and_upgrade
 
 
-### Stop, remove apache2 and all dependencies
-# TODO(tim): check if apache2 is present
-if [[ "$RELEASE" == "centos" ]]; then
-  # On RHEL/CentOS/Oracle/Fedora Linux.
-  systemctl disable httpd && systemctl stop httpd
 
-  # Remove the installed httpd packages
-  yum remove "httpd*" -y
-  # Remove the Document root directory
-  #rm -rf /var/www
-  # Remove the Configuration Files
-  rm -rf /etc/httpd
-  # Remove the Supporing files and httpd modules
-  rm -rf /usr/lib64/httpd
-  # delete the Apache user
-  userdel -r apache
-else
+function remove_apache_debian() {
   # On Debian/Ubuntu
   systemctl disable apache2 && systemctl stop apache2
 
@@ -476,7 +460,43 @@ else
   rm -rf /etc/apache2 
   # Remove the Supporing files and httpd modules # /usr/lib/apache2/modules
   rm -rf /usr/lib/apache2
+}
 
+function remove_apache_centos() {
+  # On RHEL/CentOS/Oracle/Fedora Linux.
+  systemctl disable httpd && systemctl stop httpd
+
+  # Remove the installed httpd packages
+  yum remove "httpd*" -y
+  # Remove the Document root directory
+  #rm -rf /var/www
+  # Remove the Configuration Files
+  rm -rf /etc/httpd
+  # Remove the Supporing files and httpd modules
+  rm -rf /usr/lib64/httpd
+  # delete the Apache user
+  userdel -r apache
+}
+
+
+
+
+
+
+
+
+update_and_upgrade
+
+
+
+### Stop, remove apache2 and all dependencies
+# TODO(tim): check if apache2 is present
+if [[ "$RELEASE" == "centos" ]]; then
+  # On RHEL/CentOS/Oracle/Fedora Linux.
+  remove_apache_centos
+else
+  # On Debian/Ubuntu
+  remove_apache_debian
 fi
 
 
