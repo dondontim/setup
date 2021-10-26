@@ -401,7 +401,7 @@ EOF
 
   # Extracted reused code
   manage_ssh_keys "$USERS_HOME_DIR"
-  chown --recursive "${SFTP_USER}" "${home_directory}/.ssh"
+  chown --recursive "${SFTP_USER}" "${USERS_HOME_DIR}/.ssh"
 }
 
 
