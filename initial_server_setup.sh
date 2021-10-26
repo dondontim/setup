@@ -9,9 +9,87 @@
 set -euo pipefail
 
 
+
+
+DEBUG=
+LOG_FILE="/root/initial_server_setup.log"
+
+
+sshd_config='/etc/ssh/sshd_config'
+#remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
+#file_templates_dir="${PWD}/z_file_templates"
+
+
+
+########################
+### SCRIPT VARIABLES ###
+########################
+
+# Name of the user to create and grant sudo privileges
+USERNAME=tim
+
+# Whether to copy over the root user's `authorized_keys` file to the new sudo
+# user.
+COPY_AUTHORIZED_KEYS_FROM_ROOT=false
+
+# Additional public keys to add to the new sudo user
+# OTHER_PUBLIC_KEYS_TO_ADD=(
+#   "ssh-rsa AAAAB..."
+#   "ssh-rsa AAAAB..."
+# )
+OTHER_PUBLIC_KEYS_TO_ADD=(
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN0I1SsGWjRFaMfjXmk7G04rxTC4zsUPnp2JsSM6D/lC dontim@MathBookPro"
+)
+
+CUSTOM_SSH_PORT=7822
+
+PORTS_TO_BE_OPEN=(
+  "OpenSSH" # Add exception for SSH default port 22
+  "$CUSTOM_SSH_PORT"
+  "21"
+  "25"
+  "80"
+  "443"
+)
+
+
+
+
+
 ########################
 ### HELPER FUNCTIONS ###
 ########################
+
+
+
+
+source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
+
+
+# $1 have to be spinner message
+# $2 have to be command to execute
+function log_it() {
+  if [[ $# -lt 2 ]]; then
+    echo "[${funcstack}]: You are missing argument(s) for this funtion"
+    return
+  fi
+
+  local spinner_message command_to_execute
+  spinner_message="$1"
+  command_to_execute="$2"
+
+  start_spinner "$spinner_message"
+  # Evaluate command to execute
+  
+  if [ "${DEBUG}" = true ]; then
+    eval "$command_to_execute" &> "$LOG_FILE"
+  else
+    eval "$command_to_execute" &> /dev/null
+  fi
+  
+  # Pass the last comands exit code
+  stop_spinner $?
+}
 
 
 
@@ -52,56 +130,53 @@ function make_old_file_backup() {
 }
 
 
+function manage_ssh_keys() {
+  
+  local home_directory
+  home_directory="$1"
+
+  # Create SSH directory for $user
+  mkdir --parents "${home_directory}/.ssh"
+
+  # Copy `authorized_keys` file from root if requested
+  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
+    cp /root/.ssh/authorized_keys "${home_directory}/.ssh"
+  fi
+
+  # Add additional provided public keys
+  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
+    echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
+  done
+
+  # Adjust SSH configuration ownership and permissions
+  chmod 0700 "${home_directory}/.ssh"
+  chmod 0600 "${home_directory}/.ssh/authorized_keys"
+  
+  # This is extracted outside of function
+  #chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
+}
 
 
+function set_password_for_user() {
+  local user
+  user="$1"
+
+  # Set a password for this user
+  while true; do
+    if passwd "$user"; then
+      # If above command returns 0 exit code (success) -> break
+      break
+    fi
+  done
+
+  ### Alternatives in creation of users
+  # Create a new user
+  #adduser --gecos "" "${USERNAME}"
+  # Granting Administrative Privileges
+  #usermod -aG sudo "${USERNAME}"
+}
 
 
-
-DEBUG=
-LOG_FILE="/root/initial_server_setup.log"
-
-
-
-#remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
-sshd_config='/etc/ssh/sshd_config'
-#file_templates_dir="${PWD}/z_file_templates"
-
-
-
-
-
-
-
-########################
-### SCRIPT VARIABLES ###
-########################
-
-# Name of the user to create and grant sudo privileges
-USERNAME=tim
-
-# Whether to copy over the root user's `authorized_keys` file to the new sudo
-# user.
-COPY_AUTHORIZED_KEYS_FROM_ROOT=false
-
-# Additional public keys to add to the new sudo user
-# OTHER_PUBLIC_KEYS_TO_ADD=(
-#   "ssh-rsa AAAAB..."
-#   "ssh-rsa AAAAB..."
-# )
-OTHER_PUBLIC_KEYS_TO_ADD=(
-  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+YLvFLyTnbrcBIRIU5OMf1ZHkxM04jP9L/gnQlEKn0kd2XGYkBd36QRN51M9nnmIjaVTORLmv2DA0CsMoQRdmL7TphMXeycA6xi82wrf5cvy9Qbtp1iv0VfZR2YfXmXJnyT7+LY99Qf4qbPmnFpu384HR17IdeXmKvQf8tCqJBzph/pBYFLjZQxR/lWFYnvZ3e7Tb+7/IKaacLcusZfc9lQ1i+SXQ/kEuscHjI4rOjmzWqY/VfFFV6mSAmXKIQxuypY/wWXYlUuYFfEug41sRWCROPT7f3NwVumiOwB1G+FCTP6YS9KMFvhzfLqdC0igZ5rHkkVtUFAcAdh349FdpGeaR3C/7KwN/d+rUCJ9rKPBnOTrFbCOmTA44wwCRGoPLTIrmIfXpZqg51+ZpEiZSdS/tNfmc+N74g3Phq7NBx5GWJRa4S51D1xpsFS+Ba5Yj/q9cBAPwBKFHe+m1hcl1f2bS3NRm9zaRTiLcnTT4hptexhanhj8PtWzhSVAz4a8= dontim@android-571979f94aa0e9ac"
-)
-
-CUSTOM_SSH_PORT=7822
-
-PORTS_TO_BE_OPEN=(
-  "OpenSSH" # Add exception for SSH default port 22
-  "$CUSTOM_SSH_PORT"
-  "21"
-  "25"
-  "80"
-  "443"
-)
 
 ####################
 ### SCRIPT LOGIC ###
@@ -131,22 +206,8 @@ function initialization() {
 function create_sudo_user() {
   ### Add sudo user and grant privileges
   useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
-  # Set a password for this user
-  while true; do
-    if passwd "${USERNAME}"; then
-      # If above command returns 0 exit code (success) -> break
-      break
-    fi
-  done
-
-  ### Alternatives
-  # Create a new user
-  #adduser --gecos "" "${USERNAME}"
-  # Granting Administrative Privileges
-  #usermod -aG sudo "${USERNAME}"
+  set_password_for_user "$USERNAME"
 }
-
-
 
 
 
@@ -157,23 +218,9 @@ function create_sudo_user() {
 function handle_ssh_keys() {
   # Create SSH directory for sudo user
   home_directory="$(eval echo ~${USERNAME})"
-  mkdir --parents "${home_directory}/.ssh"
 
-  # Copy `authorized_keys` file from root if requested
-  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
-    cp /root/.ssh/authorized_keys "${home_directory}/.ssh"
-  fi
-
-  # Add additional provided public keys
-  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
-    echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
-  done
-
-  # Adjust SSH configuration ownership and permissions
-  chmod 0700 "${home_directory}/.ssh"
-  chmod 0600 "${home_directory}/.ssh/authorized_keys"
+  manage_ssh_keys "$home_directory"
   chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
-
 }
 
 
@@ -290,10 +337,8 @@ function change_some_ssh_directives() {
   # Ref: https://unix.stackexchange.com/a/327284
   edit_sshd_config "^Subsystem.*$" "Subsystem sftp internal-sftp" 
 
-
-  # TODO(tim): setup sftp only user
-  # Run here creation of sftp user or no
 }
+
 
 
 function create_sftp_only_group() {
@@ -312,22 +357,16 @@ function create_sftp_only_group() {
   # Create User
   # make his Home directory as /incoming
   useradd -g "$SFTP_GROUP" -d "$USERS_HOME_DIR" --shell "/usr/sbin/nologin" "$SFTP_USER"
+  set_password_for_user "$SFTP_USER"
   
-  # Set a password for this user
-  while true; do
-    if passwd "$SFTP_USER"; then
-      # If above command returns 0 exit code (success) -> break
-      break
-    fi
-  done
 
   # This in sshd_config will help create a tightly restricted SFTP-only user account
   cat <<EOF >> "$sshd_config"
 Match Group $SFTP_GROUP
   ForceCommand internal-sftp
-  ChrootDirectory /sftp/%u
+  ChrootDirectory $SFTP_DIR/%u
 EOF
-# TODO(tim): replace with $SFTP_DIR
+# Above 'ChrootDirectory' specifies jail for 'Match'ed
 
   # Create sftp Home Directory
   mkdir "$SFTP_DIR"
@@ -359,25 +398,10 @@ EOF
   # 755 root root /sftp/guestuser
   # 755 root root /sftp
   
-  # TODO(tim): Think of shorting this below ssh keys handling with function above
 
-  # Create SSH directory for sftp user
-  mkdir --parents "${USERS_HOME_DIR}/.ssh"
-
-  # Copy `authorized_keys` file from root if requested
-  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
-    cp /root/.ssh/authorized_keys "${USERS_HOME_DIR}/.ssh"
-  fi
-
-  # Add additional provided public keys
-  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
-    echo "${pub_key}" >> "${USERS_HOME_DIR}/.ssh/authorized_keys"
-  done
-
-  # Adjust SSH configuration ownership and permissions
-  chmod 0700 "${USERS_HOME_DIR}/.ssh"
-  chmod 0600 "${USERS_HOME_DIR}/.ssh/authorized_keys"
-  chown --recursive "${SFTP_USER}" "${USERS_HOME_DIR}/.ssh"
+  # Extracted reused code
+  manage_ssh_keys "$USERS_HOME_DIR"
+  chown --recursive "${SFTP_USER}" "${home_directory}/.ssh"
 }
 
 
@@ -438,33 +462,6 @@ function disable_welcome_message() {
 
 
 
-source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
-
-
-# $1 have to be spinner message
-# $2 have to be command to execute
-function log_it() {
-  if [[ $# -lt 2 ]]; then
-    echo "[${funcstack}]: You are missing argument(s) for this funtion"
-    return
-  fi
-
-  local spinner_message command_to_execute
-  spinner_message="$1"
-  command_to_execute="$2"
-
-  start_spinner "$spinner_message"
-  # Evaluate command to execute
-  
-  if [ "${DEBUG}" = true ]; then
-    eval "$command_to_execute" &> "$LOG_FILE"
-  else
-    eval "$command_to_execute" &> /dev/null
-  fi
-  
-  # Pass the last comands exit code
-  stop_spinner $?
-}
 
 
 
@@ -484,13 +481,6 @@ function main() {
   #setup_basic_firewall
   
 
-  
-  # 1) Installing Libraries and Dependencies
-  # 2) Setting UP WEBUZO
-
-  
-  #log_it "1) Disabling welcome message"               "disable_welcome_message"
-
   if [ "${DEBUG}" = true ]; then
     echo ""
     echo "DEBUG is On"
@@ -506,8 +496,8 @@ function main() {
   create_sudo_user
   echo ""
 
-  log_it "2) Managing SSH keys"                     "handle_ssh_keys" 
-  log_it "3) Changing ${sshd_config} directives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+  log_it "2) Managing SSH Keys"                     "handle_ssh_keys" 
+  log_it "3) Changing ${sshd_config} Directives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
 
   echo ""
   echo "--> Creating new SFTP-ONLY user restricted to home directory using chroot Jail"
@@ -535,14 +525,9 @@ function main() {
 
 main
 
+ 
 
-
-
-
-# TODO(tim): make backup of ssh dir with old github keys and make new
-
-
-
+# This is old version i have better with jail for sftp user above
 
 function create_sftp_only_user() {
   

@@ -113,6 +113,8 @@ cargo install viu
 
 
 apt_install ack # grep-like text finder
+apt_install gawk
+
 
 
 

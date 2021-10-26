@@ -15,7 +15,6 @@ apt-get -yq install [packagename]
 DEBIAN_FRONTEND=noninteractive apt-get -y update
 
 
-
 # Updates, upgrades the packages, removes unused packages, then removes old versions of packages.
 # apt-get update && apt-get upgrade -y && apt-get autoremove && apt-get autoclean
 

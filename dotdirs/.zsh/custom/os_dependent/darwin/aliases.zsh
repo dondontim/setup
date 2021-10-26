@@ -1,4 +1,11 @@
 
+# This is not required cuz gsed should be saved under sed as in brew.sh
+# alias sed="gsed" # GNU/sed utility
+
+# if command_exists gawk; then
+#   alias awk="gawk"
+# fi
+
 alias notes="open -a Notes"
 
 alias {r,reopn,reopren}='reopen'

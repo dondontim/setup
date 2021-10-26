@@ -114,6 +114,15 @@ detect-clipboard || true
 
 ##### ----- ###### From here are my custom clipboard related stuff ###### ----- #####
 
+# Trim all new lines and copy to clipboard
+alias trim_copy="tr -d '\n' | clipcopy"
+
+
+### Trim the last newline that is always added at the end
+# head -c -1 deletes one byte from the end
+alias clipcopy="head -c -1 | clipcopy"
+alias clippaste="head -c -1 | clippaste"
+
 alias copy='clipcopy'
 alias paste='clippaste'
 
@@ -126,8 +135,8 @@ alias pwdc=$CWD
 alias pwdcp=$CWD
 alias copydir=$CWD
 
-# Trim new lines and copy to clipboard
-alias trim_copy="tr -d '\n' | clipcopy"
+
+
 
 # Copies the pathname of the current directory to the system or X Windows clipboard
 function copydir {

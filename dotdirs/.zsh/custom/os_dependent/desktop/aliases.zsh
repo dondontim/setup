@@ -1,3 +1,7 @@
+
+
+
+
 alias {vps_,vps_info,vps_web,my_vps,myvps}="open_command https://my.a2hosting.com/clientarea.php?action=productdetails&id=473513"
 
 
@@ -18,7 +22,7 @@ alias {pogoda_m,pogodam}="open_command https://weather.com/pl-PL/pogoda/miesiecz
 
 alias diffchecker="open_command https://www.diffchecker.com"
 alias {googledrive,gdriveweb,gdrivegui}="open_command https://drive.google.com/drive/u/0/my-drive"
-alias {translate,trans,gtrans}='open_command https://translate.google.pl'
+alias {translate,transweb,webtrans,gtrans}='open_command https://translate.google.pl'
 alias regex="open_command https://regexr.com"
 alias {asciitab,table_generator}="open_command https://ozh.github.io/ascii-tables/"
 alias {advanced_search,advanced,advs}="open_command https://www.google.com/advanced_search"

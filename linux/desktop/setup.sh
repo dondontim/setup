@@ -150,6 +150,26 @@ cargo install viu
 
 
 apt_install ack # grep-like text finder
+apt_install gawk
+
+
+
+
+
+
+
+
+
+
+############################ DESKTOP ###########################################
+
+### Command-line translator
+# Ref: https://github.com/soimort/translate-shell
+# Download the self-contained executable and place it into your path.
+mkdir -p ~/bin
+wget git.io/trans && chmod +x ./trans && mv ./trans ~/bin
+
+
 
 
 
