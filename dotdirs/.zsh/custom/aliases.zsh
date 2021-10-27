@@ -117,7 +117,7 @@ alias week='date +%V'
 #######################################
 # Wrappers
 #######################################
-this_file_name=$(basename $0)
+this_file_name="$(basename $0)"
 CUSTOM_ALIASES="${ZSH_CUSTOM}/${this_file_name}"
 CUSTOM_FUNCTIONS="${ZSH_CUSTOM}/functions.zsh"
 

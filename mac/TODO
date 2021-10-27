@@ -1,0 +1,15 @@
+# MySQL CLI on Mac
+brew install mysql
+brew postinstall mysql
+brew services start mysql
+mysql_secure_installation
+#mysql -uroot # login to mysql
+
+
+
+# From app store to clean drives
+# https://apps.apple.com/us/app/cleanmydrive-2/id523620159?ign-mpt=uo%3D4&mt=12 
+
+
+diskutil list
+diskutil unmountDisk /dev/disk2 # This name is from above command

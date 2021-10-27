@@ -43,6 +43,25 @@ OTHER_PUBLIC_KEYS_TO_ADD=(
 
 CUSTOM_SSH_PORT=7822
 
+
+### For mail server
+# 25 (SMTP),
+# 587 (SMTP over TLS),
+# 465 (SMTPS),
+# 143 (IMAP),
+# 993 (IMAPS),
+# 110 (POP3),
+# 995 (POP3S)
+PORTS_TO_BE_OPEN=(
+  "25"
+  "587"
+  "465"
+  "143"
+  "993"
+  "110"
+  "995"
+)
+
 PORTS_TO_BE_OPEN=(
   "OpenSSH" # Add exception for SSH default port 22
   "$CUSTOM_SSH_PORT"
@@ -51,6 +70,7 @@ PORTS_TO_BE_OPEN=(
   "80"
   "443"
 )
+
 
 
 
