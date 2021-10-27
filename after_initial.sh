@@ -72,6 +72,15 @@ function update_and_upgrade() {
 }
 
 
+function press_anything_to_continue() {
+  read -n 1 -s -r -p "Press any key to continue"
+  # -n defines the required character count to stop reading
+  # -s hides the user's input
+  # -r causes the string to be interpreted "raw" (without considering backslash escapes)
+  echo ""
+}
+
+
 function install_webuzo() {
   # before installing webuzo install below two lines to make it work!
   # these are dependencies without which webuzo will fail
@@ -196,13 +205,6 @@ function remove_apache() {
   else
     # On Debian/Ubuntu
     remove_apache_debian
-    cat <<EOF
-
-
-siemadeb
-
-
-EOF
   fi
 }
 
@@ -482,23 +484,11 @@ function install_LAMP() {
 
 initialization
 
-cat <<EOF
 
-
-siema1
-
-
-EOF
 
 remove_apache
 
-cat <<EOF
 
-
-siema9
-
-
-EOF
 
 
 install_webuzo
