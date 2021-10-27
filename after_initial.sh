@@ -93,12 +93,17 @@ function remove_apache_debian() {
   # On Debian/Ubuntu
   systemctl disable apache2 && systemctl stop apache2
 
-  apt-get purge -y apache2 apache2-utils 
-  
-  apt-get purge -y apache2-bin apache2.2-bin
-  apt-get purge -y apache2-common apache2.2-common
+  Lines=$(apt list --installed | grep -i apache)
 
-  apt-get purge -y apache2*
+  for line in "$Lines"; do
+    arrIN=(${line/\// }) # // means global replace
+    apt-get purge -y "${arrIN[0]}"
+  done
+
+  #apt-get purge -y apache2 apache2-utils 
+  #apt-get purge -y apache2-bin apache2.2-bin
+  #apt-get purge -y apache2-common apache2.2-common
+  #apt-get purge -y apache2*
 
   # Get rid of other dependencies of unexisting packages
   apt-get autoremove
@@ -180,6 +185,9 @@ function install_php() {
 }
 
 function remove_apache() {
+  init
+
+
   ### Stop, remove apache2 and all dependencies
   # TODO(tim): check if apache2 is present
   if [[ "$RELEASE" == "centos" ]]; then
@@ -188,6 +196,13 @@ function remove_apache() {
   else
     # On Debian/Ubuntu
     remove_apache_debian
+    cat <<EOF
+
+
+siemadeb
+
+
+EOF
   fi
 }
 
@@ -201,7 +216,7 @@ function initialization() {
   fi
 
   update_and_upgrade
-  init
+  
 }
 
 function create_mysql_user_and_test_mysql() {
@@ -470,7 +485,7 @@ initialization
 cat <<EOF
 
 
-
+siema1
 
 
 EOF
@@ -480,7 +495,7 @@ remove_apache
 cat <<EOF
 
 
-
+siema9
 
 
 EOF
