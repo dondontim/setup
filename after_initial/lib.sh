@@ -209,23 +209,23 @@ function initialization() {
 function create_mysql_user_and_test_mysql() {
 
 
-  # Create new MySQL user
-  echo ""
-  echo "--> Creating new mysql user"
-  echo ""
-
-  read -p "Username: " db_username
-
-  echo ""
-
-  while true; do
-    read -s -p "New password: " db_password
-    echo
-    read -s -p "Retype new password: " db_password2
-    echo
-    [ "$db_password" = "$db_password2" ] && break
-    echo "Please try again"
-  done
+  ##### Create new MySQL user
+  #echo ""
+  #echo "--> Creating new mysql user"
+  #echo ""
+#
+  #read -p "Username: " db_username
+#
+  #echo ""
+#
+  #while true; do
+  #  read -s -p "New password: " db_password
+  #  echo
+  #  read -s -p "Retype new password: " db_password2
+  #  echo
+  #  [ "$db_password" = "$db_password2" ] && break
+  #  echo "Please try again"
+  #done
 
 
 
@@ -249,7 +249,11 @@ function create_mysql_user_and_test_mysql() {
 
 
 
-  rm "${domain_root_dir}/test_mysql_php_connection.sql"
+  rm -f "${domain_root_dir}/test_mysql_php_connection.sql"
+
+  
+
+
 
   # To list all MySQL users
   # SELECT User,Host FROM mysql.user;
@@ -264,6 +268,26 @@ function create_mysql_user_and_test_mysql() {
 }
 
 
+
+function replace_php_ini() {
+  # PHP.INI
+  # Make backup of old and replace php.ini
+  #
+  phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
+
+  if [ "$phpini_main_config_file_path" = '(none)' ]; then
+    echo "Error finding path to main php.ini configuration file"
+    echo "You will need to replace it manually!"
+  else
+    date=$(date '+%Y-%m-%d')
+    # Create backup or old php.ini
+    mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
+    # Move new php.ini to the place of old one
+    cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
+  fi
+
+}
+
 function tests() {
 
 
@@ -275,8 +299,10 @@ function tests() {
   ################################################################################
 
 
+  replace_php_ini
 
-  # Testing HTML with Nginx
+
+  ### Testing HTML with Nginx
   echo "--> Testing HTML with Nginx"
   # Copy an index.html template to test
   cp "${file_templates_dir}/index.html" "${domain_root_dir}/index.html"
@@ -286,12 +312,12 @@ function tests() {
   echo "Now visit: http://${PRIMARY_DOMAIN}"
   press_anything_to_continue
   echo "Removing ${domain_root_dir}/index.html"
-  rm "${domain_root_dir}/index.html"
+  rm -f "${domain_root_dir}/index.html"
 
 
 
 
-  # Testing PHP with Nginx
+  ### Testing PHP with Nginx
   echo "--> Testing PHP with Nginx"
   printf "<?php\nphpinfo();" > "${domain_root_dir}/info.php"
 
@@ -300,12 +326,12 @@ function tests() {
   echo "Now visit: http://${PRIMARY_DOMAIN}/info.php"
   press_anything_to_continue
   echo "Removing ${domain_root_dir}/info.php"
-  rm "${domain_root_dir}/info.php"
+  rm -f "${domain_root_dir}/info.php"
 
 
 
 
-  # Testing Database Connection from PHP
+  ### Testing Database Connection from PHP
   echo "--> Testing Database Connection from PHP"
 
 
@@ -341,7 +367,21 @@ EOF
 
   press_anything_to_continue
   echo "Removing ${domain_root_dir}/todo_list.php"
-  rm "${domain_root_dir}/todo_list.php"
+  rm -f "${domain_root_dir}/todo_list.php"
+
+
+
+  ##### Remove created database
+  ### Execute mysql command from command line 
+  # wtf cuz -p is password
+  # mysql -u [username] -p somedb < somedb.sql
+  # mysql -u [username] -p [dbname] -e [query]
+  mysql -u root -e "DROP DATABASE example_database;"
+  
+  ### Delete created mysql user
+  mysql -u root -e "DROP USER '${db_username}'@'localhost';"
+  #$db_username
+  #$db_password
 
 }
 

@@ -26,6 +26,9 @@ file_templates_dir="${PWD}/z_file_templates"
 
 lib_dir_name='after_initial'
 
+# MySQL user credentials
+db_username='database_manager'
+db_password='aoeu'
 
 
 
@@ -76,4 +79,12 @@ fi
 
 
 exit 0
-#aa
+
+
+# TODO(tim): do it with vps_configuration
+####################################################################################################
+#### Justeuro: External References Used To Improve This Script (Thanks, Interwebz) ###############
+####################################################################################################
+
+## Ref: https://linuxize.com/post/secure-apache-with-let-s-encrypt-on-ubuntu-18-04/
+## Ref: https://stackoverflow.com/questions/49172841/
