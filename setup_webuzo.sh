@@ -65,7 +65,7 @@ curl -d "$data" -X POST "$webuzo_url"
 # https://stackoverflow.com/a/51145033
 
 
-
+# fixed nginx config
 
 
 file_templates_dir="${PWD}/z_file_templates"
