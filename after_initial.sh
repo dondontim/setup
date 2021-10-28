@@ -11,7 +11,7 @@ set -euo pipefail
 ########################
 
 DEBUG=
-LOG_FILE="/root/after_initias.log"
+LOG_FILE="/root/after_initial.log"
 
 STACK='LEMP' # LAMP (apache) or LEMP (nginx)
 

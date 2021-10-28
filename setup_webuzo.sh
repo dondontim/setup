@@ -10,7 +10,7 @@
 #<input type="hidden"                         name="submit" value="Install Webuzo" />
 #<input type="submit" class="btn btn-primary" name="submit_" id="softsubmitbut" value="Install">
 
-#uname="dontim"
+#uname="dontim" # can not be system username
 #email="krystatymoteusz@gmail.com"
 #pass="tymek2002"
 #rpass="tymek2002"
@@ -19,9 +19,13 @@
 #ns2="ns2.justeuro.eu"
 #submit_="Install"
 #lic=''
-#submit='Install Webuzo' 
+#submit='Install Webuzo'
+
+## This is a checkbox with warning
+#[force_install]='on'
 
 
+  #[force_install]='on'
 declare -A webuzo_array=( 
   [uname]='dontim' 
   [email]='krystatymoteusz@gmail.com'
@@ -59,3 +63,29 @@ curl -d "$data" -X POST "$webuzo_url"
 
 # Alternative if would not work
 # https://stackoverflow.com/a/51145033
+
+
+
+
+
+file_templates_dir="${PWD}/z_file_templates"
+
+
+function replace_php_ini() {
+  # PHP.INI
+  # Make backup of old and replace php.ini
+  #
+  phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
+
+  if [ "$phpini_main_config_file_path" = '(none)' ]; then
+    echo "Error finding path to main php.ini configuration file"
+    echo "You will need to replace it manually!"
+  else
+    date=$(date '+%Y-%m-%d')
+    # Create backup or old php.ini
+    mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
+    # Move new php.ini to the place of old one
+    cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
+  fi
+
+}

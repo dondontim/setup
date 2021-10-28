@@ -8,7 +8,7 @@
 # Who has time in the world to figure out 
 # the right extract commands for all the possible formats. 
 
-function extract_original () {
+function extract_original() {
   if [ -f $1 ] ; then
     case $1 in
       *.tar.bz2)   tar xvjf $1    ;;
@@ -32,7 +32,7 @@ function extract_original () {
 }
 
 # Allows to do extract on more than 1 file
-function extract {
+function extract() {
   if [ -z "$1" ]; then
     # display usage if no parameters given
     echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"

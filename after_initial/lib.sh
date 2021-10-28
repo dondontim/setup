@@ -269,24 +269,7 @@ function create_mysql_user_and_test_mysql() {
 
 
 
-function replace_php_ini() {
-  # PHP.INI
-  # Make backup of old and replace php.ini
-  #
-  phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
 
-  if [ "$phpini_main_config_file_path" = '(none)' ]; then
-    echo "Error finding path to main php.ini configuration file"
-    echo "You will need to replace it manually!"
-  else
-    date=$(date '+%Y-%m-%d')
-    # Create backup or old php.ini
-    mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
-    # Move new php.ini to the place of old one
-    cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
-  fi
-
-}
 
 function tests() {
 
@@ -299,7 +282,7 @@ function tests() {
   ################################################################################
 
 
-  replace_php_ini
+
 
 
   ### Testing HTML with Nginx
@@ -485,6 +468,13 @@ function setup_ssl() {
   # Production
   #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" -d "app.${PRIMARY_DOMAIN}"
   certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+
+  # TODO(tim): make backup of /etc/letsencrypt
+ # - Your account credentials have been saved in your Certbot
+ #   configuration directory at /etc/letsencrypt. You should make a
+ #   secure backup of this folder now. This configuration directory will
+ #   also contain certificates and private keys obtained by Certbot so
+ #   making regular backups of this folder is ideal.
 }
 
 
