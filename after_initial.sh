@@ -102,25 +102,35 @@ function remove_apache_debian() {
   # On Debian/Ubuntu
   systemctl disable apache2 && systemctl stop apache2
 
-  Lines=$(apt list --installed | grep -i apache)
+  temp_file=$(mktemp)
+  apt list --installed | grep -i apache > "$temp_file"
 
-  for line in "$Lines"; do
+  while read line; do
     arrIN=(${line/\// }) # // means global replace
-    apt-get purge -y "${arrIN[0]}"
-  done
+    #apt-get purge -y "${arrIN[0]}"
+    echo "${arrIN[0]}"
+  done < "$temp_file"
 
-  #apt-get purge -y apache2 apache2-utils 
-  #apt-get purge -y apache2-bin apache2.2-bin
-  #apt-get purge -y apache2-common apache2.2-common
-  #apt-get purge -y apache2*
+  #apt-get purge apache2 apache2-utils  -y
+  #apt-get purge apache2-bin apache2.2-bin -y
+  #apt-get purge apache2-common apache2.2-common -y
+  #apt-get purge apache2* -y
+  #apt-get purge apache2 apache2-bin apache2-data apache2-doc apache2-utils apache2-common -y
 
   # Get rid of other dependencies of unexisting packages
-  apt-get autoremove
+  apt-get autoremove -y
 
   # Remove the Configuration Files
   rm -rf /etc/apache2 
   # Remove the Supporing files and httpd modules # /usr/lib/apache2/modules
   rm -rf /usr/lib/apache2
+  
+  # dpkg: warning: while removing apache2-bin, directory '/var/lib/apache2' not empty so not removed
+  #rm -rf /var/lib/apache2
+
+  # TODO(tim): Both seem to be empty, check it
+  #rm -rf /usr/include/apache2
+
 }
 
 function remove_apache_centos() {
@@ -198,7 +208,6 @@ function remove_apache() {
 
 
   ### Stop, remove apache2 and all dependencies
-  # TODO(tim): check if apache2 is present
   if [[ "$RELEASE" == "centos" ]]; then
     # On RHEL/CentOS/Oracle/Fedora Linux.
     remove_apache_centos
@@ -244,7 +253,7 @@ function create_mysql_user_and_test_mysql() {
 
 
 
-  # TODO(tim): think of copying "${file_templates_dir}/test_mysql_php_connection.sql"
+
   cp "${file_templates_dir}/test_mysql_php_connection.sql" "${domain_root_dir}/test_mysql_php_connection.sql"
 
 
@@ -409,6 +418,15 @@ function handle_nginx_conf_and_webroot() {
   # Then, unlink the default configuration file from the /sites-enabled/ directory:
   unlink /etc/nginx/sites-enabled/default
 
+
+
+  # Remove current nginx domain config file
+  rm "/etc/nginx/sites-available/${domain_name}"
+  # Copy version 2 with PMA Authentication Gateway added
+  cp "${file_templates_dir}/example_nginx_config_v2" "/etc/nginx/sites-available/${domain_name}"
+
+
+
   # Note: If you ever need to restore the default configuration, 
   # you can do so by recreating the symbolic link, like this:
   #   ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
@@ -417,7 +435,7 @@ function handle_nginx_conf_and_webroot() {
 
 
   # If everything is correct reload Nginx
-  systemctl reload nginx
+  systemctl reload nginx || exit 1 # TODO(tim):
 }
 
 # Nginx
@@ -438,7 +456,7 @@ function install_LEMP() {
   create_mysql_user_and_test_mysql
   tests
 
-  setup_ssl
+  setup_ssl >> "$LOG_FILE"
   
   
 }
@@ -449,10 +467,16 @@ function setup_ssl() {
   CERT_NAME='justeuro.eu'
 
   apt_install certbot python3-certbot-nginx
-  certbot certonly --nginx --non-interactive --dry-run --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${domain_name}" -d "www.${domain_name}"  -d "mail.${domain_name}"  -d "smtp.${domain_name}" -d "imap.${domain_name}" -d "app.${domain_name}"
-  #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${domain_name}" -d "www.${domain_name}"  -d "mail.${domain_name}"  -d "smtp.${domain_name}" -d "imap.${domain_name}" -d "app.${domain_name}"
+ 
+  ##### Staging enviroment (to test) with --dry-run
+  ### it will not install any certificates
+  #certbot certonly --nginx --non-interactive --dry-run --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${domain_name}" -d "www.${domain_name}"  -d "mail.${domain_name}"  -d "smtp.${domain_name}" -d "imap.${domain_name}" -d "app.${domain_name}"
+  #certbot renew --dry-run
 
-  certbot renew --dry-run
+
+  # Production
+  #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${domain_name}" -d "www.${domain_name}"  -d "mail.${domain_name}"  -d "smtp.${domain_name}" -d "imap.${domain_name}" -d "app.${domain_name}"
+  certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${domain_name}" -d "www.${domain_name}"  -d "mail.${domain_name}"  -d "smtp.${domain_name}" -d "imap.${domain_name}" 
 }
 
 
@@ -482,19 +506,16 @@ function install_LAMP() {
 ### SCRIPT LOGIC ###
 ####################
 
-initialization
+initialization >> "$LOG_FILE"
 
 
 
-remove_apache
-
-
+remove_apache >> "$LOG_FILE"
 
 
 install_webuzo
 
 cat <<EOF
-
 
 
 
@@ -516,3 +537,4 @@ fi
 
 
 exit 0
+#a

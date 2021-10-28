@@ -89,27 +89,27 @@ server {
     ##
 
     if ($request_method !~ ^(GET|HEAD|POST)$ ) {
-	return 444;
+	    return 444;
     }
 
     ## Block some robots ##
     if ($http_user_agent ~* msnbot|scrapbot) {
-	return 403;
+	    return 403;
     }
 
     ## Deny certain Referers ###
     if ( $http_referer ~* (babes|forsale|girl|jewelry|love|nudit|organic|poker|porn|sex|teen) )
     {
-	return 403;
+	    return 403;
     }
 
     # Stop deep linking or hot linking
     # if you want to restrict only specific directory: location /images/
     location ~ .(gif|png|jpe?g)$ {
 	valid_referers none blocked website.com *.website.com;
-	if ($invalid_referer) {
-	    #return 403; # Note: Commented temporarly because caused 403 on all image resources
-	}
+        if ($invalid_referer) {
+            #return 403; # Note: Commented temporarly because caused 403 on all image resources
+        }
     }
 
 
@@ -141,3 +141,17 @@ server {
     #add_header Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
 
 }
+server {
+
+    server_name mail.justeuro.eu smtp.justeuro.eu imap.justeuro.eu;
+    #root /var/www/justeuro.eu;
+
+    #index index.html index.htm index.php;
+
+    return 403;
+    #deny all;
+
+    #include conf/location.conf;
+    #include include/*.conf;
+}
+# add app.justeuro.eu
