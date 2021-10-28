@@ -57,6 +57,10 @@ remove_apache >> "$LOG_FILE"
 
 install_webuzo
 
+
+
+exit 0
+
 cat <<EOF
 
 
