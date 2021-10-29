@@ -169,7 +169,8 @@ apt_install gawk
 mkdir -p ~/bin
 wget git.io/trans && chmod +x ./trans && mv ./trans ~/bin
 
-
+# FTP Client and talk other protocols
+apt_install lftp
 
 
 

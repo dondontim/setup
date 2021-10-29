@@ -318,14 +318,32 @@ mkdir -p ~/bin
 wget git.io/trans && chmod +x ./trans && mv ./trans ~/bin
 
 
+# FTP Client and talk other protocols
+brew_install lftp
+
+
+
+##### SFTP WITH AUTO COMPLETION
+
+# 1. Macports 
+# SSH protocol suite and sftp built with tab completion.
+# https://ports.macports.org/port/openssh/
+
+# 2. withreadline
+# http://www.greenend.org.uk/rjk/sw/withreadline.html
+
+# 3. lftp
+# https://how-to.fandom.com/wiki/How_to_use_lftp_as_a_sftp_client
+
+# 4. Made by someone
+# https://askubuntu.com/a/14658
 
 
 
 
 
-
-
-
+# TODO(tim): install macports (brew equivalent)
+# https://www.macports.org/install.php
 
 
 

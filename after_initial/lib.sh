@@ -51,6 +51,15 @@ function press_anything_to_continue() {
 
 
 function install_webuzo() {
+
+  ##### Original installation script (October 2021)
+  # https://www.webuzo.com/docs/installing-webuzo/install/
+
+  ### One of requirements
+  # Open Ports - 2002, 2003, 2004, 2005, 21, 22, 25, 53, 80, 143, 443, 465, 993 and 3306 (It is recommended to keep these ports open on your server)
+  # Note : There should be no PHP, Apache, MySQL installed on the server
+
+
   # before installing webuzo install below two lines to make it work!
   # these are dependencies without which webuzo will fail
   apt_install sendmail-bin
@@ -63,7 +72,9 @@ function install_webuzo() {
   chmod 700 install.sh
 
 
-  ./install.sh
+  #./install.sh
+  # TEST(tim):
+  ./install.sh --install=lamp,bind,exim,dovecot,spamassassin
 }
 
 
@@ -97,7 +108,7 @@ function remove_apache_debian() {
   apt-get autoremove -y
 
   # Remove the Configuration Files
-  rm -rf /etc/apache2 
+  rm -rf /etc/apache2 # TODO(tim): you can use 'whereis apache2' here
   # Remove the Supporing files and httpd modules # /usr/lib/apache2/modules
   rm -rf /usr/lib/apache2
   
@@ -154,6 +165,28 @@ function install_mysql() {
   # TODO(tim): create a dedicated user for databases
 }
 
+
+
+function replace_php_ini() {
+  # PHP.INI
+  # Make backup of old and replace php.ini
+  #
+  phpini_main_config_file_path=$(php -i | grep 'Loaded Configuration File' | awk -F '=> ' '{ print $2 }')
+
+  if [ "$phpini_main_config_file_path" = '(none)' ]; then
+    echo "Error finding path to main php.ini configuration file"
+    echo "You will need to replace it manually!"
+  else
+    date=$(date '+%Y-%m-%d')
+    # Create backup or old php.ini
+    mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
+    # Move new php.ini to the place of old one
+    cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
+  fi
+
+}
+
+
 function install_php() {
   # Installing PHP
 
@@ -171,12 +204,19 @@ function install_php() {
   
   if [ "$STACK" = 'LEMP' ]; then
     # nginx
-    apt_install php-fpm php-mysql
+    #apt_install php-fpm php-mysql # original
+    apt_install php-fpm
   else
     # apache
-    apt_install php libapache2-mod-php php-mysql
+    #apt_install php libapache2-mod-php php-mysql # original
+    apt_install php libapache2-mod-php
   fi
+
+  apt_install php-mysql
   
+  # PHP.INI
+  # Make backup of old and replace with php.ini from my templates fils
+  replace_php_ini
 }
 
 function remove_apache() {

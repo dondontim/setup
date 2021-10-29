@@ -23,7 +23,7 @@ alias md='mkdir -p'
 alias rd='rmdir'
 
 # -c : continue the download in case of problems.
-alias wget='wget -c'
+alias wget='wget --continue' # -c, --continue
 
 # The search is done from left to right, and if more than one matches are found 
 # in the directories listed in the PATH path variable, which will print 
