@@ -52,7 +52,7 @@ function setup_webuzo()
     # [submit]='Install Webuzo'
     # [submit_]='Install'
   declare -A webuzo_array=(
-    [uname]='dontim'
+    [uname]='tymek22'
     [email]='krystatymoteusz%40gmail.com'
     [pass]='tymek2002'
     [rpass]='tymek2002'

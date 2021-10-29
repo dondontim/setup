@@ -89,6 +89,7 @@ fi
 ##### TODO(tim): Maybe import it and install webuzo apps before installing L(A|E)MP STACK
 ##### from one hand ok but if you want to install L(A|E)MP STACK yourself 
 ##### you have to 1st install php to install most webuzo apps or maybe add to setup_webuzo.sh
+##### additionaly note that webuzo imports also conf files as e.g. php.ini, my.conf, nginx.conf, exim.conf etc.
 #
 # Import webuzo settings if present
 # NOTE: that settings only without installed apps
