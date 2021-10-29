@@ -48,11 +48,12 @@ db_password='aoeu'
 ### SCRIPT LOGIC ###
 ####################
 
-initialization >> "$LOG_FILE"
+#initialization >> "$LOG_FILE"
+#remove_apache >> "$LOG_FILE"
 
+initialization |& tee -a "$LOG_FILE"
+remove_apache |& tee -a "$LOG_FILE"
 
-
-remove_apache >> "$LOG_FILE"
 
 
 install_webuzo

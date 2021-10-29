@@ -1,4 +1,6 @@
  
+##### Temporary passwords
+
 #<input type="text" class="form-control"      name="uname" id="uname" value="dontim" required>
 #<input type="email" class="form-control"     name="email" id="email" value="krystatymoteusz@gmail.com" onchange="softmail();" required>
 #<input type="password" class="form-control"  name="pass" id="pass" value="tymek2002" required>
@@ -23,6 +25,16 @@
 
 ## This is a checkbox with warning
 #[force_install]='on'
+
+
+
+
+
+# POST /install.php HTTP/1.1
+# Host: 190.92.134.248:2004
+# Content-Length: 161
+# Cache-Control: max-age=0
+# Upgrade-Insecure-Requests: 1
 
 
   #[force_install]='on'
@@ -55,17 +67,53 @@ data=${data::-1}
 
 
 server_external_ip=$(curl -s https://ipecho.net/plain; echo)
-webuzo_url="http://${server_external_ip}:2004/install.php"
+ip_at_port="http://${server_external_ip}:2004"
+webuzo_url="${ip_at_port}/install.php"
 
 
+### Example nr 1
+#curl -d "$data" -X POST "$webuzo_url"
 #curl -d "param1=value1&param2=value2" -X POST http://localhost:3000/data
-curl -d "$data" -X POST "$webuzo_url"
+
+
+### Example nr 2
+
+
+#force_install=on&force_install=on&
+data='uname=tymek2211&email=krystatymoteusz%40gmail.com&pass=tymek2002&rpass=tymek2002&domain=justeuro.eu&ns1=ns1.justeuro.eu&ns2=ns2.justeuro.eu&lic=&submit=Install+Webuzo'
+
+curl  -d "$data" \
+      -H "Origin: ${ip_at_port}" \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -H "Referer: ${webuzo_url}" \
+      -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" \
+      -H "Accept-Encoding: gzip, deflate" \
+      -H "Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,pl;q=0.7" \
+      -H "Connection: close" \
+      -X POST "$webuzo_url"
+
+
+
+
+
 
 # Alternative if would not work
 # https://stackoverflow.com/a/51145033
 
 
 # fixed nginx config
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 file_templates_dir="${PWD}/z_file_templates"
