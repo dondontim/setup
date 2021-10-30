@@ -584,12 +584,16 @@ function install_LAMP() {
 
 function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
+    # this php compiler have its own php.ini so do not worry
     /usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft="$aid"
   done
 }
 
 function install_webuzo_scripts() {
   for sid in "${WEBUZO_SCRIPTS_TO_INSTALL[@]}"; do
-    # TODO(tim):
+    # TODO(tim): finish it
+    : # true equivalent
+    # (colon) Does nothing beyond expanding arguments and performing redirections.
+    # The return status is zero.
   done
 }

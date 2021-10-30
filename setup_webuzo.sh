@@ -1,3 +1,6 @@
+#!/bin/bash
+#
+# 
 
 function setup_webuzo() 
 {
@@ -66,8 +69,7 @@ function setup_webuzo()
 
   data=''
 
-  for i in "${!webuzo_array[@]}"
-  do
+  for i in "${!webuzo_array[@]}"; do
     # echo "key  : $i"
     # echo "value: ${webuzo_array[$i]}"
 
@@ -97,7 +99,7 @@ function setup_webuzo()
         -H "Accept-Encoding: gzip, deflate" \
         -H "Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,pl;q=0.7" \
         -H "Connection: close" \
-        --output "$curl_response_file"
+        --output "$curl_response_file" \
         -X POST "$webuzo_url"
 
 
