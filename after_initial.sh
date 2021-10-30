@@ -62,8 +62,6 @@ WEBUZO_SCRIPTS_TO_INSTALL=(
 
 
 
-
-
 ####################
 ### SCRIPT LOGIC ###
 ####################
@@ -77,7 +75,7 @@ remove_apache |& tee -a "$LOG_FILE"
 
 
 
-install_webuzo
+install_webuzo |& tee -a /root/install_webuzo.log
 
 
 # Source script
@@ -95,7 +93,7 @@ EOF
 
 
 if [ "$STACK" = 'LEMP' ]; then
-  install_LEMP
+  install_LEMP |& tee -a /root/install_LEMP.log
 else
   install_LAMP
 fi
@@ -128,9 +126,9 @@ fi
 # SpamAssassin # Install Exim before
 
 
-install_webuzo_apps
+install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
 
-install_webuzo_scripts
+install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
 
 
 

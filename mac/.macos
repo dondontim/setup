@@ -568,7 +568,7 @@ defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebK
 defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 
 # Set Safari’s home page to `about:blank` for faster loading
-# In my case default was: http://www.apple.com/pl/startpage/
+# In my case default was: http://www.apple.com/pl/startpage/ if you would ever like to change it
 defaults write com.apple.Safari HomePage -string "about:blank"
 
 # Prevent Safari from opening ‘safe’ files automatically after downloading
@@ -609,7 +609,7 @@ defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool true
 defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
 
 # Disable AutoFill
-# NOTE: I will keep it personally
+# NOTE: I will keep these 3 personally
 #defaults write com.apple.Safari AutoFillFromAddressBook -bool false
 #defaults write com.apple.Safari AutoFillPasswords -bool false
 #defaults write com.apple.Safari AutoFillCreditCardData -bool false

@@ -55,7 +55,7 @@ function open_ports() {
   # Open Ports - 2002, 2003, 2004, 2005, 21, 22, 25, 53, 80, 143, 443, 465, 993 and 3306 (It is recommended to keep these ports open on your server)
   # Note : There should be no PHP, Apache, MySQL installed on the server
 
-  ### For mail server bunch examples from internet
+  ### For mail server bunch examples from internet to open ports
   # 25 (SMTP),
   # 587 (SMTP over TLS),
   # 465 (SMTPS),
@@ -109,7 +109,11 @@ function install_webuzo() {
 
   # TODO(tim): already tested remove it
   #./install.sh --install=lamp,bind
-  ./install.sh
+
+  # This will install only Webuzo without any LAMP Stack.
+  ./install.sh --install=none # do not install httpd so port 80 is free
+
+  #./install.sh
 }
 
 
@@ -196,7 +200,27 @@ function install_mysql() {
   # Installing MySQL
   apt_install mysql-server
 
-  mysql_secure_installation
+  # TODO(tim): pass in here answears to make it non-interactive
+  ### Below will: 
+  # 1. ask for 'VALIDATE PASSWORD PLUGIN'
+  # 2. prompt for password 
+  # 3. prompt for password (confirmation)
+  # 4. remove some anonymous users,
+  # 5. remove the test database,
+  # 6. disable remote root logins, and
+  # 7. load these new rules so that MySQL immediately respects the changes you have made.
+
+  mysql_secure_installation <<EOF
+no
+tymek2002
+tymek2002
+Y
+no
+no
+Y
+EOF
+
+
   # TODO(tim): create a dedicated user for databases
 }
 
@@ -497,7 +521,7 @@ function handle_nginx_conf_and_webroot() {
 
 
   # If everything is correct reload Nginx
-  systemctl reload nginx || exit 1 # TODO(tim):
+  systemctl reload nginx || exit 1 # TODO(tim): manage exeptions e.g. print all non 0 exit codes
 }
 
 # Nginx
