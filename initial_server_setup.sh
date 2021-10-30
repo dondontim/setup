@@ -455,7 +455,6 @@ function test_and_restart_ssh() {
 # Setting Up a Basic Firewall                                                  #
 ################################################################################
 function setup_basic_firewall() {
-  # Add additional provided public keys
   for port in "${PORTS_TO_BE_OPEN[@]}"; do
     ufw allow "$port"
   done

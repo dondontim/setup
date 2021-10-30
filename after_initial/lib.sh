@@ -50,14 +50,49 @@ function press_anything_to_continue() {
 }
 
 
+function open_ports() {
+  ### One of requirements
+  # Open Ports - 2002, 2003, 2004, 2005, 21, 22, 25, 53, 80, 143, 443, 465, 993 and 3306 (It is recommended to keep these ports open on your server)
+  # Note : There should be no PHP, Apache, MySQL installed on the server
+
+  ### For mail server bunch examples from internet
+  # 25 (SMTP),
+  # 587 (SMTP over TLS),
+  # 465 (SMTPS),
+  # 143 (IMAP),
+  # 993 (IMAPS),
+  # 110 (POP3),
+  # 995 (POP3S)
+  PORTS_TO_BE_OPEN=(
+    "2002"
+    "2003"
+    "2004"
+    "2005"
+    "21"
+    "22"
+    "25"
+    "53"
+    "80"
+    "143"
+    "443"
+    "465"
+    "993"
+    "3306"
+  )
+
+  for port in "${PORTS_TO_BE_OPEN[@]}"; do
+    ufw allow "$port"
+  done
+
+}
+
 function install_webuzo() {
 
   ##### Original installation script (October 2021)
   # https://www.webuzo.com/docs/installing-webuzo/install/
 
-  ### One of requirements
-  # Open Ports - 2002, 2003, 2004, 2005, 21, 22, 25, 53, 80, 143, 443, 465, 993 and 3306 (It is recommended to keep these ports open on your server)
-  # Note : There should be no PHP, Apache, MySQL installed on the server
+
+  open_ports
 
 
   # before installing webuzo install below two lines to make it work!
