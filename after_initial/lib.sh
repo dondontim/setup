@@ -97,8 +97,8 @@ function install_webuzo() {
 
   # before installing webuzo install below two lines to make it work!
   # these are dependencies without which webuzo will fail
-  apt_install sendmail-bin
-  apt_install sendmail
+  #apt_install sendmail-bin
+  #apt_install sendmail
 
   # Install webuzo
 
@@ -114,6 +114,9 @@ function install_webuzo() {
   ./install.sh --install=none # do not install httpd so port 80 is free
 
   #./install.sh
+
+  # Remove the installer
+  rm -f ./install.sh
 }
 
 
@@ -210,15 +213,18 @@ function install_mysql() {
   # 6. disable remote root logins, and
   # 7. load these new rules so that MySQL immediately respects the changes you have made.
 
-  mysql_secure_installation <<EOF
-no
-tymek2002
-tymek2002
-Y
-no
-no
-Y
-EOF
+  # NOTE(tim): does not work as intended cuz do not read only for password
+# mysql_secure_installation <<EOF
+# no
+# tymek2002
+# tymek2002
+# Y
+# no
+# no
+# Y
+# EOF
+
+  mysql_secure_installation
 
 
   # TODO(tim): create a dedicated user for databases
@@ -542,7 +548,8 @@ function install_LEMP() {
   create_mysql_user_and_test_mysql
   tests
 
-  setup_ssl >> "$LOG_FILE"
+  # TODO(tim): Temporary commented for tests
+  # setup_ssl >> "$LOG_FILE"
   
   # Remove current nginx domain config file
   rm "/etc/nginx/sites-available/${PRIMARY_DOMAIN}"
@@ -610,6 +617,7 @@ function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
     /usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft="$aid"
+    # TODO(tim): if error would occur run same command twice (manually it works)
   done
 }
 

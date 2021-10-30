@@ -71,6 +71,11 @@ WEBUZO_SCRIPTS_TO_INSTALL=(
 
 # Redirect stdout and stderr to terminal and file
 initialization |& tee -a "$LOG_FILE"
+
+# Try to install it here before removing apache
+apt_install sendmail |& tee -a /root/install_sendmail.log
+apt_install sendmail-bin |& tee -a /root/install_sendmail.log
+
 remove_apache |& tee -a "$LOG_FILE"
 
 
@@ -114,8 +119,9 @@ if [ -n "$WEBUZO_SETTINGS_TO_IMPORT" ]; then
 fi
 
 #### General apps to install
-# MySQL aid 16
+# curl aid 8 (have to be installed via webuzo even if on system it is installed) (in here it is php dependency)
 # PHP aid 149 for php 7.4 and aid 154 for php 8.0
+# MySQL aid 16
 # phpMyAdmin aid 136
 #
 #### Mail apps to install on webuzo
@@ -126,9 +132,10 @@ fi
 # SpamAssassin # Install Exim before
 
 
-install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
 
-install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
+#install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
+
+#install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
 
 
 

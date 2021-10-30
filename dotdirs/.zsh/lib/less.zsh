@@ -18,7 +18,8 @@ function less_highlighter() {
             # Causes "raw" control characters to be displayed. (...)
         # -R or --RAW-CONTROL-CHARS
             # Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)
-    export LESS='-R'
+    #export LESS='-R'
+    export LESS="-RCQix4" # this variable adds flags to less while run
     
     export LESSOPEN='|highlight -O xterm256 %s' # LESSOPEN is a Unix less pager preprocessor
 
