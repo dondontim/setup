@@ -38,12 +38,38 @@ WEBUZO_SETTINGS_TO_IMPORT=
 
 # App ID (aid in below link)
 # http://api.webuzo.com/apps.php
-WEBUZO_APPS_TO_INSTALL=(
-  "35" # Exim
-  "36" # Dovecot
-  "34" # BIND
-  "137" # SpamAssassin
+
+# rm apache so nginx can run
+WEBUZO_APPS_TO_REMOVE=(
+  "3" # Apache
 )
+
+WEBUZO_APPS_TO_INSTALL=(
+  # "35" # Exim is pre-installed
+  "36" # Dovecot
+  # "34" # BIND is pre-installed
+  "137" # SpamAssassin
+  "136" # phpMyAdmin 
+  "29" # Python2 
+  "140" # Python3 
+)
+
+### These below comes preinstalled with basic webuzo installation
+# apache
+# curl
+# mcrypt
+# perl
+# openLDAP
+# python2
+# pure-ftpd
+# sqllite
+# bind
+# exim
+# mysql
+# php
+
+
+
 
 # Script ID (sid)
 WEBUZO_SCRIPTS_TO_INSTALL=(
@@ -77,26 +103,21 @@ remove_apache |& tee -a "$LOG_FILE"
 
 install_webuzo
 
+# Just to test it so run it twice
+#remove_apache |& tee -a "$LOG_FILE"
+
 
 # Source script
 . ./setup_webuzo.sh
 
 
-#exit 0
+remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
 
 
-cat <<EOF
+install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
 
+#install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
 
-EOF
-
-
-
-if [ "$STACK" = 'LEMP' ]; then
-  install_LEMP
-else
-  install_LAMP
-fi
 
 
 ##### TODO(tim): Maybe import it and install webuzo apps before installing L(A|E)MP STACK
@@ -129,13 +150,29 @@ fi
 
 
 
-#install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
-
-#install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
 
 
 
+# Note that with webuzo is some apps installed
+if [ "$STACK" = 'LEMP' ]; then
+  install_LEMP
+else
+  install_LAMP
+fi
 
+
+
+
+
+
+
+
+
+
+
+
+
+exit 0
 
 
 
@@ -151,14 +188,6 @@ fi
 
 
 
-# apache aid 3
-
-
-
-
-
-
-exit 0
 
 
 # TODO(tim): do it with vps_configuration

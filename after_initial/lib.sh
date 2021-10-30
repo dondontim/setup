@@ -107,9 +107,6 @@ function install_webuzo() {
   chmod 700 install.sh
 
 
-  # TODO(tim): already tested remove it
-  #./install.sh --install=lamp,bind
-
   # This will install only Webuzo without any LAMP Stack.
   #./install.sh --install=none # do not install httpd so port 80 is free
 
@@ -539,17 +536,17 @@ function install_LEMP() {
   # 'Nginx HTTP'
   # 'Nginx HTTPS'
 
-  install_mysql
+  #install_mysql ################
   install_php
 
 
   handle_nginx_conf_and_webroot
 
-  create_mysql_user_and_test_mysql
-  tests
+  #create_mysql_user_and_test_mysql ################
+  #tests ################
 
   # TODO(tim): Temporary commented for tests
-  # setup_ssl >> "$LOG_FILE"
+  setup_ssl >> "$LOG_FILE"
   
   # Remove current nginx domain config file
   rm "/etc/nginx/sites-available/${PRIMARY_DOMAIN}"
@@ -561,7 +558,7 @@ function install_LEMP() {
 function setup_ssl() {
   local EMAIL CERT_NAME
   EMAIL='krystatymoteusz@gmail.com'
-  CERT_NAME='justeuro.eu'
+  CERT_NAME="$PRIMARY_DOMAIN"
 
   apt_install certbot python3-certbot-nginx
  
@@ -609,14 +606,22 @@ function install_LAMP() {
 
 
 
+function webuzo_cli() {
+  /usr/local/emps/bin/php /usr/local/webuzo/cli.php "$@"
+}
 
-
+function remove_webuzo_apps() {
+  for aid in "${WEBUZO_APPS_TO_REMOVE[@]}"; do
+    # To remove system app (add '_1' after aid):
+    webuzo_cli --app_install --soft="${aid}_1"
+  done 
+}
 
 
 function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
-    /usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft="$aid"
+    webuzo_cli --app_install --soft="$aid"
     # TODO(tim): if error would occur run same command twice (manually it works)
   done
 }
@@ -629,3 +634,5 @@ function install_webuzo_scripts() {
     # The return status is zero.
   done
 }
+
+
