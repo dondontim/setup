@@ -97,8 +97,8 @@ function install_webuzo() {
 
   # before installing webuzo install below two lines to make it work!
   # these are dependencies without which webuzo will fail
-  #apt_install sendmail-bin
-  #apt_install sendmail
+  apt_install sendmail-bin
+  apt_install sendmail # it depends on above package
 
   # Install webuzo
 
@@ -111,9 +111,9 @@ function install_webuzo() {
   #./install.sh --install=lamp,bind
 
   # This will install only Webuzo without any LAMP Stack.
-  ./install.sh --install=none # do not install httpd so port 80 is free
+  #./install.sh --install=none # do not install httpd so port 80 is free
 
-  #./install.sh
+  ./install.sh
 
   # Remove the installer
   rm -f ./install.sh

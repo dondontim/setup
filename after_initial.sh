@@ -71,16 +71,11 @@ WEBUZO_SCRIPTS_TO_INSTALL=(
 
 # Redirect stdout and stderr to terminal and file
 initialization |& tee -a "$LOG_FILE"
-
-# Try to install it here before removing apache
-apt_install sendmail |& tee -a /root/install_sendmail.log
-apt_install sendmail-bin |& tee -a /root/install_sendmail.log
-
 remove_apache |& tee -a "$LOG_FILE"
 
 
 
-install_webuzo |& tee -a /root/install_webuzo.log
+install_webuzo
 
 
 # Source script
@@ -98,7 +93,7 @@ EOF
 
 
 if [ "$STACK" = 'LEMP' ]; then
-  install_LEMP |& tee -a /root/install_LEMP.log
+  install_LEMP
 else
   install_LAMP
 fi
@@ -119,6 +114,7 @@ if [ -n "$WEBUZO_SETTINGS_TO_IMPORT" ]; then
 fi
 
 #### General apps to install
+# openssl aid 4 dependency for curl TODO(tim): it wasnt required as certbot ran
 # curl aid 8 (have to be installed via webuzo even if on system it is installed) (in here it is php dependency)
 # PHP aid 149 for php 7.4 and aid 154 for php 8.0
 # MySQL aid 16
@@ -155,6 +151,7 @@ fi
 
 
 
+# apache aid 3
 
 
 
