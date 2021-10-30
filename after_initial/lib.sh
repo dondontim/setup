@@ -109,7 +109,7 @@ function install_webuzo() {
 
   #./install.sh
   # TEST(tim):
-  ./install.sh --install=lamp,bind,exim,dovecot,spamassassin
+  ./install.sh --install=lamp,bind
 }
 
 
