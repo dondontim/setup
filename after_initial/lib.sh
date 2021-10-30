@@ -613,7 +613,7 @@ function webuzo_cli() {
 function remove_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_REMOVE[@]}"; do
     # To remove system app (add '_1' after aid):
-    webuzo_cli --app_install --soft="${aid}_1"
+    webuzo_cli --app_remove --soft="${aid}_1"
   done 
 }
 
@@ -634,5 +634,3 @@ function install_webuzo_scripts() {
     # The return status is zero.
   done
 }
-
-

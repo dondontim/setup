@@ -45,16 +45,26 @@ WEBUZO_APPS_TO_REMOVE=(
 )
 
 WEBUZO_APPS_TO_INSTALL=(
-  # "35" # Exim is pre-installed
+  "35" # Exim is pre-installed
   "36" # Dovecot
-  # "34" # BIND is pre-installed
+  "34" # BIND is pre-installed
   "137" # SpamAssassin
-  "136" # phpMyAdmin 
   "29" # Python2 
   "140" # Python3 
+  "16" # MySQL
+  "136" # phpMyAdmin 
 )
 
 ### These below comes preinstalled with basic webuzo installation
+# apache
+# curl
+# mcrypt
+# openLDAP
+# sqllite
+# php
+
+# ONCE HAPPENED
+
 # apache
 # curl
 # mcrypt
