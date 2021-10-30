@@ -31,9 +31,24 @@ lib_dir_name='after_initial'
 db_username='database_manager'
 db_password='tymek2002'
 
-# Webuzo .zip archive with settings
+# Webuzo .zip archive with settings path
 # Ref: https://www.softaculous.com/docs/admin/import-export-settings/
 WEBUZO_SETTINGS_TO_IMPORT=
+
+
+# App ID (aid in below link)
+# http://api.webuzo.com/apps.php
+WEBUZO_APPS_TO_INSTALL=(
+  "35" # Exim
+  "36" # Dovecot
+  "34" # BIND
+  "137" # SpamAssassin
+)
+
+# Script ID (sid)
+WEBUZO_SCRIPTS_TO_INSTALL=(
+  # RainLoop webmail # sid 497 # or Roundcube # sid 118
+)
 
 
 
@@ -69,7 +84,7 @@ install_webuzo
 . ./setup_webuzo.sh
 
 
-exit 0
+#exit 0
 
 
 cat <<EOF
@@ -101,9 +116,9 @@ if [ -n "$WEBUZO_SETTINGS_TO_IMPORT" ]; then
 fi
 
 #### General apps to install
-# MySQL
-# PHP
-# phpMyAdmin
+# MySQL aid 16
+# PHP aid 149 for php 7.4 and aid 154 for php 8.0
+# phpMyAdmin aid 136
 #
 #### Mail apps to install on webuzo
 # Exim
@@ -111,6 +126,31 @@ fi
 # RainLoop webmail # sid 497 # or Roundcube # sid 118
 # BIND # DNS software to setup MX record
 # SpamAssassin # Install Exim before
+
+
+install_webuzo_apps
+
+install_webuzo_scripts
+
+
+
+
+
+
+
+### Install OpenDKIM
+# We need to install and configure DKIM on our mail server so that the other email
+# servers can authenticate the emails sent from our server and confirm that the emails
+# are not forged or altered and the emails are authorized by the domain owner. 
+# Use the below-mentioned commands to install OpenDKIM.
+#apt_install opendkim opendkim-tools
+
+# Start OpenDKIM do not need cuz after installation it will start itself
+#service opendkim start
+
+
+
+
 
 
 

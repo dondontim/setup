@@ -83,6 +83,8 @@ function setup_webuzo()
   ip_at_port="http://${server_external_ip}:2004"
   webuzo_url="${ip_at_port}/install.php"
 
+  curl_response_file="/root/curl_response_file.log"
+
 
   #force_install=on&force_install=on&
   #data='uname=tymek2211&email=krystatymoteusz%40gmail.com&pass=tymek2002&rpass=tymek2002&domain=justeuro.eu&ns1=ns1.justeuro.eu&ns2=ns2.justeuro.eu&lic=&submit=Install+Webuzo'
@@ -95,10 +97,15 @@ function setup_webuzo()
         -H "Accept-Encoding: gzip, deflate" \
         -H "Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,pl;q=0.7" \
         -H "Connection: close" \
+        --output "$curl_response_file"
         -X POST "$webuzo_url"
 
 
-
+  ### Above returns:
+  #
+  # Warning: Binary output can mess up your terminal. Use "--output -" to tell
+  # Warning: curl to output it to your terminal anyway, or consider "--output
+  # Warning: <FILE>" to save to a file.
 
 
   # Alternative if above would not work

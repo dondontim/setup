@@ -107,9 +107,9 @@ function install_webuzo() {
   chmod 700 install.sh
 
 
-  #./install.sh
-  # TEST(tim):
-  ./install.sh --install=lamp,bind
+  # TODO(tim): already tested remove it
+  #./install.sh --install=lamp,bind
+  ./install.sh
 }
 
 
@@ -570,4 +570,26 @@ function install_LAMP() {
   
 
 
+}
+
+
+
+
+
+
+
+
+
+
+
+function install_webuzo_apps() {
+  for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
+    /usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft="$aid"
+  done
+}
+
+function install_webuzo_scripts() {
+  for sid in "${WEBUZO_SCRIPTS_TO_INSTALL[@]}"; do
+    # TODO(tim):
+  done
 }
