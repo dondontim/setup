@@ -108,6 +108,9 @@ WEBUZO_APPS_TO_INSTALL=(
   "33"  # xslt               dep for php
   "6"   # gd                 dep for php
   "44"  # imap               dep for php
+  "9"   # freetds            dep for php
+  "59"  # tidy               dep for php
+  "153" # libsodium          dep for php
   "149" # PHP 7.4
 
   "136" # phpMyAdmin
