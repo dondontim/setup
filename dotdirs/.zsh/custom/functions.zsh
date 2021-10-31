@@ -102,3 +102,21 @@ function vim() {
     sudo $(echo ${EDITOR}) "$@"
   fi  
 }
+
+
+
+function upper to_upper toupper() {
+  # NOTE: shell strips quotes unless you escape them
+  python3 <<EOF
+s="$@"
+print(s.upper())
+EOF
+}
+
+function lower to_lower tolower() {
+  # NOTE: shell strips quotes unless you escape them
+  python3 <<EOF
+s="$@"
+print(s.lower())
+EOF
+}

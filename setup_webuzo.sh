@@ -55,17 +55,16 @@ function setup_webuzo()
     # [submit]='Install Webuzo'
     # [submit_]='Install'
   declare -A webuzo_array=(
-    [uname]='tymek22'
+    [uname]="$cpuser"
     [email]='krystatymoteusz%40gmail.com'
-    [pass]='tymek2002'
-    [rpass]='tymek2002'
-    [domain]='justeuro.eu'
+    [pass]="$cppass"
+    [rpass]="$cppass"
+    [domain]="$cpdomain"
     [ns1]='ns1.justeuro.eu'
     [ns2]='ns2.justeuro.eu'
     [lic]=''
     [submit]='Install+Webuzo'
   )
-  # TODO(tim): replace with $PRIMARY_DOMAIN
 
   data=''
 

@@ -39,9 +39,9 @@ WEBUZO_SETTINGS_TO_IMPORT=
 # App ID (aid in below link)
 # http://api.webuzo.com/apps.php
 
-# rm apache so nginx can run
+# Add here AID if you choose to install webuzo with e.g. lemp stack
 WEBUZO_APPS_TO_REMOVE=(
-  "3" # Apache
+  # "3" # Apache
 )
 
 WEBUZO_APPS_TO_INSTALL=(
@@ -79,29 +79,54 @@ WEBUZO_APPS_TO_INSTALL=(
 # php
 
 WEBUZO_APPS_TO_INSTALL=(
-  "4" # openssl (openLDAP)
-  "8" # curl
-  "28" # libcap dep for perl
-  "19" # Perl
-  "31" # pure-ftpd
-  "16" # MySQL
-  "32" # Sqlite dep for php
-  "151" # libzip dep for php
-  "149" # PHP 7.4
-  "29" # Python2 
+  "4"   # openssl (openLDAP) dep for curl
+  "8"   # curl               dep for php
+  
+  # RainLoop - requirements
+  # https://www.rainloop.net/docs/system-requirements/
+ #"18"  # nginx              dep for rainloop
+  "13"  # libxml             dep for rainloop
+  "20"  # pcre               dep for rainloop
+
+  "29"  # Python2 
   "140" # Python3 
-  "136" # phpMyAdmin 
-  "35" # Exim is pre-installed
-  "36" # Dovecot
-  "34" # BIND is pre-installed
+
+  # PERL - requirements
+  "28"  # libcap             dep for perl
+  "19"  # Perl
+
+  "31"  # pure-ftpd
+  "16"  # MySQL
+
+  # PHP - requirements
+  "32"  # Sqlite             dep for php
+  "151" # libzip             dep for php
+  "26"  # libssh             dep for php
+  "126" # libexpat           dep for php
+  "150" # libonig            dep for php
+  "149" # PHP 7.4
+
+  "136" # phpMyAdmin
+
+  # Mail server
+  "35"  # Exim
+  "36"  # Dovecot
+  "34"  # BIND
   "137" # SpamAssassin
+
 )
 
 
-# Script ID (sid)
-WEBUZO_SCRIPTS_TO_INSTALL=(
-  # RainLoop webmail # sid 497 # or Roundcube # sid 118
-)
+
+
+
+### For setup_webuzo.sh
+# cp = Control Panel
+cpuser="tymek22"
+cppass="tymek2002"
+cpdomain="$PRIMARY_DOMAIN"
+
+
 
 
 
@@ -138,12 +163,11 @@ install_webuzo
 . ./setup_webuzo.sh
 
 
-#remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
-
+remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
 
 install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
 
-#install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
+install_webuzo_scripts |& tee -a /root/install_webuzo_scripts.log
 
 
 

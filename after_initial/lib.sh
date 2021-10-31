@@ -640,18 +640,112 @@ function install_webuzo_apps() {
       if webuzo_cli --app_install --soft="$aid"; then
         echo "super x2: $aid"
       else
-        echo "failed twice: $aid"
+        echo "failed twice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
       fi
     fi
   done
 }
 
+
 function install_webuzo_scripts() {
-  for sid in "${WEBUZO_SCRIPTS_TO_INSTALL[@]}"; do
-    # TODO(tim): finish it
-    : # true equivalent
-    # (colon) Does nothing beyond expanding arguments and performing redirections.
-    # The return status is zero.
-  done
+  # Script ID (sid)
+  # RainLoop webmail # sid 497 # or Roundcube # sid 118
+
+  ### Install RainLoop webmail
+  install_rainloop_webmail
 }
 
+
+######################################
+# Glabals: 
+#   PRIMARY_DOMAIN
+#   cpuser
+#   cppass
+#   cpdomain
+######################################
+function install_rainloop_webmail() {
+  local RAINLOOP_SOFTPROTO \
+        RAINLOOP_SOFTDIRECTORY \
+        RAINLOOP_SITE_NAME \
+        RAINLOOP_IMAP_PORT \
+        RAINLOOP_SMTP_PORT \
+        RAINLOOP_CONN_PREFIX \
+        RAINLOOP_ADMIN_USERNAME \
+        RAINLOOP_ADMIN_PASS \
+        RAINLOOP_LANG \
+        RAINLOOP_SOFT \
+        RAINLOOP_SOFTDB \
+        RAINLOOP_EMAIL
+
+  RAINLOOP_SOFTPROTO="http://"
+  ## Options:
+  # http://
+  # http://www.
+  # https://
+  # https://www.
+
+  # Leave empty for domain root (NOTE: that webuzo root dir is: /home/$created_user_in_setup_webuzo.sh/public_html)
+  RAINLOOP_SOFTDIRECTORY="/var/www/justeuro.eu/rainloop"
+
+  RAINLOOP_SITE_NAME="Justeuro Webmail"
+  RAINLOOP_IMAP_PORT="143" # plain 143 | SSL/TLS IMAP 993
+  RAINLOOP_SMTP_PORT="25"  # plain 25  | SSL/TLS SMTP 587
+  RAINLOOP_CONN_PREFIX="None" # SSL/TLS or None
+
+  RAINLOOP_ADMIN_USERNAME="admin"
+  RAINLOOP_ADMIN_PASS="tymek2002"
+  RAINLOOP_LANG="en"
+  RAINLOOP_SOFT="497" # script id (SID)
+
+  RAINLOOP_SOFTDB="rain365" # Can be max 7 characters
+  RAINLOOP_EMAIL="krystatymoteusz@gmail.com"
+
+
+  webuzo_cli --install \
+  --soft="$RAINLOOP_SOFT" \
+  --cpuser="$cpuser" \
+  --cppass="$cppass" \
+  --cpdomain="$cpdomain" \
+  --softproto="$RAINLOOP_SOFTPROTO" \
+  --softdomain="$PRIMARY_DOMAIN" \
+  --softdirectory="$RAINLOOP_SOFTDIRECTORY" \
+  --site_name="$RAINLOOP_SITE_NAME" \
+  --imap="imap.${PRIMARY_DOMAIN}" \
+  --imap_port="$RAINLOOP_IMAP_PORT" \
+  --imap_conn_prefix="$RAINLOOP_CONN_PREFIX" \
+  --smtp="smtp.${PRIMARY_DOMAIN}" \
+  --smtp_port="$RAINLOOP_SMTP_PORT" \
+  --smtp_conn_prefix="$RAINLOOP_CONN_PREFIX" \
+  --admin_username="$RAINLOOP_ADMIN_USERNAME" \
+  --admin_pass="$RAINLOOP_ADMIN_PASS" \
+  --language="$RAINLOOP_LANG" \
+  --admin_language="$RAINLOOP_LANG" \
+  --softdb="$RAINLOOP_SOFTDB" \
+  --emailto="$RAINLOOP_EMAIL"
+
+
+  ### in case of problems 
+  # apt_install php-gd php-curl php-dom 
+
+  ### the directory have to be writable from php script and have correct ownership
+  # 755 and 644 works with apache/nginx user only!!
+  # If you want to use root owner fo files, you shoud set 775 and 664.
+  ### cd /var/www/rainloop
+  ### find . -type d -exec chmod 775 {} \;
+  ### find . -type f -exec chmod 664 {} \;
+
+  # example: cp -r /home/tymek22/public_html/rainloop/ /var/www/justeuro.eu/
+}
+
+
+#######################################
+# Description of the function.
+# Globals: 
+#   List of global variables used and modified.
+# Arguments: 
+#   Arguments taken.
+# Outputs: 
+#   Output to STDOUT or STDERR.
+# Returns: 
+#   Returned values other than the default exit status of the last command run.
+#######################################
