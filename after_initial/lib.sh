@@ -114,6 +114,9 @@ function install_webuzo() {
   # This will install only Webuzo without any LAMP Stack.
   ./install.sh --install=none # do not install httpd so port 80 is free
 
+  # ./install.sh --install=lemp # This is same as below
+  # ./install.sh --install=nginx,mysql,php53,perl,python2
+
   #./install.sh
 
   # Remove the installer
@@ -544,7 +547,11 @@ function install_LEMP() {
   # Installing the Nginx Web Server
   apt_install nginx
 
-  ufw allow 'Nginx Full' # 'Nginx Full' is equivalent of both below
+
+  ufw allow 80
+  ufw allow 443
+
+  #ufw allow 'Nginx Full' # 'Nginx Full' is equivalent of both below
   # 'Nginx HTTP'
   # 'Nginx HTTPS'
 
@@ -709,8 +716,8 @@ function install_rainloop_webmail() {
   # https://
   # https://www.
 
-  # Leave empty for domain root (NOTE: that webuzo root dir is: /home/$created_user_in_setup_webuzo.sh/public_html)
-  RAINLOOP_SOFTDIRECTORY="/var/www/justeuro.eu/rainloop"
+  # Leave empty for domain root (NOTE: that webuzo root dir is: /home/$cpuser/public_html)
+  RAINLOOP_SOFTDIRECTORY="rainloop" # /home/$cpuser/public_html/$RAINLOOP_SOFTDIRECTORY
 
   RAINLOOP_SITE_NAME="Justeuro Webmail"
   RAINLOOP_IMAP_PORT="143" # plain 143 | SSL/TLS IMAP 993
@@ -763,6 +770,25 @@ function install_rainloop_webmail() {
 }
 
 
+
+
+
+function restart_webuzo_services_for_prevention() {
+  ### To prevent State active (exited) - restart
+  # State active (exited) - means that systemd has successfully run the commands
+  # but that it does not know there is a daemon to monitor.
+  WEBUZO_SERVICES_TO_RESTART_FOR_PREVENTION=(
+    "nginx"
+    "exim"
+    "dovecot"
+    "mysql"
+  )
+  for service in "${WEBUZO_SERVICES_TO_RESTART_FOR_PREVENTION[@]}"; do
+    systemctl restart "$service"
+  done 
+}
+
+
 #######################################
 # Description of the function.
 # Globals: 
@@ -774,5 +800,3 @@ function install_rainloop_webmail() {
 # Returns: 
 #   Returned values other than the default exit status of the last command run.
 #######################################
-
-install_webuzo_scripts

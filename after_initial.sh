@@ -80,7 +80,8 @@ WEBUZO_APPS_TO_INSTALL=(
 # php
 
 WEBUZO_APPS_TO_INSTALL=(
-  "4"   # openssl (openLDAP) dep for curl
+  "4"   # openssl            dep for curl
+  "22"  # ldap (openLDAP)    dep for curl
   "8"   # curl               dep for php
   
   # RainLoop - requirements
@@ -97,6 +98,8 @@ WEBUZO_APPS_TO_INSTALL=(
   "19"  # Perl
 
   "31"  # pure-ftpd errer extracting
+
+  "17"  # ncurses            dep for MySQL
   "16"  # MySQL
 
   # PHP - requirements
@@ -106,11 +109,15 @@ WEBUZO_APPS_TO_INSTALL=(
   "126" # libexpat           dep for php
   "150" # libonig            dep for php
   "33"  # xslt               dep for php
+  "10"  # freetype           dep for gd
   "6"   # gd                 dep for php
   "44"  # imap               dep for php
   "9"   # freetds            dep for php
   "59"  # tidy               dep for php
   "153" # libsodium          dep for php
+  "27"  # libtool            dep for php
+  "14"  # mcrypt             dep for php
+  "7"   # bzip               dep for php
   "149" # PHP 7.4
 
   "136" # phpMyAdmin
@@ -122,6 +129,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "137" # SpamAssassin
 
 )
+
 
 
 
@@ -207,6 +215,9 @@ fi
 # SpamAssassin # Install Exim before
 
 
+
+
+restart_webuzo_services_for_prevention
 
 
 exit 0
