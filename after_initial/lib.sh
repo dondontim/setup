@@ -182,6 +182,8 @@ function remove_apache_centos() {
 
 init() {
   # check release
+  # TODO(tim): useless cat replace with:
+  # grep -Eqi "debian" /etc/issue
   if [ -f /etc/redhat-release ]; then
       RELEASE="centos"
   elif cat /etc/issue | grep -Eqi "debian"; then
@@ -643,17 +645,28 @@ function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
 
-    # Try twice
-    # TODO(tim): if error would occur run same command twice (manually it works)
+    # Try thrice
+    # TODO(tim): if error would occur run same command thrice (manually it really does the work!!!)
+    # Need to do it that much times cuz webuzo cli is not perfect :P
+
+    # Try 1st time
     if webuzo_cli --app_install --soft="$aid"; then
       echo "super: $aid"
     else
+      # Try 2nd time
       if webuzo_cli --app_install --soft="$aid"; then
         echo "super x2: $aid"
       else
         echo "failed twice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
+        # Try 3rd time
+        if webuzo_cli --app_install --soft="$aid"; then
+          echo "super x3: $aid"
+        else
+          echo "failed thrice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
+        fi
       fi
     fi
+
   done
 }
 
@@ -761,3 +774,5 @@ function install_rainloop_webmail() {
 # Returns: 
 #   Returned values other than the default exit status of the last command run.
 #######################################
+
+install_webuzo_scripts

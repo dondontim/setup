@@ -96,7 +96,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "28"  # libcap             dep for perl
   "19"  # Perl
 
-  "31"  # pure-ftpd
+  "31"  # pure-ftpd errer extracting
   "16"  # MySQL
 
   # PHP - requirements
@@ -105,6 +105,9 @@ WEBUZO_APPS_TO_INSTALL=(
   "26"  # libssh             dep for php
   "126" # libexpat           dep for php
   "150" # libonig            dep for php
+  "33"  # xslt               dep for php
+  "6"   # gd                 dep for php
+  "44"  # imap               dep for php
   "149" # PHP 7.4
 
   "136" # phpMyAdmin
