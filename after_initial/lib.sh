@@ -32,6 +32,10 @@ function log_it() {
 
 
 
+function command_exists() {
+  command -v "$@" >/dev/null 2>&1
+}
+
 function apt_install() {
   sudo apt-get install -y "$@"
 }
@@ -108,9 +112,9 @@ function install_webuzo() {
 
 
   # This will install only Webuzo without any LAMP Stack.
-  #./install.sh --install=none # do not install httpd so port 80 is free
+  ./install.sh --install=none # do not install httpd so port 80 is free
 
-  ./install.sh
+  #./install.sh
 
   # Remove the installer
   rm -f ./install.sh
@@ -537,6 +541,12 @@ function install_LEMP() {
   # 'Nginx HTTPS'
 
   #install_mysql ################
+  if command_exists mysql; then
+    :
+  else
+    install_mysql ################
+  fi
+
   install_php
 
 
@@ -621,7 +631,7 @@ function remove_webuzo_apps() {
 function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
-    webuzo_cli --app_install --soft="$aid"
+    webuzo_cli --app_install --soft="$aid" && echo "super: $aid" || webuzo_cli --app_install --soft="$aid"
     # TODO(tim): if error would occur run same command twice (manually it works)
   done
 }
@@ -634,3 +644,10 @@ function install_webuzo_scripts() {
     # The return status is zero.
   done
 }
+
+
+
+for aid in "${WEBUZO_APPS_TO_REMOVE[@]}"; do
+  # To remove system app (add '_1' after aid):
+  webuzo_cli --app_remove --soft="${aid}_1" && echo "super: $aid" || webuzo_cli --app_remove --soft="${aid}_1"
+done 

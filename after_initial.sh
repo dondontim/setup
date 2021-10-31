@@ -2,7 +2,7 @@
 #
 # 
 
-set -euo pipefail
+#set -euo pipefail
 
 
 
@@ -51,8 +51,8 @@ WEBUZO_APPS_TO_INSTALL=(
   "137" # SpamAssassin
   "29" # Python2 
   "140" # Python3 
-  "16" # MySQL
-  "136" # phpMyAdmin 
+  #"16" # MySQL
+  #"136" # phpMyAdmin 
 )
 
 ### These below comes preinstalled with basic webuzo installation
@@ -78,7 +78,22 @@ WEBUZO_APPS_TO_INSTALL=(
 # mysql
 # php
 
-
+WEBUZO_APPS_TO_INSTALL=(
+  "4" # openssl (openLDAP)
+  "8" # curl
+  "19" # Perl
+  "31" # pure-ftpd
+  "16" # MySQL
+  "151" # libzip
+  "149" # PHP 7.4
+  "29" # Python2 
+  "140" # Python3 
+  "136" # phpMyAdmin 
+  "35" # Exim is pre-installed
+  "36" # Dovecot
+  "34" # BIND is pre-installed
+  "137" # SpamAssassin
+)
 
 
 # Script ID (sid)
@@ -121,7 +136,7 @@ install_webuzo
 . ./setup_webuzo.sh
 
 
-remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
+#remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
 
 
 install_webuzo_apps |& tee -a /root/install_webuzo_apps.log
