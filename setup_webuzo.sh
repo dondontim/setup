@@ -54,6 +54,7 @@ function setup_webuzo()
     # [lic]=''
     # [submit]='Install Webuzo'
     # [submit_]='Install'
+
   declare -A webuzo_array=(
     [uname]="$cpuser"
     [email]='krystatymoteusz%40gmail.com'
@@ -84,7 +85,7 @@ function setup_webuzo()
   ip_at_port="http://${server_external_ip}:2004"
   webuzo_url="${ip_at_port}/install.php"
 
-  curl_response_file="/root/curl_response_file.log"
+  curl_response_file="/root/curl_webuzo_response.log"
 
 
   #force_install=on&force_install=on&

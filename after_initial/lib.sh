@@ -531,7 +531,13 @@ function handle_nginx_conf_and_webroot() {
   systemctl reload nginx || exit 1 # TODO(tim): manage exeptions e.g. print all non 0 exit codes
 }
 
+
+######################################
 # Nginx
+# Glabals: 
+#   PRIMARY_DOMAIN
+#   EMAIL
+######################################
 function install_LEMP() {
   # Installing the Nginx Web Server
   apt_install nginx
@@ -565,9 +571,14 @@ function install_LEMP() {
   
 }
 
+
+######################################
+# Glabals: 
+#   PRIMARY_DOMAIN
+#   EMAIL
+######################################
 function setup_ssl() {
-  local EMAIL CERT_NAME
-  EMAIL='krystatymoteusz@gmail.com'
+  local CERT_NAME
   CERT_NAME="$PRIMARY_DOMAIN"
 
   apt_install certbot python3-certbot-nginx
@@ -659,6 +670,7 @@ function install_webuzo_scripts() {
 ######################################
 # Glabals: 
 #   PRIMARY_DOMAIN
+#   EMAIL
 #   cpuser
 #   cppass
 #   cpdomain
@@ -698,7 +710,7 @@ function install_rainloop_webmail() {
   RAINLOOP_SOFT="497" # script id (SID)
 
   RAINLOOP_SOFTDB="rain365" # Can be max 7 characters
-  RAINLOOP_EMAIL="krystatymoteusz@gmail.com"
+  RAINLOOP_EMAIL="$EMAIL"
 
 
   webuzo_cli --install \

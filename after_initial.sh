@@ -16,9 +16,10 @@ LOG_FILE="/root/after_initial.log"
 STACK='LEMP' # LAMP (apache) or LEMP (nginx)
 
 PRIMARY_DOMAIN='justeuro.eu'
+EMAIL='krystatymoteusz@gmail.com'
 
 # Name of the user to grant privileges and ownership
-USERNAME=tim
+USERNAME='tim'
 
 
 # Primary domain (without http(s) scheme) name to create a directory structure
@@ -84,7 +85,7 @@ WEBUZO_APPS_TO_INSTALL=(
   
   # RainLoop - requirements
   # https://www.rainloop.net/docs/system-requirements/
- #"18"  # nginx              dep for rainloop
+  "18"  # nginx              dep for rainloop
   "13"  # libxml             dep for rainloop
   "20"  # pcre               dep for rainloop
 
@@ -202,7 +203,7 @@ fi
 
 
 
-
+exit 0
 
 # Note that with webuzo is some apps installed
 if [ "$STACK" = 'LEMP' ]; then
