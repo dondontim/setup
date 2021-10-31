@@ -81,10 +81,12 @@ WEBUZO_APPS_TO_INSTALL=(
 WEBUZO_APPS_TO_INSTALL=(
   "4" # openssl (openLDAP)
   "8" # curl
+  "28" # libcap dep for perl
   "19" # Perl
   "31" # pure-ftpd
   "16" # MySQL
-  "151" # libzip
+  "32" # Sqlite dep for php
+  "151" # libzip dep for php
   "149" # PHP 7.4
   "29" # Python2 
   "140" # Python3 

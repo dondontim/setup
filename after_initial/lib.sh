@@ -556,7 +556,7 @@ function install_LEMP() {
   #tests ################
 
   # TODO(tim): Temporary commented for tests
-  setup_ssl >> "$LOG_FILE"
+  #setup_ssl >> "$LOG_FILE"
   
   # Remove current nginx domain config file
   rm "/etc/nginx/sites-available/${PRIMARY_DOMAIN}"
@@ -631,8 +631,18 @@ function remove_webuzo_apps() {
 function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
-    webuzo_cli --app_install --soft="$aid" && echo "super: $aid" || webuzo_cli --app_install --soft="$aid"
+
+    # Try twice
     # TODO(tim): if error would occur run same command twice (manually it works)
+    if webuzo_cli --app_install --soft="$aid"; then
+      echo "super: $aid"
+    else
+      if webuzo_cli --app_install --soft="$aid"; then
+        echo "super x2: $aid"
+      else
+        echo "failed twice: $aid"
+      fi
+    fi
   done
 }
 
@@ -645,9 +655,3 @@ function install_webuzo_scripts() {
   done
 }
 
-
-
-for aid in "${WEBUZO_APPS_TO_REMOVE[@]}"; do
-  # To remove system app (add '_1' after aid):
-  webuzo_cli --app_remove --soft="${aid}_1" && echo "super: $aid" || webuzo_cli --app_remove --soft="${aid}_1"
-done 
