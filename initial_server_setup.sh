@@ -90,7 +90,7 @@ PORTS_TO_BE_OPEN=(
 #   Notes.
 #######################################
 
-source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
+
 
 #######################################
 # Display GUI spinner and message while executing passed command(s).
@@ -217,6 +217,8 @@ function script_initialization() {
   apt_install curl
 
   disable_welcome_message
+
+  source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
 }
 
 
@@ -377,7 +379,7 @@ function setup_ssh_keys_for_given_user() {
 #######################################
 function create_sudo_user() {
   # -g is for primary group and -G for supplementary group
-  useradd --quiet --create-home --shell "/bin/bash" -G sudo "$USERNAME_FOR_SUDO_USER"
+  useradd --create-home --shell "/bin/bash" -G sudo "$USERNAME_FOR_SUDO_USER"
 
   if running_interactively; then
     set_password_for_user_interactively "$USERNAME_FOR_SUDO_USER"
@@ -420,7 +422,7 @@ function create_sftp_only_group_and_user() {
   # Create User
   # make his Home directory as /incoming
   # -g is for primary group and -G for supplementary group
-  useradd --quiet --create-home --home-dir "$SFTP_USER_HOME_DIR" -G "$SFTP_GROUP_NAME" --shell "/usr/sbin/nologin" "$SFTP_USER_TO_CREATE"
+  useradd --create-home --home-dir "$SFTP_USER_HOME_DIR" -G "$SFTP_GROUP_NAME" --shell "/usr/sbin/nologin" "$SFTP_USER_TO_CREATE"
 
   if running_interactively; then
     set_password_for_user_interactively "$SFTP_USER_TO_CREATE"

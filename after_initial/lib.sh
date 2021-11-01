@@ -133,7 +133,13 @@ function remove_apache_debian() {
   # Get list of apache dependencies and purge it
   temp_file=$(mktemp)
   apt list --installed | grep -i apache > "$temp_file"
-  # TODO(tim): try with aptitude
+  # TODO(tim): try with aptitude but strip it
+  # aptitude search '~i!~M' | grep -i apache > "$temp_file"
+
+  ### Example output of above command
+  # i  libmysqlclient21 - MySQL database client library
+  # i  mysql-common - MySQL database common files, e.g. /etc/mysql/my.cnf
+
   while read line; do
     arrIN=(${line/\// }) # // means global replace
     apt-get purge -y "${arrIN[0]}"
