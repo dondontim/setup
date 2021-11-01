@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+# curl have to be installed to proceed with script
+apt-get install curl -y
 
 
 
@@ -90,7 +92,7 @@ PORTS_TO_BE_OPEN=(
 #   Notes.
 #######################################
 
-
+source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
 
 #######################################
 # Display GUI spinner and message while executing passed command(s).
@@ -130,6 +132,7 @@ function _logging() {
   # Evaluate command to execute
   if is_debug_on; then
     printf "\n[${COMMAND_TO_EXECUTE}]\n" >> "$LOG_FILE"
+    echo ""
     eval "$COMMAND_TO_EXECUTE" &>> "$LOG_FILE"
     echo ""
   else
@@ -214,11 +217,8 @@ function script_initialization() {
   update_and_upgrade
 
   apt_install ufw
-  apt_install curl
 
   disable_welcome_message
-
-  source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
 }
 
 
@@ -416,6 +416,32 @@ function create_sftp_only_group_and_user() {
   SFTP_DIR='/sftp'
   SFTP_USER_HOME_DIR="${SFTP_DIR}/${SFTP_USER_TO_CREATE}"
 
+  
+
+  # Create sftp Home Directory
+  mkdir "$SFTP_DIR"
+  # Now, under /sftp, create the individual directories for the users who are 
+  # part of the sftpusers group. i.e the users who will be allowed only 
+  # to perform sftp and will be in chroot environment.
+
+
+  # /sftp/guestuser is equivalent to / for the guestuser. 
+  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
+  # only the content of the directories under “/sftp/guestuser” 
+  # (and not the real / of the system). This is the power of the chroot.
+  mkdir "$SFTP_USER_HOME_DIR"
+  # /sftp == ChrootDirectory
+
+  # So, under this directory /sftp/guestuser, create any subdirectory that you 
+  # like user to see. For example, create a incoming directory where users can sftp their files.
+  mkdir "${SFTP_USER_HOME_DIR}/incoming"
+
+  # TODO(tim): short above 3 commands comments to one line below
+  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
+
+
+
+
   # Create a New Group
   groupadd "$SFTP_GROUP_NAME"
 
@@ -440,26 +466,7 @@ Match Group $SFTP_GROUP_NAME
 EOF
 # Above 'ChrootDirectory' specifies jail for 'Match'ed
 
-  # Create sftp Home Directory
-  mkdir "$SFTP_DIR"
-  # Now, under /sftp, create the individual directories for the users who are 
-  # part of the sftpusers group. i.e the users who will be allowed only 
-  # to perform sftp and will be in chroot environment.
 
-
-  # /sftp/guestuser is equivalent to / for the guestuser. 
-  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
-  # only the content of the directories under “/sftp/guestuser” 
-  # (and not the real / of the system). This is the power of the chroot.
-  mkdir "$SFTP_USER_HOME_DIR"
-  # /sftp == ChrootDirectory
-
-  # So, under this directory /sftp/guestuser, create any subdirectory that you 
-  # like user to see. For example, create a incoming directory where users can sftp their files.
-  mkdir "${SFTP_USER_HOME_DIR}/incoming"
-
-  # TODO(tim): short above 3 commands comments to one line below
-  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
 
 
   # Setup Appropriate Permission
