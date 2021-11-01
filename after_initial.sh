@@ -79,6 +79,8 @@ WEBUZO_APPS_TO_INSTALL=(
 # mysql
 # php
 
+/usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft=
+
 WEBUZO_APPS_TO_INSTALL=(
   "4"   # openssl            dep for curl
   "22"  # ldap (openLDAP)    dep for curl
@@ -88,6 +90,7 @@ WEBUZO_APPS_TO_INSTALL=(
   # RainLoop - requirements
   # https://www.rainloop.net/docs/system-requirements/
   "18"  # nginx              dep for rainloop
+  "152" # liblzma            dep for libxml
   "13"  # libxml             dep for rainloop
   "20"  # pcre               dep for rainloop
 
@@ -101,7 +104,6 @@ WEBUZO_APPS_TO_INSTALL=(
   "31"  # pure-ftpd errer extracting
 
   "17"  # ncurses            dep for MySQL
-  "136" # phpmyadmin         dep for MySQL
   "16"  # MySQL
 
   # PHP - requirements
@@ -121,8 +123,10 @@ WEBUZO_APPS_TO_INSTALL=(
   "27"  # libtool            dep for php
   "14"  # mcrypt             dep for php
   "7"   # bzip               dep for php
+  "12"  # gettext            dep for php
   "149" # PHP 7.4
 
+  "136" # phpmyadmin         dep for MySQL # or maybe not really
 
   # Mail server
   "35"  # Exim
@@ -259,6 +263,10 @@ exit 0
 
 
 
+### How to Add an Existing User to a Group
+# sudo usermod -a -G groupname username
+
+
 
 
 # TODO(tim): do it with vps_configuration
@@ -268,3 +276,5 @@ exit 0
 
 ## Ref: https://linuxize.com/post/secure-apache-with-let-s-encrypt-on-ubuntu-18-04/
 ## Ref: https://stackoverflow.com/questions/49172841/
+
+
