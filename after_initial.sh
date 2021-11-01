@@ -82,6 +82,7 @@ WEBUZO_APPS_TO_INSTALL=(
 WEBUZO_APPS_TO_INSTALL=(
   "4"   # openssl            dep for curl
   "22"  # ldap (openLDAP)    dep for curl
+  "25"  # zlib               dep for curl
   "8"   # curl               dep for php
   
   # RainLoop - requirements
@@ -100,6 +101,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "31"  # pure-ftpd errer extracting
 
   "17"  # ncurses            dep for MySQL
+  "136" # phpmyadmin         dep for MySQL
   "16"  # MySQL
 
   # PHP - requirements
@@ -110,6 +112,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "150" # libonig            dep for php
   "33"  # xslt               dep for php
   "10"  # freetype           dep for gd
+  "5"   # libpng             dep for gd
   "6"   # gd                 dep for php
   "44"  # imap               dep for php
   "9"   # freetds            dep for php
@@ -120,7 +123,6 @@ WEBUZO_APPS_TO_INSTALL=(
   "7"   # bzip               dep for php
   "149" # PHP 7.4
 
-  "136" # phpMyAdmin
 
   # Mail server
   "35"  # Exim

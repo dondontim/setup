@@ -133,7 +133,7 @@ function remove_apache_debian() {
   # Get list of apache dependencies and purge it
   temp_file=$(mktemp)
   apt list --installed | grep -i apache > "$temp_file"
-
+  # TODO(tim): try with aptitude
   while read line; do
     arrIN=(${line/\// }) # // means global replace
     apt-get purge -y "${arrIN[0]}"
