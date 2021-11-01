@@ -15,7 +15,7 @@ alias mv='mv -i' # make mv ask before overwriting a file by default
 alias cp='cp -i'
 alias ln='ln -i'
 
-# -p create any nessesary parent direcories and 
+# -p create any nessesary parent direcories and
 # -v confirm in such way every directory
 alias mkdir="mkdir -pv"
 
@@ -25,13 +25,13 @@ alias rd='rmdir'
 # -c : continue the download in case of problems.
 alias wget='wget --continue' # -c, --continue
 
-# The search is done from left to right, and if more than one matches are found 
-# in the directories listed in the PATH path variable, which will print 
+# The search is done from left to right, and if more than one matches are found
+# in the directories listed in the PATH path variable, which will print
 # only the first one. To print all matches, use the -a option:
 alias which='which -a'
 
-# LS 
-# 
+# LS
+#
 # * -lA is show list and all files
 # * -h  When used with the -l option, use unit suffixes: Byte, Kilobyte,
 #       Megabyte, Gigabyte, Terabyte and Petabyte in order to reduce the num-
@@ -66,8 +66,8 @@ command_exists htop && {
 
 # sudo shutdown [FLAGS] <time>
 #
-# Replace <time> with the specific time. 
-# If you want to do it immediately, type now. 
+# Replace <time> with the specific time.
+# If you want to do it immediately, type now.
 # If you want in an hour, type +60.
 # -h : shutdown
 # -r : reboot
@@ -88,13 +88,14 @@ alias egrep='egrep --color=auto'
 alias G="grep"
 alias Gi="grep -i"
 alias L="less"
+alias C="copy" # 'copy' is alias of 'clipcopy' from lib/clipboard.zsh
 alias devnull="2> /dev/null"
 
 
 # Start calculator with math support
 alias {bc,calc,calculator}='bc -l'
 
-# You can compare files line by line using diff and use a tool 
+# You can compare files line by line using diff and use a tool
 # called colordiff to colorize diff output:
 # install  colordiff package :)
 alias diff='colordiff'
@@ -132,7 +133,7 @@ alias {downloads,donwloads}="cd ~/Downloads"
 ##
 
 # IP addresses
-# 
+#
 # * 3rd party web-sites to get your IP at shell prompt
 #
 # curl checkip.amazonaws.com

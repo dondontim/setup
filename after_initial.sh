@@ -115,6 +115,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "33"  # xslt               dep for php
   "10"  # freetype           dep for gd
   "5"   # libpng             dep for gd
+  "21"  # jpeg               dep for gd
   "6"   # gd                 dep for php
   "44"  # imap               dep for php
   "9"   # freetds            dep for php
@@ -132,7 +133,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "35"  # Exim
   "36"  # Dovecot
   "34"  # BIND
-  "137" # SpamAssassin
+  "137" # SpamAssassin # Install Exim before
 
 )
 
@@ -157,7 +158,7 @@ cpdomain="$PRIMARY_DOMAIN"
 
 #. "./${lib_dir_name}/nginx.sh"
 #. "./${lib_dir_name}/apache.sh"
-. "./${lib_dir_name}/lib.sh"
+source "./${lib_dir_name}/lib.sh"
 
 
 
@@ -206,19 +207,7 @@ if [ -n "$WEBUZO_SETTINGS_TO_IMPORT" ]; then
   /usr/local/emps/bin/php /usr/local/webuzo/cli.php --import_settings --file="$WEBUZO_SETTINGS_TO_IMPORT"
 fi
 
-#### General apps to install
-# openssl aid 4 dependency for curl TODO(tim): it wasnt required as certbot ran
-# curl aid 8 (have to be installed via webuzo even if on system it is installed) (in here it is php dependency)
-# PHP aid 149 for php 7.4 and aid 154 for php 8.0
-# MySQL aid 16
-# phpMyAdmin aid 136
-#
-#### Mail apps to install on webuzo
-# Exim
-# Dovecot
-# RainLoop webmail # sid 497 # or Roundcube # sid 118
-# BIND # DNS software to setup MX record
-# SpamAssassin # Install Exim before
+
 
 
 
@@ -265,6 +254,10 @@ exit 0
 
 ### How to Add an Existing User to a Group
 # sudo usermod -a -G groupname username
+# sudo usermod -a -G group1,group2 username
+#
+# id username
+# groups username
 
 
 

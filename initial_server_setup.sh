@@ -14,8 +14,19 @@ set -euo pipefail
 DEBUG=
 LOG_FILE="/root/initial_server_setup.log"
 
+# Weather script have to prompt for passwords or read from below variables
+INTERACTIVE=false
 
-sshd_config='/etc/ssh/sshd_config'
+USERNAME_FOR_SUDO_USER='tim'
+PASSWORD_FOR_SUDO_USER='tymek2002'
+
+USERNAME_FOR_SFTP_USER='sftptim'
+PASSWORD_FOR_SFTP_USER='tymek2002'
+
+
+
+
+SSHD_CONFIG='/etc/ssh/sshd_config'
 #remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
 #file_templates_dir="${PWD}/z_file_templates"
 
@@ -26,7 +37,6 @@ sshd_config='/etc/ssh/sshd_config'
 ########################
 
 # Name of the user to create and grant sudo privileges
-USERNAME=tim
 
 # Whether to copy over the root user's `authorized_keys` file to the new sudo
 # user.
@@ -59,36 +69,76 @@ PORTS_TO_BE_OPEN=(
 ### HELPER FUNCTIONS ###
 ########################
 
-
-
+#######################################
+# Description of the function.
+# Globals: 
+#   List of global variables used and modified.
+# Arguments: 
+#   Arguments taken.
+# Outputs: 
+#   Output to STDOUT or STDERR.
+# Returns: 
+#   Returned values other than the default exit status of the last command run.
+# Examples:
+#   Usage examples
+# Notes:
+#   Notes.
+#######################################
 
 source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
 
+#######################################
+# Display GUI spinner and message while executing passed command(s).
+# Globals: 
+#   LOG_FILE
+# Arguments: 
+#   Message to display while executing passed command(s).
+#   Command(s) to execute.
+# Outputs: 
+#   Writes message to stdout and displays graphical spinner
+#   Depending on DEBUG variable additionaly appends both stdout and stdurr to LOG_FILE
+# Returns: 
+#   Displays 'Done' on 0 exit code of COMMAND_TO_EXECUTE or 'Failed' on non-zero
+# Examples:
+#   _logging "Updating" \
+#          apt-get update -y && apt-get upgrade -y
+# Notes:
+#   Notes.
 
-# $1 have to be spinner message
-# $2 have to be command to execute
-function log_it() {
+#######################################
+function _logging() {
   if [[ $# -lt 2 ]]; then
-    echo "[${funcstack}]: You are missing argument(s) for this funtion"
+    ## Get function name
+    # BASH ${FUNCNAME[0]}
+    # ZSH  ${funcstack}
+    echo "[${FUNCNAME[0]}]: You are missing argument(s) for this funtion"
     return
   fi
 
-  local spinner_message command_to_execute
-  spinner_message="$1"
-  command_to_execute="$2"
+  local SPINNER_MESSAGE \
+        COMMAND_TO_EXECUTE
 
-  start_spinner "$spinner_message"
+  SPINNER_MESSAGE="$1"
+
+  #COMMAND_TO_EXECUTE="$2"
+  COMMAND_TO_EXECUTE="${@:2}" # Reference to all arguments except the 1st one
+
+  start_spinner "$SPINNER_MESSAGE"
+
   # Evaluate command to execute
-  
-  if [ "${DEBUG}" = true ]; then
-    eval "$command_to_execute" &> "$LOG_FILE"
+  if is_debug_on; then
+    printf "\n[${COMMAND_TO_EXECUTE}]\n" >> "$LOG_FILE"
+    eval "$COMMAND_TO_EXECUTE" &>> "$LOG_FILE"
+    echo ""
   else
-    eval "$command_to_execute" &> /dev/null
+    eval "$COMMAND_TO_EXECUTE" &> /dev/null
   fi
   
   # Pass the last comands exit code
   stop_spinner $?
+
 }
+
 
 
 
@@ -100,80 +150,180 @@ function update_and_upgrade() {
   sudo apt-get update -y && sudo apt-get upgrade -y
 }
 
+function check_if_running_as_root() {
+  ## The main difference between EUID and UID is:
+  # UID  refers to the original user and
+  # EUID refers to the user you have changed into.
+
+  # This script have to be run as root!
+  if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+  fi
+}
+
+function script_initialization() {
+  
+  check_if_running_as_root
+
+  update_and_upgrade
+
+  apt_install ufw
+  apt_install curl
+
+  disable_welcome_message
+}
 
 
+#######################################
+# Checks if script is being run in debug mode
+# Globals: 
+#   DEBUG
+# Returns: 
+#   0 if script is being run in debug mode, 1 if not.
+#######################################
+function is_debug_on() {
+  if [ "$DEBUG" = true ]; then
+    return 0
+  else
+    return 1
+  fi
+}
 
-function replace_regex_in_file() 
-{ 
-  local pattern repl file
-  pattern="$1"
-  repl="$2"
-  file="$3"
-  #sed --in-place -E "s/${pattern}/${repl}/" "$3" # it was macos sed
-  sed --in-place "s/${pattern}/${repl}/m" "$file"
+#######################################
+# Checks if script is being run interactively
+# Globals: 
+#   INTERACTIVE
+# Returns: 
+#   0 if script is being run interactively, 1 if not.
+#######################################
+function running_interactively() {
+  if [ "$INTERACTIVE" = true ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#######################################
+# Replaces in file using regular expression.
+# Arguments: 
+#   Regex pattern
+#   Replacement
+#   File to make changes in
+#######################################
+function replace_regex_in_file() { 
+  local PATTERN \
+        REPL \
+        FILE
+  PATTERN="$1"
+  REPL="$2"
+  FILE="$3"
+  #sed --in-place -E "s/${PATTERN}/${REPL}/" "$FILE" # it was macos sed
+  sed --in-place "s/${PATTERN}/${REPL}/m" "$FILE"
   # -i == --in-place
 }
 
-function edit_sshd_config() 
-{ 
-  # Edit ssh config - $sshd_config
-  replace_regex_in_file "$@" "$sshd_config"
+#######################################
+# Wrapper for function replace_regex_in_file
+#######################################
+function edit_sshd_config() {
+  local PATTERN \
+        REPL
+  PATTERN="$1"
+  REPL="$2"
+
+  # Edit ssh config - $SSHD_CONFIG
+  replace_regex_in_file "$1" "$2" "$SSHD_CONFIG"
 }
 
-
-function make_old_file_backup() {
-  local file_path date
-  file_path="$1"
-  date=$(date '+%Y-%m-%d')
-  cp "$file_path" "${file_path}.${date}.bak"
+#######################################
+# Backup a file in his location with ".<date>.bak" suffix
+# Arguments: 
+#   File to make backup for
+#######################################
+function backup_a_file_with_current_date() {
+  local FILE_PATH \
+        DATE
+  FILE_PATH="$1"
+  DATE=$(date '+%Y-%m-%d')
+  cp "$FILE_PATH" "${FILE_PATH}.${DATE}.bak"
 }
 
+#######################################
+# Sets password for user without prompting.
+# Arguments: 
+#   User to setup password for
+#   Password
+#######################################
+function set_password_for_user_non_interactively() {
+  local USER_TO_SETUP_PASSWORD_FOR \
+        PASSWORD
 
-function manage_ssh_keys() {
-  
-  local home_directory
-  home_directory="$1"
+  USER_TO_SETUP_PASSWORD_FOR="$1"
+  PASSWORD="$2"
 
-  # Create SSH directory for $user
-  mkdir --parents "${home_directory}/.ssh"
-
-  # Copy `authorized_keys` file from root if requested
-  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
-    cp /root/.ssh/authorized_keys "${home_directory}/.ssh"
-  fi
-
-  # Add additional provided public keys
-  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
-    echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
-  done
-
-  # Adjust SSH configuration ownership and permissions
-  chmod 0700 "${home_directory}/.ssh"
-  chmod 0600 "${home_directory}/.ssh/authorized_keys"
-  
-  # This is extracted outside of function
-  #chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
+  passwd --quiet "$USER_TO_SETUP_PASSWORD_FOR" <<EOF
+$PASSWORD
+$PASSWORD
+EOF
 }
 
-
-function set_password_for_user() {
-  local user
-  user="$1"
+#######################################
+# Sets password for user with prompt for password.
+# Arguments: 
+#   User to setup password for
+#######################################
+function set_password_for_user_interactively() {
+  local USER_TO_SETUP_PASSWORD_FOR
+  USER_TO_SETUP_PASSWORD_FOR="$1"
 
   # Set a password for this user
   while true; do
-    if passwd "$user"; then
+    if passwd "$USER_TO_SETUP_PASSWORD_FOR"; then
       # If above command returns 0 exit code (success) -> break
       break
     fi
   done
-
-  ### Alternatives in creation of users
-  # Create a new user
-  #adduser --gecos "" "${USERNAME}"
-  # Granting Administrative Privileges
-  #usermod -aG sudo "${USERNAME}"
 }
+
+
+#######################################
+# Create .ssh dir with correct permissions and add SSH keys there
+# Globals: 
+#   COPY_AUTHORIZED_KEYS_FROM_ROOT
+#   OTHER_PUBLIC_KEYS_TO_ADD
+# Arguments: 
+#   Username to setup ssh keys for
+#######################################
+function setup_ssh_keys_for_given_user() {
+  local USER
+  USER="$1"
+
+  HOME_DIRECTORY="$(eval echo ~${USER})"
+
+  # Create .ssh directory
+  mkdir --parents "${HOME_DIRECTORY}/.ssh"
+
+  # Copy `authorized_keys` file from root if requested
+  if [ "${COPY_AUTHORIZED_KEYS_FROM_ROOT}" = true ]; then
+    cp /root/.ssh/authorized_keys "${HOME_DIRECTORY}/.ssh"
+  fi
+
+  # Add additional provided public keys
+  for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
+    echo "${pub_key}" >> "${HOME_DIRECTORY}/.ssh/authorized_keys"
+  done
+
+  # Adjust SSH configuration ownership and permissions
+  chmod 0700 "${HOME_DIRECTORY}/.ssh"
+  chmod 0600 "${HOME_DIRECTORY}/.ssh/authorized_keys"
+  
+  chown --recursive "${USER}":"${USER}" "${HOME_DIRECTORY}/.ssh"
+}
+
+
+
 
 
 
@@ -183,56 +333,135 @@ function set_password_for_user() {
 
 
 
-function initialization() {
 
-  # This need to be run as root!
-  if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root"
-    exit 1
+
+
+
+
+#######################################
+# Create user with sudo privileges
+# Globals: 
+#   USERNAME_FOR_SUDO_USER
+#   PASSWORD_FOR_SUDO_USER
+#######################################
+function create_sudo_user() {
+  # -g is for primary group and -G for supplementary group
+  useradd --quiet --create-home --shell "/bin/bash" -G sudo "$USERNAME_FOR_SUDO_USER"
+
+  if running_interactively; then
+    set_password_for_user_interactively "$USERNAME_FOR_SUDO_USER"
+  else 
+    set_password_for_user_non_interactively "$USERNAME_FOR_SUDO_USER" "$PASSWORD_FOR_SUDO_USER"
+  fi
+}
+
+
+
+#######################################
+# Create tightly restricted SFTP-only user with jail and SFTP group
+# Globals: 
+#   USERNAME_FOR_SFTP_USER
+#   PASSWORD_FOR_SUDO_USER
+# Outputs: 
+#   Output to STDOUT or STDERR.
+# Returns: 
+#   Returned values other than the default exit status of the last command run.
+# Examples:
+#   Usage examples
+# Notes:
+#   Notes.
+#######################################
+function create_sftp_only_group_and_user() {
+  # Great reference: 
+  # https://www.thegeekstuff.com/2012/03/chroot-sftp-setup/
+
+  local SFTP_GROUP_NAME \
+        SFTP_USER_TO_CREATE \
+        SFTP_DIR \
+        SFTP_USER_HOME_DIR
+
+  SFTP_GROUP_NAME='sftpusers'
+  SFTP_USER_TO_CREATE="$USERNAME_FOR_SFTP_USER"
+  SFTP_DIR='/sftp'
+  SFTP_USER_HOME_DIR="${SFTP_DIR}/${SFTP_USER_TO_CREATE}"
+
+  # Create a New Group
+  groupadd "$SFTP_GROUP_NAME"
+
+  # Create User
+  # make his Home directory as /incoming
+  # -g is for primary group and -G for supplementary group
+  useradd --quiet --create-home --home-dir "$SFTP_USER_HOME_DIR" -G "$SFTP_GROUP_NAME" --shell "/usr/sbin/nologin" "$SFTP_USER_TO_CREATE"
+
+  if running_interactively; then
+    set_password_for_user_interactively "$SFTP_USER_TO_CREATE"
+  else 
+    set_password_for_user_non_interactively "$SFTP_USER_TO_CREATE" "$PASSWORD_FOR_SUDO_USER"
   fi
 
-  update_and_upgrade
 
-  apt_install ufw
-  #apt_install curl
 
-  disable_welcome_message
+  # This in sshd_config will help create a tightly restricted SFTP-only user account
+  cat <<EOF >> "$SSHD_CONFIG"
+Match Group $SFTP_GROUP_NAME
+  ForceCommand internal-sftp
+  ChrootDirectory $SFTP_DIR/%u
+EOF
+# Above 'ChrootDirectory' specifies jail for 'Match'ed
+
+  # Create sftp Home Directory
+  mkdir "$SFTP_DIR"
+  # Now, under /sftp, create the individual directories for the users who are 
+  # part of the sftpusers group. i.e the users who will be allowed only 
+  # to perform sftp and will be in chroot environment.
+
+
+  # /sftp/guestuser is equivalent to / for the guestuser. 
+  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
+  # only the content of the directories under “/sftp/guestuser” 
+  # (and not the real / of the system). This is the power of the chroot.
+  mkdir "$SFTP_USER_HOME_DIR"
+  # /sftp == ChrootDirectory
+
+  # So, under this directory /sftp/guestuser, create any subdirectory that you 
+  # like user to see. For example, create a incoming directory where users can sftp their files.
+  mkdir "${SFTP_USER_HOME_DIR}/incoming"
+
+  # TODO(tim): short above 3 commands comments to one line below
+  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
+
+
+  # Setup Appropriate Permission
+  chown "$SFTP_USER_TO_CREATE":"$SFTP_GROUP_NAME" "${SFTP_USER_HOME_DIR}/incoming"
+
+  ### Everything at the end should be like this
+  # 755 guestuser sftpusers /sftp/guestuser/incoming
+  # 755 root root /sftp/guestuser
+  # 755 root root /sftp
+  
+
+  # Extracted reused code
+  setup_ssh_keys_for_given_user "$SFTP_USER_TO_CREATE"
 }
-
-
-
-
-function create_sudo_user() {
-  ### Add sudo user and grant privileges
-  useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
-  set_password_for_user "$USERNAME"
-}
-
 
 
 
 ################################################################################
 # Set up SSH keys                                                              #
 ################################################################################
-function handle_ssh_keys() {
-  # Create SSH directory for sudo user
-  home_directory="$(eval echo ~${USERNAME})"
-
-  manage_ssh_keys "$home_directory"
-  chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
-}
 
 
 ################################################################################
-# sshd_config
+# SSHD_CONFIG
 ################################################################################
 
 # TODO(tim): after tests if this is enough
 # Original was this: ^PermitRootLogin.*
 
+
+# Create backup of current (old) $SSHD_CONFIG
 function make_backup_of_sshd_config() {
-  # Create backup of previous $sshd_config
-  make_old_file_backup "$sshd_config"
+  backup_a_file_with_current_date "$SSHD_CONFIG"
 }
 
 
@@ -288,7 +517,7 @@ function change_some_ssh_directives() {
 
   ### Protocol 2
   # Use more cryptographicaly secure protocol
-  echo "Protocol 2" >> "$sshd_config"
+  echo "Protocol 2" >> "$SSHD_CONFIG"
   # To test if SSH protocol 1 is supported any more, run the command:
   # ssh -1 user@remote-IP
   #
@@ -297,17 +526,17 @@ function change_some_ssh_directives() {
 
   ### AllowUsers
   # Limit SSH Access to Certain Users
-  #echo "AllowUsers user1 user2" >> "$sshd_config" # after space add other users
+  #echo "AllowUsers user1 user2" >> "$SSHD_CONFIG" # after space add other users
   # AllowGroups sysadmin dba
 
   
-  echo "ChallengeResponseAuthentication no" >> "$sshd_config"
-  echo "KerberosAuthentication no" >> "$sshd_config"
-  echo "GSSAPIAuthentication no" >> "$sshd_config"
-  echo "X11Forwarding no" >> "$sshd_config"
-  echo "PermitUserEnvironment no" >> "$sshd_config" # If you add this, comment also 'AcceptEnv'
+  echo "ChallengeResponseAuthentication no" >> "$SSHD_CONFIG"
+  echo "KerberosAuthentication no" >> "$SSHD_CONFIG"
+  echo "GSSAPIAuthentication no" >> "$SSHD_CONFIG"
+  echo "X11Forwarding no" >> "$SSHD_CONFIG"
+  echo "PermitUserEnvironment no" >> "$SSHD_CONFIG" # If you add this, comment also 'AcceptEnv'
   edit_sshd_config "^AcceptEnv.*$" "#AcceptEnv LANG LC_*" 
-  echo "DebianBanner no" >> "$sshd_config"
+  echo "DebianBanner no" >> "$SSHD_CONFIG"
 
 
 
@@ -316,16 +545,16 @@ function change_some_ssh_directives() {
   # Ref: https://www.ssh.com/academy/ssh/sshd_config
   #
   # Setting persistent encryption
-  echo "Ciphers aes128-ctr,aes192-ctr,aes256-ctr" >> "$sshd_config"
-  echo "HostKeyAlgorithms ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,ssh-dss" >> "$sshd_config"
-  echo "KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256" >> "$sshd_config"
-  echo "MACs hmac-sha2-256,hmac-sha2-512,hmac-sha1" >> "$sshd_config"
+  echo "Ciphers aes128-ctr,aes192-ctr,aes256-ctr" >> "$SSHD_CONFIG"
+  echo "HostKeyAlgorithms ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,ssh-dss" >> "$SSHD_CONFIG"
+  echo "KexAlgorithms ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256" >> "$SSHD_CONFIG"
+  echo "MACs hmac-sha2-256,hmac-sha2-512,hmac-sha1" >> "$SSHD_CONFIG"
   # Managing port tunneling and forwarding
-  echo "AllowTcpForwarding no" >> "$sshd_config"
-  echo "AllowStreamLocalForwarding no" >> "$sshd_config"
-  echo "AllowAgentForwarding no" >> "$sshd_config"
-  echo "GatewayPorts no" >> "$sshd_config"
-  echo "PermitTunnel no" >> "$sshd_config"
+  echo "AllowTcpForwarding no" >> "$SSHD_CONFIG"
+  echo "AllowStreamLocalForwarding no" >> "$SSHD_CONFIG"
+  echo "AllowAgentForwarding no" >> "$SSHD_CONFIG"
+  echo "GatewayPorts no" >> "$SSHD_CONFIG"
+  echo "PermitTunnel no" >> "$SSHD_CONFIG"
 
 
   # You need to create separate sftp user cuz normal user with my .zshrc and stuff will produce: 
@@ -340,89 +569,29 @@ function change_some_ssh_directives() {
 
 
 
-function create_sftp_only_group() {
-  # Great reference: 
-  # https://www.thegeekstuff.com/2012/03/chroot-sftp-setup/
 
-  SFTP_GROUP='sftpusers'
-  SFTP_USER='sftptim'
-  SFTP_DIR='/sftp'
-
-  USERS_HOME_DIR="${SFTP_DIR}/${SFTP_USER}"
-
-  # Create a New Group
-  groupadd "$SFTP_GROUP"
-
-  # Create User
-  # make his Home directory as /incoming
-  useradd -g "$SFTP_GROUP" -d "$USERS_HOME_DIR" --shell "/usr/sbin/nologin" "$SFTP_USER"
-  set_password_for_user "$SFTP_USER"
-  
-
-  # This in sshd_config will help create a tightly restricted SFTP-only user account
-  cat <<EOF >> "$sshd_config"
-Match Group $SFTP_GROUP
-  ForceCommand internal-sftp
-  ChrootDirectory $SFTP_DIR/%u
-EOF
-# Above 'ChrootDirectory' specifies jail for 'Match'ed
-
-  # Create sftp Home Directory
-  mkdir "$SFTP_DIR"
-  # Now, under /sftp, create the individual directories for the users who are 
-  # part of the sftpusers group. i.e the users who will be allowed only 
-  # to perform sftp and will be in chroot environment.
-
-
-  # /sftp/guestuser is equivalent to / for the guestuser. 
-  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
-  # only the content of the directories under “/sftp/guestuser” 
-  # (and not the real / of the system). This is the power of the chroot.
-  mkdir "$USERS_HOME_DIR"
-  # /sftp == ChrootDirectory
-
-  # So, under this directory /sftp/guestuser, create any subdirectory that you 
-  # like user to see. For example, create a incoming directory where users can sftp their files.
-  mkdir "${USERS_HOME_DIR}/incoming"
-
-  # TODO(tim): short above 3 commands comments to one line below
-  #mkdir -p "${USERS_HOME_DIR}/incoming"
-
-
-  # Setup Appropriate Permission
-  chown "$SFTP_USER":"$SFTP_GROUP" "${USERS_HOME_DIR}/incoming"
-
-  ### Everything at the end should be like this
-  # 755 guestuser sftpusers /sftp/guestuser/incoming
-  # 755 root root /sftp/guestuser
-  # 755 root root /sftp
-  
-
-  # Extracted reused code
-  manage_ssh_keys "$USERS_HOME_DIR"
-  chown --recursive "${SFTP_USER}" "${USERS_HOME_DIR}/.ssh"
-}
 
 
 
 
 
 function test_and_restart_ssh() {
+  redhat
+  debian
   if sshd -t -q; then
-    # How to restart ssh
-    # https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
-    # TODO(tim): in original here was sshd. Find out why sshd or ssh
-
-
-    # If you want to restart the ssh server on the other machine (e.g. if you changed the config) use
-    ### sudo /etc/init.d/ssh restart
-    # Yes it is called ssh although the process is called sshd which might be confusing.
+    ### Confused about how to restart ssh (ssh or sshd):
+    # Ref: https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
     # Ref: https://serverfault.com/a/143365
-    # GOD DAMN!!! 
-    # Another conflicting Ref: https://askubuntu.com/a/462971
-    #
-    # THIS IS VERY NICE ONE!!!!: https://askubuntu.com/a/1070148
+    # Ref: https://askubuntu.com/a/462971
+    # Ref: https://askubuntu.com/a/1070148 # THIS IS VERY NICE ONE!
+    
     systemctl restart sshd
+
+    ### Yes it is called ssh although the process is called sshd which might be confusing.
+    #
+    # Does not matter because for example running:
+    # 'systemctl status mysql' will run: 'systemctl status mysqld'
+    # because it is restarting the service (deamon)
   fi
 }
 
@@ -479,33 +648,40 @@ function main() {
   #setup_basic_firewall
   
 
-  if [ "${DEBUG}" = true ]; then
+  if is_debug_on; then
     echo ""
     echo "DEBUG is On"
     echo "Log file → ${LOG_FILE}"
     echo ""
   fi
   
-  log_it "1) Initialization"                        "initialization" 
+  _logging "1) Initialization" \
+         script_initialization
   
   echo ""
-  echo "--> Creating new user '${USERNAME}' with sudo privileges"
+  echo "--> Creating new user '${USERNAME_FOR_SUDO_USER}' with sudo privileges"
   echo ""
   create_sudo_user
   echo ""
 
-  log_it "2) Managing SSH Keys"                     "handle_ssh_keys" 
-  log_it "3) Changing ${sshd_config} Directives"    "make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives"
+  _logging "2) Managing SSH Keys" \
+         setup_ssh_keys_for_given_user "$USERNAME_FOR_SUDO_USER"
+
+  _logging "3) Changing ${SSHD_CONFIG} Directives" \
+         make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives
 
   echo ""
   echo "--> Creating new SFTP-ONLY user restricted to home directory using chroot Jail"
   echo ""
-  create_sftp_only_group
+  create_sftp_only_group_and_user
   echo ""
   
-  
-  log_it "4) Testing ${sshd_config} and restarting" "test_and_restart_ssh"
-  log_it "5) Setting basic firewall rules"          "setup_basic_firewall"
+  _logging "4) Testing ${SSHD_CONFIG} and restarting" \ 
+         test_and_restart_ssh
+
+  _logging "5) Setting basic firewall rules" \ 
+         setup_basic_firewall
+
   echo "--> DONE!"
 }
 
@@ -514,3 +690,31 @@ function main() {
 
  
 main
+
+RELEASE
+
+# Check release (what OS is installed)
+function check_release() {
+  if [ -f /etc/redhat-release ]; then
+      RELEASE="centos"
+  elif grep -Eqi "debian" /etc/issue; then
+      RELEASE="debian"
+  elif grep -Eqi "ubuntu" /etc/issue; then
+      RELEASE="ubuntu"
+  elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
+      RELEASE="centos"
+  elif grep -Eqi "debian" /proc/version; then
+      RELEASE="debian"
+  elif grep -Eqi "ubuntu" /proc/version; then
+      RELEASE="ubuntu"
+  elif grep -Eqi "centos|red hat|redhat" /proc/version; then
+      RELEASE="centos"
+  fi
+
+  # Set what the os is based on
+  if [ "$RELEASE" = "centos" ]; then
+    RELEASE="redhat" # based
+  else
+    RELEASE="debian"
+  fi
+}

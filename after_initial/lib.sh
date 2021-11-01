@@ -183,23 +183,21 @@ function remove_apache_centos() {
 }
 
 
-init() {
-  # check release
-  # TODO(tim): useless cat replace with:
-  # grep -Eqi "debian" /etc/issue
+# Check release (what OS is installed)
+function check_release() {
   if [ -f /etc/redhat-release ]; then
       RELEASE="centos"
-  elif cat /etc/issue | grep -Eqi "debian"; then
+  elif grep -Eqi "debian" /etc/issue; then
       RELEASE="debian"
-  elif cat /etc/issue | grep -Eqi "ubuntu"; then
+  elif grep -Eqi "ubuntu" /etc/issue; then
       RELEASE="ubuntu"
-  elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+  elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
       RELEASE="centos"
-  elif cat /proc/version | grep -Eqi "debian"; then
+  elif grep -Eqi "debian" /proc/version; then
       RELEASE="debian"
-  elif cat /proc/version | grep -Eqi "ubuntu"; then
+  elif grep -Eqi "ubuntu" /proc/version; then
       RELEASE="ubuntu"
-  elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+  elif grep -Eqi "centos|red hat|redhat" /proc/version; then
       RELEASE="centos"
   fi
 }
@@ -291,7 +289,7 @@ function install_php() {
 }
 
 function remove_apache() {
-  init
+  check_release
 
 
   ### Stop, remove apache2 and all dependencies
@@ -652,8 +650,10 @@ function install_webuzo_apps() {
   for aid in "${WEBUZO_APPS_TO_INSTALL[@]}"; do
     # this php compiler have its own php.ini so do not worry
 
+    # TODO(tim): MAYBE TRY 4 TIMES FOR PROTECTION 
+    
     # Try thrice
-    # TODO(tim): if error would occur run same command thrice (manually it really does the work!!!)
+    # if error would occur run same command thrice (manually it really does the work!!!)
     # Need to do it that much times cuz webuzo cli is not perfect :P
 
     # Try 1st time

@@ -2,7 +2,7 @@
 #
 # Create new (sudo) user, setup firewall, manage SSH keys
 
-# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git curl && git clone https://github.com/dondontim/setup.git && cd setup
+# sudo apt-get update -y && sudo apt-get upgrade -y && apt-get install -y git && git clone https://github.com/dondontim/setup.git && cd setup
 
 # DEBIAN_FRONTEND
 # https://www.cyberciti.biz/faq/explain-debian_frontend-apt-get-variable-for-ubuntu-debian/
