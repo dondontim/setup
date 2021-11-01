@@ -131,22 +131,30 @@ function remove_apache_debian() {
 
 
   # Get list of apache dependencies and purge it
-  temp_file=$(mktemp)
-  apt list --installed | grep -i apache > "$temp_file"
-  # TODO(tim): try with aptitude but strip it
-  # aptitude search '~i!~M' | grep -i apache > "$temp_file"
+  #temp_file=$(mktemp)
+  #apt list --installed | grep -i apache > "$temp_file"
+  apt-get install -y aptitude
+  TEMP_FILE=$(mktemp)
+  aptitude search '~i!~M' | grep -i apache > "$TEMP_FILE"
 
-  ### Example output of above command
-  # i  libmysqlclient21 - MySQL database client library
-  # i  mysql-common - MySQL database common files, e.g. /etc/mysql/my.cnf
+  #while read line; do
+  #  arrIN=(${line/\// }) # // means global replace
+  #  apt-get purge -y "${arrIN[0]}"
+  #  #echo "${arrIN[0]}"
+  #done < "$temp_file"
 
   while read line; do
-    arrIN=(${line/\// }) # // means global replace
+    line=${line:3}
+    arrIN=(${line/ \-/ }) # // means global replace
+    #echo "${arrIN[0]}" 
     apt-get purge -y "${arrIN[0]}"
-    #echo "${arrIN[0]}"
-  done < "$temp_file"
+    # Above commands will get all packages that name OR description contains apache
+    # TODO(tim): do the same without description containing 'apache'
+    #grep -i "apache" "${arrIN[0]}"
+    #if [[ "${arrIN[0]}" =~ "(A|a)pache" ]]; then
+  done < "$TEMP_FILE"
 
-  rm "$temp_file"
+  rm "$TEMP_FILE"
 
 
 
