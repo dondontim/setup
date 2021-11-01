@@ -11,7 +11,7 @@ set -euo pipefail
 
 
 
-DEBUG=
+DEBUG=true
 LOG_FILE="/root/initial_server_setup.log"
 
 # Weather script have to prompt for passwords or read from below variables
@@ -64,6 +64,11 @@ PORTS_TO_BE_OPEN=(
 
 
 
+####################
+### SCRIPT LOGIC ###
+####################
+
+
 
 ########################
 ### HELPER FUNCTIONS ###
@@ -102,9 +107,6 @@ source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/s
 # Examples:
 #   _logging "Updating" \
 #          apt-get update -y && apt-get upgrade -y
-# Notes:
-#   Notes.
-
 #######################################
 function _logging() {
   if [[ $# -lt 2 ]]; then
@@ -150,6 +152,14 @@ function update_and_upgrade() {
   sudo apt-get update -y && sudo apt-get upgrade -y
 }
 
+function disable_welcome_message() {
+  # Disable welcome message - https://askubuntu.com/a/676381 
+  if [ -d "/etc/update-motd.d" ]; then 
+    chmod -x /etc/update-motd.d/* 
+    echo "--> disabled welcome msg"
+  fi
+}
+
 function check_if_running_as_root() {
   ## The main difference between EUID and UID is:
   # UID  refers to the original user and
@@ -162,9 +172,44 @@ function check_if_running_as_root() {
   fi
 }
 
+# Check release (what OS is installed)
+function check_release() {
+  if [ -f /etc/redhat-release ]; then
+      RELEASE="centos"
+  elif grep -Eqi "debian" /etc/issue; then
+      RELEASE="debian"
+  elif grep -Eqi "ubuntu" /etc/issue; then
+      RELEASE="ubuntu"
+  elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
+      RELEASE="centos"
+  elif grep -Eqi "debian" /proc/version; then
+      RELEASE="debian"
+  elif grep -Eqi "ubuntu" /proc/version; then
+      RELEASE="ubuntu"
+  elif grep -Eqi "centos|red hat|redhat" /proc/version; then
+      RELEASE="centos"
+  fi
+
+  # Set what the os is based on
+  if [ "$RELEASE" = "centos" ]; then
+    RELEASE="redhat" # based
+  else
+    RELEASE="debian"
+  fi
+
+  # if [ "$RELEASE" = "debian" ]; then
+  #   :
+  # elif [ "$RELEASE" = "redhat" ]; then
+  #   :
+  # fi 
+}
+
+
 function script_initialization() {
   
   check_if_running_as_root
+
+  check_release
 
   update_and_upgrade
 
@@ -206,6 +251,20 @@ function running_interactively() {
 }
 
 #######################################
+# Setting Up a Basic Firewall.
+# Globals: 
+#   PORTS_TO_BE_OPEN
+#######################################
+function setup_basic_firewall() {
+  for port in "${PORTS_TO_BE_OPEN[@]}"; do
+    ufw allow "$port"
+  done
+
+  # start/enable UFW firewall
+  ufw --force enable
+}
+
+#######################################
 # Replaces in file using regular expression.
 # Arguments: 
 #   Regex pattern
@@ -222,19 +281,6 @@ function replace_regex_in_file() {
   #sed --in-place -E "s/${PATTERN}/${REPL}/" "$FILE" # it was macos sed
   sed --in-place "s/${PATTERN}/${REPL}/m" "$FILE"
   # -i == --in-place
-}
-
-#######################################
-# Wrapper for function replace_regex_in_file
-#######################################
-function edit_sshd_config() {
-  local PATTERN \
-        REPL
-  PATTERN="$1"
-  REPL="$2"
-
-  # Edit ssh config - $SSHD_CONFIG
-  replace_regex_in_file "$1" "$2" "$SSHD_CONFIG"
 }
 
 #######################################
@@ -323,21 +369,6 @@ function setup_ssh_keys_for_given_user() {
 }
 
 
-
-
-
-
-####################
-### SCRIPT LOGIC ###
-####################
-
-
-
-
-
-
-
-
 #######################################
 # Create user with sudo privileges
 # Globals: 
@@ -354,8 +385,6 @@ function create_sudo_user() {
     set_password_for_user_non_interactively "$USERNAME_FOR_SUDO_USER" "$PASSWORD_FOR_SUDO_USER"
   fi
 }
-
-
 
 #######################################
 # Create tightly restricted SFTP-only user with jail and SFTP group
@@ -434,21 +463,15 @@ EOF
   # Setup Appropriate Permission
   chown "$SFTP_USER_TO_CREATE":"$SFTP_GROUP_NAME" "${SFTP_USER_HOME_DIR}/incoming"
 
-  ### Everything at the end should be like this
+  ### NOTE: Everything at the end should be like this
   # 755 guestuser sftpusers /sftp/guestuser/incoming
   # 755 root root /sftp/guestuser
   # 755 root root /sftp
   
 
-  # Extracted reused code
   setup_ssh_keys_for_given_user "$SFTP_USER_TO_CREATE"
 }
 
-
-
-################################################################################
-# Set up SSH keys                                                              #
-################################################################################
 
 
 ################################################################################
@@ -458,8 +481,21 @@ EOF
 # TODO(tim): after tests if this is enough
 # Original was this: ^PermitRootLogin.*
 
+#######################################
+# Wrapper for function replace_regex_in_file
+#######################################
+function edit_sshd_config() {
+  local PATTERN \
+        REPL
+  PATTERN="$1"
+  REPL="$2"
 
-# Create backup of current (old) $SSHD_CONFIG
+  # Edit ssh config - $SSHD_CONFIG
+  replace_regex_in_file "$1" "$2" "$SSHD_CONFIG"
+}
+
+
+# Create backup of current (old because it will be replaced) $SSHD_CONFIG
 function make_backup_of_sshd_config() {
   backup_a_file_with_current_date "$SSHD_CONFIG"
 }
@@ -568,16 +604,8 @@ function change_some_ssh_directives() {
 }
 
 
-
-
-
-
-
-
-
+# If /etc/ssh/sshd_config is correct restart SSH
 function test_and_restart_ssh() {
-  redhat
-  debian
   if sshd -t -q; then
     ### Confused about how to restart ssh (ssh or sshd):
     # Ref: https://www.cyberciti.biz/faq/how-do-i-restart-sshd-daemon-on-linux-or-unix/
@@ -594,39 +622,6 @@ function test_and_restart_ssh() {
     # because it is restarting the service (deamon)
   fi
 }
-
-
-
-
-
-################################################################################
-# Setting Up a Basic Firewall                                                  #
-################################################################################
-function setup_basic_firewall() {
-  for port in "${PORTS_TO_BE_OPEN[@]}"; do
-    ufw allow "$port"
-  done
-
-  # start/enable UFW firewall
-  ufw --force enable
-}
-
-
-
-
-function disable_welcome_message() {
-  # Disable welcome message - https://askubuntu.com/a/676381 
-  if [ -d "/etc/update-motd.d" ]; then 
-    chmod -x /etc/update-motd.d/* 
-    echo "--> disabled welcome msg"
-  fi
-}
-
-
-
-
-
-
 
 
 
@@ -690,31 +685,3 @@ function main() {
 
  
 main
-
-RELEASE
-
-# Check release (what OS is installed)
-function check_release() {
-  if [ -f /etc/redhat-release ]; then
-      RELEASE="centos"
-  elif grep -Eqi "debian" /etc/issue; then
-      RELEASE="debian"
-  elif grep -Eqi "ubuntu" /etc/issue; then
-      RELEASE="ubuntu"
-  elif grep -Eqi "centos|red hat|redhat" /etc/issue; then
-      RELEASE="centos"
-  elif grep -Eqi "debian" /proc/version; then
-      RELEASE="debian"
-  elif grep -Eqi "ubuntu" /proc/version; then
-      RELEASE="ubuntu"
-  elif grep -Eqi "centos|red hat|redhat" /proc/version; then
-      RELEASE="centos"
-  fi
-
-  # Set what the os is based on
-  if [ "$RELEASE" = "centos" ]; then
-    RELEASE="redhat" # based
-  else
-    RELEASE="debian"
-  fi
-}
