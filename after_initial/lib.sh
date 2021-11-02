@@ -114,7 +114,9 @@ function install_webuzo() {
 
 
   # This will install only Webuzo without any LAMP Stack.
-  ./install.sh --install=none # do not install httpd so port 80 is free
+  #./install.sh --install=none # do not install httpd so port 80 is free
+  ./install.sh --install=lemp
+
 
   # ./install.sh --install=lemp # This is same as below
   # ./install.sh --install=nginx,mysql,php53,perl,python2

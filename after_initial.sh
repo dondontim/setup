@@ -189,8 +189,11 @@ install_webuzo
 
 
 # TODO(tim): before installing any app SSL have to be done!
+
+
 echo ""
 echo "setup now dikm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+# TODO(tim): but in here you have to have 'bind' installed to manage DNS!!!!!!!!
 press_anything_to_continue
 
 
