@@ -133,10 +133,10 @@ WEBUZO_APPS_TO_INSTALL=(
   "136" # phpmyadmin         dep for MySQL # or maybe not really
 
   # Mail server
-  "35"  # Exim
-  "36"  # Dovecot
-  "34"  # BIND
-  "137" # SpamAssassin # Install Exim before
+  #"35"  # Exim
+  #"36"  # Dovecot
+  #"34"  # BIND
+  #"137" # SpamAssassin # Install Exim before
 
 )
 
