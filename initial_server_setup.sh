@@ -425,19 +425,6 @@ function create_sftp_only_group_and_user() {
   # to perform sftp and will be in chroot environment.
 
 
-  # /sftp/guestuser is equivalent to / for the guestuser. 
-  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
-  # only the content of the directories under “/sftp/guestuser” 
-  # (and not the real / of the system). This is the power of the chroot.
-  mkdir "$SFTP_USER_HOME_DIR"
-  # /sftp == ChrootDirectory
-
-  # So, under this directory /sftp/guestuser, create any subdirectory that you 
-  # like user to see. For example, create a incoming directory where users can sftp their files.
-  mkdir "${SFTP_USER_HOME_DIR}/incoming"
-
-  # TODO(tim): short above 3 commands comments to one line below
-  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
 
 
 
@@ -465,6 +452,30 @@ Match Group $SFTP_GROUP_NAME
   ChrootDirectory $SFTP_DIR/%u
 EOF
 # Above 'ChrootDirectory' specifies jail for 'Match'ed
+
+
+
+
+
+
+  # /sftp/guestuser is equivalent to / for the guestuser. 
+  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
+  # only the content of the directories under “/sftp/guestuser” 
+  # (and not the real / of the system). This is the power of the chroot.
+  mkdir "$SFTP_USER_HOME_DIR"
+  # /sftp == ChrootDirectory
+
+  # So, under this directory /sftp/guestuser, create any subdirectory that you 
+  # like user to see. For example, create a incoming directory where users can sftp their files.
+  mkdir "${SFTP_USER_HOME_DIR}/incoming"
+
+  # TODO(tim): short above 3 commands comments to one line below
+  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
+
+
+
+
+  
 
 
 
@@ -672,7 +683,7 @@ function main() {
          setup_ssh_keys_for_given_user "$USERNAME_FOR_SUDO_USER"
 
   _logging "3) Changing ${SSHD_CONFIG} Directives" \
-         make_backup_of_sshd_config ; change_default_ssh_port ; change_some_ssh_directives
+         make_backup_of_sshd_config && change_default_ssh_port && change_some_ssh_directives
 
   echo ""
   echo "--> Creating new SFTP-ONLY user restricted to home directory using chroot Jail"

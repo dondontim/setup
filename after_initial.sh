@@ -79,8 +79,6 @@ WEBUZO_APPS_TO_INSTALL=(
 # mysql
 # php
 
-/usr/local/emps/bin/php /usr/local/webuzo/cli.php --app_install --soft=
-
 WEBUZO_APPS_TO_INSTALL=(
   "4"   # openssl            dep for curl
   "22"  # ldap (openLDAP)    dep for curl
@@ -125,6 +123,8 @@ WEBUZO_APPS_TO_INSTALL=(
   "14"  # mcrypt             dep for php
   "7"   # bzip               dep for php
   "12"  # gettext            dep for php
+  "11"  # gdbm               dep for php
+  "130" # gmp                dep for php
   "149" # PHP 7.4
 
   "136" # phpmyadmin         dep for MySQL # or maybe not really

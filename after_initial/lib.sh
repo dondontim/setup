@@ -671,22 +671,28 @@ function install_webuzo_apps() {
     # Need to do it that much times cuz webuzo cli is not perfect :P
 
     # Try 1st time
-    if webuzo_cli --app_install --soft="$aid"; then
-      echo "super: $aid"
-    else
-      # Try 2nd time
-      if webuzo_cli --app_install --soft="$aid"; then
-        echo "super x2: $aid"
-      else
-        echo "failed twice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
-        # Try 3rd time
-        if webuzo_cli --app_install --soft="$aid"; then
-          echo "super x3: $aid"
-        else
-          echo "failed thrice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
-        fi
-      fi
-    fi
+    # if webuzo_cli --app_install --soft="$aid"; then
+    #   echo "super: $aid"
+    # else
+    #   # Try 2nd time
+    #   if webuzo_cli --app_install --soft="$aid"; then
+    #     echo "super x2: $aid"
+    #   else
+    #     echo "failed twice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
+    #     # Try 3rd time
+    #     if webuzo_cli --app_install --soft="$aid"; then
+    #       echo "super x3: $aid"
+    #     else
+    #       echo "failed thrice: $aid" |& tee -a /root/failed_install_webuzo_apps.log
+    #     fi
+    #   fi
+    # fi
+    
+    # Until it fails try again
+    # TODO(tim): This is instead of above block
+    until webuzo_cli --app_install --soft="$aid"; do
+      webuzo_cli --app_install --soft="$aid";
+    done
 
   done
 }
