@@ -95,6 +95,8 @@ function install_webuzo() {
   ##### Original installation script (October 2021)
   # https://www.webuzo.com/docs/installing-webuzo/install/
 
+  # Note : There should be no PHP, Apache, MySQL installed on the server
+
 
   open_ports
 
@@ -809,6 +811,7 @@ function restart_webuzo_services_for_prevention() {
 }
 
 
+
 #######################################
 # Description of the function.
 # Globals: 
@@ -819,4 +822,8 @@ function restart_webuzo_services_for_prevention() {
 #   Output to STDOUT or STDERR.
 # Returns: 
 #   Returned values other than the default exit status of the last command run.
+# Examples:
+#   Usage examples
+# Notes:
+#   Notes.
 #######################################

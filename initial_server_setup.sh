@@ -76,21 +76,7 @@ PORTS_TO_BE_OPEN=(
 ### HELPER FUNCTIONS ###
 ########################
 
-#######################################
-# Description of the function.
-# Globals: 
-#   List of global variables used and modified.
-# Arguments: 
-#   Arguments taken.
-# Outputs: 
-#   Output to STDOUT or STDERR.
-# Returns: 
-#   Returned values other than the default exit status of the last command run.
-# Examples:
-#   Usage examples
-# Notes:
-#   Notes.
-#######################################
+
 
 source <(curl -s https://raw.githubusercontent.com/tlatsas/bash-spinner/master/spinner.sh)
 
@@ -695,10 +681,10 @@ function main() {
   create_sftp_only_group_and_user
   echo ""
   
-  _logging "4) Testing ${SSHD_CONFIG} and restarting" \ 
+  _logging "4) Testing ${SSHD_CONFIG} and restarting" \
          test_and_restart_ssh
 
-  _logging "5) Setting basic firewall rules" \ 
+  _logging "5) Setting basic firewall rules" \
          setup_basic_firewall
 
   echo "--> DONE!"

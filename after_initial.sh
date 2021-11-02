@@ -87,6 +87,7 @@ WEBUZO_APPS_TO_INSTALL=(
   
   # RainLoop - requirements
   # https://www.rainloop.net/docs/system-requirements/
+  "20"  # pcre              dep for nginx
   "18"  # nginx              dep for rainloop
   "152" # liblzma            dep for libxml
   "13"  # libxml             dep for rainloop
@@ -185,6 +186,12 @@ install_webuzo
 
 # Source script
 . ./setup_webuzo.sh
+
+
+# TODO(tim): before installing any app SSL have to be done!
+echo ""
+echo "setup now dikm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+press_anything_to_continue
 
 
 remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
