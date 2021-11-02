@@ -120,11 +120,13 @@ WEBUZO_APPS_TO_INSTALL=(
   "59"  # tidy               dep for php
   "153" # libsodium          dep for php
   "27"  # libtool            dep for php
+  "24"  # libmcrypt          dep for mcrypt
   "14"  # mcrypt             dep for php
   "7"   # bzip               dep for php
   "12"  # gettext            dep for php
   "11"  # gdbm               dep for php
   "130" # gmp                dep for php
+  "43"  # icu                dep for php
   "149" # PHP 7.4
 
   "136" # phpmyadmin         dep for MySQL # or maybe not really

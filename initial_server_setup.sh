@@ -426,6 +426,21 @@ function create_sftp_only_group_and_user() {
 
 
 
+  # /sftp/guestuser is equivalent to / for the guestuser. 
+  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
+  # only the content of the directories under “/sftp/guestuser” 
+  # (and not the real / of the system). This is the power of the chroot.
+  mkdir "$SFTP_USER_HOME_DIR"
+  # /sftp == ChrootDirectory
+
+  # So, under this directory /sftp/guestuser, create any subdirectory that you 
+  # like user to see. For example, create a incoming directory where users can sftp their files.
+  mkdir "${SFTP_USER_HOME_DIR}/incoming"
+
+  # TODO(tim): short above 3 commands comments to one line below
+  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
+
+
 
 
 
@@ -435,7 +450,9 @@ function create_sftp_only_group_and_user() {
   # Create User
   # make his Home directory as /incoming
   # -g is for primary group and -G for supplementary group
-  useradd --create-home --home-dir "$SFTP_USER_HOME_DIR" -G "$SFTP_GROUP_NAME" --shell "/usr/sbin/nologin" "$SFTP_USER_TO_CREATE"
+
+  # --create-home
+  useradd  --home-dir "$SFTP_USER_HOME_DIR" -G "$SFTP_GROUP_NAME" --shell "/usr/sbin/nologin" "$SFTP_USER_TO_CREATE"
 
   if running_interactively; then
     set_password_for_user_interactively "$SFTP_USER_TO_CREATE"
@@ -458,19 +475,6 @@ EOF
 
 
 
-  # /sftp/guestuser is equivalent to / for the guestuser. 
-  # When guestuser sftp to the system, and performs “cd /”, they’ll be seeing
-  # only the content of the directories under “/sftp/guestuser” 
-  # (and not the real / of the system). This is the power of the chroot.
-  mkdir "$SFTP_USER_HOME_DIR"
-  # /sftp == ChrootDirectory
-
-  # So, under this directory /sftp/guestuser, create any subdirectory that you 
-  # like user to see. For example, create a incoming directory where users can sftp their files.
-  mkdir "${SFTP_USER_HOME_DIR}/incoming"
-
-  # TODO(tim): short above 3 commands comments to one line below
-  #mkdir -p "${SFTP_USER_HOME_DIR}/incoming"
 
 
 
