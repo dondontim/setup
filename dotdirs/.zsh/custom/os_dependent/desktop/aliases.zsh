@@ -64,3 +64,17 @@ function dlmp4 ytgetvideo() {
 # Kill all the tabs in Chrome to free up memory
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+
+
+
+
+function dns_check dnscheck checkdns dns dnslookup() {
+  local HOST \
+        TYPE      
+  HOST="$1"
+  TYPE="$2"
+
+  #HOST="x._domainkey.justeuro.eu"
+  #TYPE="TXT" # A | CNAME
+  open_command "https://www.dnswatch.info/dns/dnslookup?la=en&host=${HOST}&type=${TYPE}&submit=Resolve"
+}

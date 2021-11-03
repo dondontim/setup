@@ -83,6 +83,10 @@ function open_ports() {
     "993"
     "3306"
   )
+  # TODO(tim): add below ports in here
+  # 587 (SMTP over TLS),
+  # 110 (POP3),
+  # 995 (POP3S)
 
   for port in "${PORTS_TO_BE_OPEN[@]}"; do
     ufw allow "$port"
@@ -810,6 +814,9 @@ function restart_webuzo_services_for_prevention() {
   for service in "${WEBUZO_SERVICES_TO_RESTART_FOR_PREVENTION[@]}"; do
     systemctl restart "$service"
   done 
+  # TODO(tim): there is problem cuz still is exited!!!!
+  # active (exited)
+  # active (running)
 }
 
 

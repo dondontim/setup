@@ -90,6 +90,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "20"  # pcre              dep for nginx
   "18"  # nginx              dep for rainloop
   "152" # liblzma            dep for libxml
+  "23"  # libiconv           dep for libxml
   "13"  # libxml             dep for rainloop
   "20"  # pcre               dep for rainloop
 
@@ -132,11 +133,12 @@ WEBUZO_APPS_TO_INSTALL=(
 
   "136" # phpmyadmin         dep for MySQL # or maybe not really
 
+  "34"  # BIND
+  
   # Mail server
-  #"35"  # Exim
-  #"36"  # Dovecot
-  #"34"  # BIND
-  #"137" # SpamAssassin # Install Exim before
+  "35"  # Exim
+  "36"  # Dovecot
+  "137" # SpamAssassin # Install Exim before
 
 )
 

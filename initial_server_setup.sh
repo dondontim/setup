@@ -611,6 +611,9 @@ function change_some_ssh_directives() {
   # Ref: https://unix.stackexchange.com/a/327284
   edit_sshd_config "^Subsystem.*$" "Subsystem sftp internal-sftp" 
 
+  # Change LogLevel INFO to VERBOSE to have SSH log even attempts
+  edit_sshd_config "^#LogLevel.*$" "LogLevel VERBOSE" 
+
 }
 
 
@@ -692,6 +695,6 @@ function main() {
 
 
 
-
- 
+# Setup the appropriate timezone
+timedatectl set-timezone 'Europe/Amsterdam'
 main
