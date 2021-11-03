@@ -9,4 +9,5 @@ echo "Linked dotfiles. Please restart your shell. "
 for f in dotfiles/\.[^.]*; do
   FILE="$(basename $f)"
   ln -sf "$PWD/dotfiles/$FILE" "$user_to_setup_for_home_directory"
+  chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/${FILE}"
 done

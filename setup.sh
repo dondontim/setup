@@ -90,8 +90,8 @@ export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
 
 
 
-# TODO(tim): SHIT IMPORTANT!!! 
-# make 'make_symlinks.sh' and while copying to do: chown -R $user_to_setup_for dir
+# TODO(tim): SHIT IMPORTANT!!!  
+# make 'make_symlinks.sh' and while copying '.zsh' to do: chown -R $user_to_setup_for dir 
 #
 # TODO(tim): and set 644 permissions on all dotfiles
 
@@ -119,6 +119,9 @@ else
   echo "$MACHINE"
 fi
 
+
+chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.zsh"
+chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.vim"
 
 #####
 ##### Not really needed but nice things
