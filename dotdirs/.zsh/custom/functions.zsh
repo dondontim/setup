@@ -120,3 +120,7 @@ s="$@"
 print(s.lower())
 EOF
 }
+
+
+# realpath is the name of gnu realpath so decide what you want
+function relpath realpath() { python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')" ; } 

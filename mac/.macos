@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
-echo ".macos"
-exit 0
+cat <<EOF
+[.macos]
+
+! Additionaly you need to it manually:
+! How to turn off iCloud Notes sync on your Mac
+	1. Open System Preferences.
+	2. Click iCloud.
+	3. Click the checkbox next to Notes to turn off iCloud Notes sync on your Mac.
+
+EOF
 
 # Official developer.apple.com website
 # * https://developer.apple.com/documentation/devicemanagement/profile-specific_payload_keys

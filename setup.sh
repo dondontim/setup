@@ -90,7 +90,7 @@ export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
 
 
 
-# TODO(tim): SHIT IMPORTANT!!!  
+# TODO(tim): SHIT IMPORTANT!!!  YOU NEED TO COPY THE SETUP DIR TO USERS HOME DIR AND MAKE SYMLINKS FROM THERE
 # make 'make_symlinks.sh' and while copying '.zsh' to do: chown -R $user_to_setup_for dir 
 #
 # TODO(tim): and set 644 permissions on all dotfiles

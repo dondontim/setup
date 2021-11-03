@@ -143,7 +143,8 @@ alias {downloads,donwloads}="cd ~/Downloads"
 # curl ifconfig.co
 
 alias myip="curl https://ipecho.net/plain; echo"
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+# This is the recommended way cuz above have a security issues!!! You were warned
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com" 
 #alias ip="curl -4 icanhazip.com"
 alias localip="ipconfig getifaddr en0"
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
