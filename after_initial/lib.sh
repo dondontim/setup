@@ -620,7 +620,10 @@ function setup_ssl() {
 
   # Production
   #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" -d "app.${PRIMARY_DOMAIN}"
-  certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+  certbot --nginx --non-interactive --agree-tos --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+
+  # Use it
+  # --staple-ocsp   Enables OCSP Stapling. 
 
   # TODO(tim): make backup of /etc/letsencrypt
  # - Your account credentials have been saved in your Certbot
