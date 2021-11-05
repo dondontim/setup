@@ -587,11 +587,11 @@ function install_LEMP() {
 
   handle_nginx_conf_and_webroot
 
-  #create_mysql_user_and_test_mysql ################
-  #tests ################
+  create_mysql_user_and_test_mysql ################
+  tests ################
 
   # TODO(tim): Temporary commented for tests
-  #setup_ssl >> "$LOG_FILE"
+  setup_ssl >> "$LOG_FILE"
   
   # Remove current nginx domain config file
   rm "/etc/nginx/sites-available/${PRIMARY_DOMAIN}"
@@ -620,7 +620,9 @@ function setup_ssl() {
 
   # Production
   #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" -d "app.${PRIMARY_DOMAIN}"
-  certbot --nginx --non-interactive --agree-tos --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+  #certbot --nginx --non-interactive --agree-tos --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+  # Only one is set
+  certbot --nginx --non-interactive --agree-tos --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" #-d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
 
   # Use it
   # --staple-ocsp   Enables OCSP Stapling. 

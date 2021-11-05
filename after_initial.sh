@@ -134,7 +134,7 @@ WEBUZO_APPS_TO_INSTALL=(
   "136" # phpmyadmin         dep for MySQL # or maybe not really
 
   "34"  # BIND
-  
+
   # Mail server
   "35"  # Exim
   "36"  # Dovecot
@@ -178,25 +178,21 @@ source "./${lib_dir_name}/lib.sh"
 initialization |& tee -a "$LOG_FILE"
 remove_apache |& tee -a "$LOG_FILE"
 
+install_LEMP
 
+exti 0
 
-install_webuzo
+#install_webuzo
 
-# Just to test it so run it twice
-#remove_apache |& tee -a "$LOG_FILE"
 
 
 # Source script
-. ./setup_webuzo.sh
+#. ./setup_webuzo.sh
 
 
 # TODO(tim): before installing any app SSL have to be done!
 
 
-echo ""
-echo "setup now dikm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-# TODO(tim): but in here you have to have 'bind' installed to manage DNS!!!!!!!!
-press_anything_to_continue
 
 
 remove_webuzo_apps |& tee -a /root/remove_webuzo_apps.log
