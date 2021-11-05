@@ -180,7 +180,7 @@ remove_apache |& tee -a "$LOG_FILE"
 
 install_LEMP
 
-exti 0
+exit 0
 
 #install_webuzo
 
