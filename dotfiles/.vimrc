@@ -13,6 +13,17 @@ Plugin 'VundleVim/Vundle.vim'
 " Only the true one color theme https://github.com/tomasiser/vim-code-dark#installation
 Plugin 'tomasiser/vim-code-dark'
 
+
+" VIM-AIRLINE
+" https://github.com/vim-airline/vim-airline
+Plugin 'vim-airline/vim-airline'
+" https://github.com/vim-airline/vim-airline-themes
+Plugin 'vim-airline/vim-airline-themes'
+
+
+Plugin 'dikiaap/minimalist'
+
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required (enables ~/.vim/ftplugin/language.vim to apply language specific configuration)
@@ -85,8 +96,7 @@ hi Search ctermbg=LightYellow
 set ignorecase
 " Highlight dynamically as pattern is typed
 set incsearch
-" Always show status line
-set laststatus=2
+
 " Enable mouse in all modes
 set mouse=a
 " Disable error bells
@@ -99,8 +109,7 @@ set ruler
 set shortmess=atI
 " Show the current mode
 set showmode
-" Show the filename in the window titlebar
-set title
+
 " Show the (partial) command as it’s being typed
 set showcmd
 " Use relative line numbers
@@ -190,6 +199,21 @@ set autoindent " http://vimdoc.sourceforge.net/htmldoc/options.html#%27autoinden
 set smartindent " http://vimdoc.sourceforge.net/htmldoc/options.html#%27smartindent%27
 
 
+
+" Show the filename in the window titlebar
+set title
+
+" Set column separator at 80 chars
+set colorcolumn=80
+
+
+""" Vim-airline statusbar
+"
+" Always show status line
+set laststatus=2
+" Edited g:airline_section_c variable (replaced: %f to %F),
+" so edited file path is absolute
+let airline_section_c = '%<%F%m %#__accent_red#%{airline#util#wrap(airline#parts#readonly(),0)}%#__restore__#%#__accent_bold#%#__restore__#%#__accent_bold#%#__restore__#'
 
 
 

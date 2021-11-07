@@ -125,6 +125,10 @@ apt_install gawk
 # Make symlinks
 . $PWD/make_symlinks.sh
 
+
+
+exit 0
+
 ##### Install .zsh, .vim
 
 # Copy dotdirs to user_to_setup_for_home_directory

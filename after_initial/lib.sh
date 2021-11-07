@@ -227,7 +227,10 @@ function check_release() {
 
 function install_mysql() {
   # Installing MySQL
-  apt_install mysql-server
+  #apt_install mysql-server # Replaced for known reasons
+
+  apt_install mariadb-server mariadb-client
+
 
   # TODO(tim): pass in here answears to make it non-interactive
   ### Below will: 

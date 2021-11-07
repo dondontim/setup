@@ -180,6 +180,9 @@ apt_install lftp
 . $PWD/make_symlinks.sh
 
 
+exit 0
+
+
 ##### Install .zsh, .vim
 
 # Copy dotdirs to $HOME

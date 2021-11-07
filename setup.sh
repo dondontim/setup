@@ -96,6 +96,12 @@ export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
 # TODO(tim): and set 644 permissions on all dotfiles
 
 
+cp -r /root/setup "$user_to_setup_for_home_directory" && chown "${user_to_setup_for}:${user_to_setup_for}" -R "${user_to_setup_for_home_directory}/setup"
+
+cp -r "${user_to_setup_for_home_directory}/setup/.zsh" "${user_to_setup_for_home_directory}"
+cp -r "${user_to_setup_for_home_directory}/setup/.vim" "${user_to_setup_for_home_directory}"
+
+
 # . (dot) is abbreviation to source
 if [[ "$MACHINE" == "Linux" ]]; then
   echo "Linux detected!"
@@ -106,22 +112,20 @@ if [[ "$MACHINE" == "Linux" ]]; then
 
   read TYPE
   if [ "$TYPE" -eq 1 ]; then
-    . linux/desktop/setup.sh
+    source linux/desktop/setup.sh
   elif [ "$TYPE" -eq 2 ]; then
-    . linux/server/setup.sh
+    source linux/server/setup.sh
   else
     echo "Wrong choice! Exiting..."
     exit 1
   fi
 elif [[ "$MACHINE" == "Mac" ]]; then
-  . mac/setup.sh
+  source mac/setup.sh
 else
   echo "$MACHINE"
 fi
 
 
-chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.zsh"
-chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.vim"
 
 #####
 ##### Not really needed but nice things

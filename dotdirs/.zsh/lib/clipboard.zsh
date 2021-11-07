@@ -120,11 +120,11 @@ alias trim_copy="tr -d '\n' | clipcopy"
 
 ### Trim the last newline that is always added at the end
 # head -c -1 deletes one byte from the end
-alias clipcopy="head -c -1 | clipcopy"
-alias clippaste="head -c -1 | clippaste"
+alias clipcopy-1="head -c -1 | clipcopy"
+alias clippaste-1="head -c -1 | clippaste"
 
-alias copy='clipcopy'
-alias paste='clippaste'
+alias copy='clipcopy-1'
+alias paste='clippaste-1'
 
 # Copy working directory to clipboard
 CWD="pwd | clipcopy"

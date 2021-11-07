@@ -124,3 +124,54 @@ EOF
 
 # realpath is the name of gnu realpath so decide what you want
 function relpath realpath() { python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')" ; } 
+
+
+
+# TODO(tim): finish it!!!!
+function get_line_from_file() {
+  local FILE \
+        START_LINE \
+        END_LINE
+  FILE="$1"
+  START_LINE="$2"
+  END_LINE="$3"
+
+  if [[ "$@" -lt 3 ]]; then
+    sed "2,4!d" "$FILE"
+  else
+    sed '2!d' "$FILE"
+  fi
+}
+
+
+
+
+## For line in file example
+# while read in; do chmod 755 "$in"; done < file.txt
+
+
+function get_files_nr() {
+  # Recursively counting files in a directory
+  #find . -type f | wc -l
+
+  # counting lines of ls (files and directories) without dotfiles/directories
+  ls -1 | wc -l
+}
+
+
+function sftp ftp() {
+  echo "lftp -u tim, sftp://190.92.134.248:7822"
+}
+
+
+
+
+# Not so good ;(
+function GET() {
+  # https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
+  curl -X GET "$@"
+}
+function POST() {
+  # https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
+  curl -X POST "$@"
+}

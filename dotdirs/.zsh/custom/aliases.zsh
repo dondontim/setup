@@ -44,6 +44,8 @@ alias which='which -a'
 
 alias lsl='ls -lF'
 alias lsa='ls -AF'
+# ADD -i is to see memory location to check if file is hard linked
+alias lsi='ls -lAFhi'
 alias {lsla,l,ll,la,lslla,lslsa,lslah}='ls -lAFh' # h for human-readable filesize
 alias lslh='ls -lh'
 
@@ -85,11 +87,11 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-alias G="grep"
-alias Gi="grep -i"
-alias L="less"
-alias C="copy" # 'copy' is alias of 'clipcopy' from lib/clipboard.zsh
-alias devnull="2> /dev/null"
+alias G="| grep"
+alias Gi="| grep -i"
+alias L="| less"
+alias C="| copy" # 'copy' is alias of 'clipcopy' from lib/clipboard.zsh
+alias {2devnull,errdevnull}="2> /dev/null"
 
 
 # Start calculator with math support
@@ -204,8 +206,20 @@ alias hi='highlight'
 
 
 
+
+
+
+
+alias {list_groups,listgroups,list_all_groups}='cut -d: -f1 /etc/group | sort'
+alias {list_users,listusers,list_all_users}='cut -d: -f1 /etc/passwd | sort'
+
+alias {split_by_space}="| sed 's/ /\n/g'"
+
+
+
+
 #######################################
-# Mis-spelled commands
+# Mis-spelled commands QWERTY Keyboard
 #######################################
 
 alias {bim,cim}='vim'
@@ -218,3 +232,9 @@ alias {pyython,pytohn,pyhton}='python'
 alias {relaod,reoad,reloda}='reload'
 alias {celear,cear,claer}='clear'
 alias {exi,xit}="exit"
+
+
+
+#######################################
+# Mis-spelled commands Dvorak Keyboard
+#######################################
