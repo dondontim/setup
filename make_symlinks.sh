@@ -6,11 +6,13 @@
 
 # Create symlinks to all dotfiles from and ~/
 
-#[ -e "$f" ] || continue
-#FILE="$(basename "$f")"
 for f in "${user_to_setup_for_home_directory}"/setup/dotfiles/.*; do
-
-  ln -sf "$f" "$user_to_setup_for_home_directory"
+  [ -e "$f" ] || continue
+  FILE="$(basename "$f")"
+  [ "$FILE" = "." ] && continue
+  [ "$FILE" = ".." ] && continue
+  #echo "${user_to_setup_for_home_directory}/${FILE}"
+  ln -sf "$f" "${user_to_setup_for_home_directory}/${FILE}"
 done
 
 #echo "${user_to_setup_for_home_directory}/setup/dotfiles/${FILE}"

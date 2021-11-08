@@ -107,6 +107,28 @@ cp -r /root/setup "$user_to_setup_for_home_directory" && {
 
 
 
+
+# Make symlinks
+source "${user_to_setup_for_home_directory}/setup/make_symlinks.sh"
+
+
+# Switch to zsh as default shell
+function update_users_default_shell() {
+  # This would update root's shell
+  #chsh -s "$(which zsh)"
+
+  delimeter="${user_to_setup_for_home_directory}:"
+  ETC_PASSWD='/etc/passwd'
+  LINE="$(cat ${ETC_PASSWD} | grep "${delimeter}")"
+  REPLACEMENT="$(echo "${LINE}" | sed "s;${delimeter}.*;;")${delimeter}$(which zsh)"
+  sed -i "s;${LINE};${REPLACEMENT};" "${ETC_PASSWD}"
+}
+
+update_users_default_shell
+
+
+
+
 if [[ "$MACHINE" == "Linux" ]]; then
   echo "Linux detected!"
   echo "Hi $(whoami) !"
@@ -130,24 +152,6 @@ else
 fi
 
 
-
-# Make symlinks
-source "${user_to_setup_for_home_directory}/setup/make_symlinks.sh"
-
-
-# Switch to zsh as default shell
-function update_users_default_shell() {
-  # This would update root's shell
-  #chsh -s "$(which zsh)"
-
-  delimeter="${user_to_setup_for_home_directory}:"
-  ETC_PASSWD='/etc/passwd'
-  LINE="$(cat ${ETC_PASSWD} | grep "${delimeter}")"
-  REPLACEMENT="$(echo "${LINE}" | sed "s;${delimeter}.*;;")${delimeter}$(which zsh)"
-  sed -i "s;${LINE};${REPLACEMENT};" "${ETC_PASSWD}"
-}
-
-update_users_default_shell
 
 
 #####
