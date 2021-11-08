@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 
-# Make symlinks
-. $PWD/make_symlinks.sh
+
 # Symlink only MacOS .dotfiles
 ln -sf "${user_to_setup_for_home_directory}/setup/mac/.mdqlstyle.css" "$user_to_setup_for_home_directory"
 ln -sf "${user_to_setup_for_home_directory}/setup/mac/.wakeup" "$user_to_setup_for_home_directory"

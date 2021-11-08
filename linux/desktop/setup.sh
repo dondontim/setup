@@ -49,8 +49,6 @@ function apt_install() {
 
 apt_install zsh
 
-# Switch to zsh as default shell
-chsh -s "$(which zsh)"
 
 # Command to unzip an archive (COMMENTED CUZ WE HAVE EXTRACT FUNCTION)
 #apt_install unzip # Example: unzip file.zip -d destination_folder
@@ -176,8 +174,7 @@ apt_install lftp
 
 
 
-# Make symlinks
-. $PWD/make_symlinks.sh
+
 
 
 exit 0

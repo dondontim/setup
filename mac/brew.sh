@@ -79,8 +79,7 @@ brew_install bash-completion2
 #fi;
 
 
-# Switch to zsh as default shell
-chsh -s $(which zsh)
+
 
 # Install `wget` with IRI support.
 brew_install wget --with-iri

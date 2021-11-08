@@ -79,7 +79,7 @@ while true; do
   fi
 done
 export user_to_setup_for
-export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
+export user_to_setup_for_home_directory=$(eval echo "~${user_to_setup_for}")
 
 
 
@@ -90,16 +90,19 @@ export user_to_setup_for_home_directory=$(eval echo "~$user_to_setup_for")
 
 
 
+
 # TODO(tim): SHIT IMPORTANT!!!  YOU NEED TO COPY THE SETUP DIR TO USERS HOME DIR AND MAKE SYMLINKS FROM THERE
 # make 'make_symlinks.sh' and while copying '.zsh' to do: chown -R $user_to_setup_for dir 
 #
 # TODO(tim): and set 644 permissions on all dotfiles
 
 
-cp -r /root/setup "$user_to_setup_for_home_directory" && chown "${user_to_setup_for}:${user_to_setup_for}" -R "${user_to_setup_for_home_directory}/setup"
+cp -r /root/setup "$user_to_setup_for_home_directory" && {
+  chown "${user_to_setup_for}:${user_to_setup_for}" -R "${user_to_setup_for_home_directory}/setup"
+  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.zsh" "${user_to_setup_for_home_directory}" 
+  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.vim" "${user_to_setup_for_home_directory}"
+}
 
-cp -r "${user_to_setup_for_home_directory}/setup/.zsh" "${user_to_setup_for_home_directory}"
-cp -r "${user_to_setup_for_home_directory}/setup/.vim" "${user_to_setup_for_home_directory}"
 
 
 # . (dot) is abbreviation to source
@@ -125,6 +128,25 @@ else
   echo "$MACHINE"
 fi
 
+
+
+# Make symlinks
+. $PWD/make_symlinks.sh
+
+
+# Switch to zsh as default shell
+function update_users_default_shell() {
+  # This would update root's shell
+  #chsh -s "$(which zsh)"
+
+  delimeter="${user_to_setup_for_home_directory}:"
+  ETC_PASSWD='/etc/passwd'
+  LINE="$(cat ${ETC_PASSWD} | grep "${delimeter}")"
+  REPLACEMENT="$(echo "${LINE}" | sed "s;${delimeter}.*;;")${delimeter}$(which zsh)"
+  sed -i "s;${LINE};${REPLACEMENT};" "${ETC_PASSWD}"
+}
+
+update_users_default_shell
 
 
 #####
