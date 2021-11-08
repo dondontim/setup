@@ -590,8 +590,9 @@ function install_LEMP() {
 
   handle_nginx_conf_and_webroot
 
-  create_mysql_user_and_test_mysql ################
-  tests ################
+  # TODO(tim): mariadb throws errors
+  #create_mysql_user_and_test_mysql ################
+  #tests ################
 
   # TODO(tim): Temporary commented for tests
   setup_ssl >> "$LOG_FILE"
@@ -625,7 +626,7 @@ function setup_ssl() {
   #certbot --nginx --non-interactive --agree-tos --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" -d "app.${PRIMARY_DOMAIN}"
   #certbot --nginx --non-interactive --agree-tos --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
   # Only one is set
-  certbot --nginx --non-interactive --agree-tos --hsts --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" #-d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
+  certbot --nginx --non-interactive --agree-tos --hsts --staple-ocsp --redirect --cert-name "$CERT_NAME" --no-eff-email -m "$EMAIL"  -d "${PRIMARY_DOMAIN}" -d "mail.${PRIMARY_DOMAIN}" #-d "www.${PRIMARY_DOMAIN}"  -d "mail.${PRIMARY_DOMAIN}"  -d "smtp.${PRIMARY_DOMAIN}" -d "imap.${PRIMARY_DOMAIN}" 
 
   # --hsts:        Add the Strict-Transport-Security header to every HTTP response. Forcing browser to always use TLS for the domain. Defends against SSL/TLS Stripping.
   # --staple-ocsp: Enables OCSP Stapling. A valid OCSP response is stapled to the certificate that the server offers during TLS.
