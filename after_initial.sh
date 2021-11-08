@@ -2,7 +2,7 @@
 #
 # 
 
-#set -euo pipefail
+set -e
 
 
 
@@ -171,8 +171,10 @@ source "./${lib_dir_name}/lib.sh"
 ### SCRIPT LOGIC ###
 ####################
 
-#initialization >> "$LOG_FILE"
-#remove_apache >> "$LOG_FILE"
+
+# sudo kill -9 <process_id>
+# sudo killall apt apt-get
+
 
 # Redirect stdout and stderr to terminal and file
 initialization |& tee -a "$LOG_FILE"
