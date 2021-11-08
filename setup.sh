@@ -113,6 +113,7 @@ source "${user_to_setup_for_home_directory}/setup/make_symlinks.sh"
 
 
 # Switch to zsh as default shell
+# TODO(tim): this didnt work as intended!!! leaves empty /etc/passwd
 function update_users_default_shell() {
   # This would update root's shell
   #chsh -s "$(which zsh)"
@@ -124,7 +125,7 @@ function update_users_default_shell() {
   sed -i "s;${LINE};${REPLACEMENT};" "${ETC_PASSWD}"
 }
 
-update_users_default_shell
+#update_users_default_shell
 
 
 
@@ -152,6 +153,7 @@ else
 fi
 
 
+exit 0
 
 
 #####

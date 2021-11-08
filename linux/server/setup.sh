@@ -121,17 +121,7 @@ apt_install gawk
 
 cp "${user_to_setup_for_home_directory}/setup/linux/server/.zshrc_linux_server" "${user_to_setup_for_home_directory}/.zsh/.zshrc"
 
-exit 0
 
-##### Install .zsh, .vim
-
-# Copy dotdirs to user_to_setup_for_home_directory
-cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $user_to_setup_for_home_directory/ && {
-  # Copy custom zsh per machine
-  cp $PWD/linux/server/.zshrc_linux_server $user_to_setup_for_home_directory/.zsh/.zshrc
-} || {
-  echo "problem with dotdirs copying"
-}
 
 # Install Vundle
 # $ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim

@@ -45,19 +45,3 @@ ln -sf "${user_to_setup_for_home_directory}/setup/mac/.plug" "$user_to_setup_for
 
 
 cp "${user_to_setup_for_home_directory}/setup/mac/.zshrc_mac" "${user_to_setup_for_home_directory}/.zsh/.zshrc"
-
-exit 0
-
-
-
-
-##### Install .zsh, .vim
-
-# Copy dotdirs to $user_to_setup_for_home_directory
-cp -R $PWD/dotdirs/.zsh $PWD/dotdirs/.vim $user_to_setup_for_home_directory/ && {
-  # Copy custom zsh per machine
-  cp $PWD/mac/.zshrc_mac $user_to_setup_for_home_directory/.zsh/.zshrc
-} || {
-  echo "problem with dotdirs copying"
-}
-
