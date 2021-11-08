@@ -174,7 +174,7 @@ apt_install lftp
 
 
 
-
+cp "${user_to_setup_for_home_directory}/setup/linux/desktop/.zshrc_linux_desktop" "${user_to_setup_for_home_directory}/.zsh/.zshrc"
 
 
 exit 0

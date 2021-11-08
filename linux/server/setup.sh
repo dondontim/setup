@@ -119,7 +119,7 @@ apt_install gawk
 
 
 
-
+cp "${user_to_setup_for_home_directory}/setup/linux/server/.zshrc_linux_server" "${user_to_setup_for_home_directory}/.zsh/.zshrc"
 
 exit 0
 

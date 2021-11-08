@@ -44,7 +44,7 @@ ln -sf "${user_to_setup_for_home_directory}/setup/mac/.plug" "$user_to_setup_for
 # TODO(tim): Import vscode settings and stuff
 
 
-
+cp "${user_to_setup_for_home_directory}/setup/mac/.zshrc_mac" "${user_to_setup_for_home_directory}/.zsh/.zshrc"
 
 exit 0
 

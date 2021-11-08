@@ -132,7 +132,7 @@ fi
 
 
 # Make symlinks
-. $PWD/make_symlinks.sh
+source "${user_to_setup_for_home_directory}/setup/make_symlinks.sh"
 
 
 # Switch to zsh as default shell
