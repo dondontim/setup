@@ -98,9 +98,9 @@ export user_to_setup_for_home_directory=$(eval echo "~${user_to_setup_for}")
 
 
 cp -r /root/setup "$user_to_setup_for_home_directory" && {
-  chown "${user_to_setup_for}:${user_to_setup_for}" -R "${user_to_setup_for_home_directory}/setup"
-  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.zsh" "${user_to_setup_for_home_directory}" 
-  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.vim" "${user_to_setup_for_home_directory}"
+  chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/setup"
+  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.zsh" "${user_to_setup_for_home_directory}/.zsh" 
+  cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.vim" "${user_to_setup_for_home_directory}/.vim"
 }
 
 
