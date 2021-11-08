@@ -101,11 +101,12 @@ cp -r /root/setup "$user_to_setup_for_home_directory" && {
   chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/setup"
   cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.zsh" "${user_to_setup_for_home_directory}/.zsh" 
   cp -r "${user_to_setup_for_home_directory}/setup/dotdirs/.vim" "${user_to_setup_for_home_directory}/.vim"
+  chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.zsh"
+  chown -R "${user_to_setup_for}:${user_to_setup_for}" "${user_to_setup_for_home_directory}/.vim"
 }
 
 
 
-# . (dot) is abbreviation to source
 if [[ "$MACHINE" == "Linux" ]]; then
   echo "Linux detected!"
   echo "Hi $(whoami) !"
