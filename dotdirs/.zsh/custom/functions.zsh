@@ -175,3 +175,11 @@ function POST() {
   # https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
   curl -X POST "$@"
 }
+
+
+function pwgenm pwgenmachine() {
+  pwgen --secure -1 --capitalize --numerals --symbols --remove-chars='#' 15 1
+}
+function pwgenn pwgennormal() {
+  pwgen -1 --capitalize --numerals --symbols --remove-chars='#`\|' 15 1
+}

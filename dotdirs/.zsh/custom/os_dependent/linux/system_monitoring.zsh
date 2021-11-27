@@ -58,8 +58,7 @@ alias {free,meminfo}='free -mt'
 alias ps="ps auxf"
 
 # Search our process for an argument we’ll pass:
-alias psg="ps aux | grep -v grep | grep -i -e VSZ -e"
-alias pss='psg'
+alias {psg,pss}="ps aux | grep -v grep | grep -i -e VSZ -e"
 # Example: psg bash, psg mysql
 
 

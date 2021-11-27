@@ -53,12 +53,17 @@ alias pomodoro='pydoro'
 # Downloads a .mp3 file
 # Extract audio from video
 # if you ever wish to uninstall youtube-dl run: brew remove ffmpeg && brew remove youtube-dl
-function dlmp3 ytgetaudio() {
-  sudo youtube-dl --extract-audio --audio-format mp3 $1
+function dlmp3 ytgetaudio ytgetbestaudio() {
+  #sudo youtube-dl --extract-audio --audio-format mp3 "$1"
+
+  # From: https://askubuntu.com/questions/634584/how-to-download-youtube-videos-as-a-best-quality-audio-mp3-using-youtube-dl
+  # To get list of all yt video/audio formats
+  sudo youtube-dl -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 "$@"
 }
 
+
 function dlmp4 ytgetvideo() {
-  youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' $1
+  youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' "$1"
 }
 
 # Kill all the tabs in Chrome to free up memory

@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# 
+# First script you want to run on your fresh machine after installing ubuntu
 
 # Ref: https://www.digitalocean.com/community/tutorials/automating-initial-server-setup-with-ubuntu-18-04
 
 
-
 set -euo pipefail
+
 
 # curl have to be installed to proceed with script
 apt-get install curl -y
@@ -16,7 +16,7 @@ apt-get install curl -y
 DEBUG=true
 LOG_FILE="/root/initial_server_setup.log"
 
-# Weather script have to prompt for passwords or read from below variables
+# Weather script have to prompt for passwords or read them from below variables
 INTERACTIVE=false
 
 USERNAME_FOR_SUDO_USER='tim'
@@ -29,6 +29,8 @@ PASSWORD_FOR_SFTP_USER='tymek2002'
 
 
 SSHD_CONFIG='/etc/ssh/sshd_config'
+
+TIMEZONE='Europe/Amsterdam'
 #remote_machine_public_ip=$(curl -s https://ipecho.net/plain; echo)
 #file_templates_dir="${PWD}/z_file_templates"
 
@@ -198,7 +200,8 @@ function script_initialization() {
   
   check_if_running_as_root
 
-  check_release
+  # TODO(tim): use this $RELEASE variable to make this script universal for RHEL also
+  check_release 
 
   update_and_upgrade
 
@@ -464,14 +467,14 @@ EOF
 
 
 
-
-  
-
-
-
-
   # Setup Appropriate Permission
   chown "$SFTP_USER_TO_CREATE":"$SFTP_GROUP_NAME" "${SFTP_USER_HOME_DIR}/incoming"
+
+
+  ### OPTIONALY: you can logicaly separate the dir for IN and OUT files
+  mkdir "${SFTP_USER_HOME_DIR}/outgoing"
+  chown "$SFTP_USER_TO_CREATE":"$SFTP_GROUP_NAME" "${SFTP_USER_HOME_DIR}/outgoing"
+
 
   ### NOTE: Everything at the end should be like this
   # 755 guestuser sftpusers /sftp/guestuser/incoming
@@ -655,6 +658,9 @@ function main() {
   #test_and_restart_ssh
   #setup_basic_firewall
   
+  # Setup the appropriate timezone
+  
+  timedatectl set-timezone "$TIMEZONE"
 
   if is_debug_on; then
     echo ""
@@ -695,6 +701,5 @@ function main() {
 
 
 
-# Setup the appropriate timezone
-timedatectl set-timezone 'Europe/Amsterdam'
+
 main

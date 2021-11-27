@@ -1,11 +1,6 @@
 alias {show_ports,showports,show_listening_ports}='netstat -tuplen'
 
-function pwgenm pwgenmachine() {
-  pwgen --secure -1 --capitalize --numerals --symbols --remove-chars='#' 15 1
-}
-function pwgenn pwgennormal() {
-  pwgen -1 --capitalize --numerals --symbols --remove-chars='#`\|' 15 1
-}
+
 
 alias root="sudo su -"
 # That way I can root to switch to root or even root someuser to switch to someuser.

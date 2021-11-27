@@ -737,7 +737,10 @@ auto_globals_jit = On
 ; http://php.net/post-max-size
 ; Secure: 256K
 ; Normal:   8M
-post_max_size = 4M
+; post_max_size = 4M
+; 15M because max mail size (including headers is 20M (in main.cf))
+; and because we use roundcube webmail
+post_max_size = 15M
 
 ; Automatically add files before PHP document.
 ; http://php.net/auto-prepend-file
@@ -898,7 +901,10 @@ upload_tmp_dir = /var/lib/php/tmp_upload
 ; http://php.net/upload-max-filesize
 ; Secure: 1M
 ; Normal: 2M
-upload_max_filesize = 1M
+; upload_max_filesize = 1M
+; 15M because max mail size (including headers is 20M (in main.cf))
+; and because we use roundcube webmail
+upload_max_filesize = 15M
 
 ; Maximum number of files that can be uploaded via a single request
 max_file_uploads = 20
@@ -1015,6 +1021,7 @@ cli_server.color = On
 ; Defines the default timezone used by the date functions
 ; http://php.net/date.timezone
 ;date.timezone =
+date.timezone=Europe/Amsterdam
 
 ; http://php.net/date.default-latitude
 ;date.default_latitude = 31.7667

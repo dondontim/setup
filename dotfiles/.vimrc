@@ -205,6 +205,9 @@ set title
 
 " Set column separator at 80 chars
 set colorcolumn=80
+" Set column separator color
+" hi is short for highlight
+highlight ColorColumn ctermbg=lightcyan guibg=blue
 
 
 """ Vim-airline statusbar
