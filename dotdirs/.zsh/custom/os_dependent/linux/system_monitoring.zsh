@@ -1,3 +1,19 @@
+# TODO(tim): List all files installed by an apt package !!!!!!!!!!!! DO aliases to it!!!!!!!!!
+# https://serverfault.com/questions/96964/list-of-files-installed-from-apt-package
+
+
+# TODO(tim): Finish these below in aliases/functions
+# 
+# | apt show <package name>
+# How to know the version of installed package?
+# | apt-cache policy <package name>
+# How to install a specific package version?
+# | sudo apt-get install <package name>=<version>
+
+
+
+
+
 #######################################
 # Monitoring system stats (CPU GPU RAM)
 # this is identical as in server.zsh
@@ -22,6 +38,9 @@ alias cpuinfo='lscpu'
 
 # Interactive process viewer
 alias top="htop"
+
+
+
 
 
 

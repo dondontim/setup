@@ -275,7 +275,7 @@ function replace_php_ini() {
     # Create backup or old php.ini
     mv $phpini_main_config_file_path "${phpini_main_config_file_path}.${date}.bak"
     # Move new php.ini to the place of old one
-    cp "${file_templates_dir}/php.ini.example" $phpini_main_config_file_path
+    cp "${file_templates_dir}/php.ini" $phpini_main_config_file_path
   fi
 
 }
