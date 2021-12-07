@@ -171,7 +171,7 @@ wget git.io/trans && chmod +x ./trans && mv ./trans ~/bin
 apt_install lftp
 
 
-
+apt_install exiftool
 
 
 cp "${user_to_setup_for_home_directory}/setup/linux/desktop/.zshrc_linux_desktop" "${user_to_setup_for_home_directory}/.zsh/.zshrc"

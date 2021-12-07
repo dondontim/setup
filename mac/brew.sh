@@ -295,7 +295,7 @@ brew_install gawk
 
 
 
-
+brew_install exiftool
 
 
 

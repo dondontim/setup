@@ -221,10 +221,11 @@ let airline_section_c = '%<%F%m %#__accent_red#%{airline#util#wrap(airline#parts
 
 
 """""""""""""""""""""""""" INSTALATION """""""""""""""""""""""""""""""""""""""""
+" TODO(tim): it is required to install Plugins
+"""""""""""""""""""""""""" INSTALATION """""""""""""""""""""""""""""""""""""""""
 
 " Install Vundle
 "git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
 
 
 " Install Plugins:
